@@ -73,8 +73,17 @@ function App() {
             handleHighlights();
         }
 
+        // Listen for tab updates (URL changes in SPA)
+        const onTabUpdated = (tabId: number, changeInfo: chrome.tabs.TabChangeInfo, tab: chrome.tabs.Tab) => {
+            if ((changeInfo.status === 'complete' || changeInfo.url) && tab.active) {
+                handleHighlights();
+            }
+        };
+        chrome.tabs.onUpdated.addListener(onTabUpdated);
+
         return () => {
             isActive = false;
+            chrome.tabs.onUpdated.removeListener(onTabUpdated);
             // Clear highlights when sidepanel unmounts or changes view
             chrome.tabs.query({ active: true, currentWindow: true }).then((tabs) => {
                 if (tabs.length > 0 && tabs[0].id) {

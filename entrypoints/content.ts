@@ -92,32 +92,80 @@ export default defineContentScript({
             return Array.from(words);
         };
 
+        // -------------------------------------------------------------
+        // Highlight State and Reactive Logic
+        // -------------------------------------------------------------
+        let currentHeadwords: string[] = [];
+        let mutationObserver: MutationObserver | null = null;
+        let debounceTimer: number | null = null;
+
+        const applyHighlights = () => {
+            if (currentHeadwords.length === 0) return;
+
+            const ranges = findWordRanges(currentHeadwords);
+            if (ranges.length > 0 && typeof CSS !== 'undefined' && 'highlights' in CSS) {
+                try {
+                    // @ts-ignore
+                    const highlight = new Highlight(...ranges);
+                    // @ts-ignore
+                    CSS.highlights.set('seld-match', highlight);
+                } catch (e) {
+                    console.error("Failed to register highlights:", e);
+                }
+            }
+        };
+
+        const setupObserver = () => {
+            if (mutationObserver) return;
+
+            mutationObserver = new MutationObserver((mutations) => {
+                // Check if any added nodes contain text
+                const hasTextChanges = mutations.some(m =>
+                    m.addedNodes.length > 0 ||
+                    m.type === 'characterData'
+                );
+
+                if (hasTextChanges) {
+                    if (debounceTimer) clearTimeout(debounceTimer);
+                    // @ts-ignore - window.setTimeout returns a number in browsers
+                    debounceTimer = setTimeout(() => {
+                        applyHighlights();
+                    }, 500); // 500ms debounce to wait for DOM to settle
+                }
+            });
+
+            mutationObserver.observe(document.body, {
+                childList: true,
+                subtree: true,
+                characterData: true
+            });
+        };
+
+        const clearAll = () => {
+            currentHeadwords = [];
+            if (debounceTimer) clearTimeout(debounceTimer);
+            if (mutationObserver) {
+                mutationObserver.disconnect();
+                mutationObserver = null;
+            }
+            if (typeof CSS !== 'undefined' && 'highlights' in CSS) {
+                // @ts-ignore
+                CSS.highlights.delete('seld-match');
+            }
+        };
+
         // Listen for requests from the SidePanel
         chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             if (message.action === 'REQUEST_WORDS') {
                 const uniqueWords = extractUniqueSinhalaWords();
                 sendResponse({ words: uniqueWords });
             } else if (message.action === 'APPLY_HIGHLIGHTS') {
-                const headwords = message.words || [];
-                const ranges = findWordRanges(headwords);
-
-                if (ranges.length > 0 && typeof CSS !== 'undefined' && 'highlights' in CSS) {
-                    try {
-                        // Using CSS Custom Highlight API
-                        // @ts-ignore
-                        const highlight = new Highlight(...ranges);
-                        // @ts-ignore
-                        CSS.highlights.set('seld-match', highlight);
-                    } catch (e) {
-                        console.error("Failed to register highlights:", e);
-                    }
-                }
-                sendResponse({ success: true, count: ranges.length });
+                currentHeadwords = message.words || [];
+                applyHighlights();
+                setupObserver();
+                sendResponse({ success: true, count: currentHeadwords.length });
             } else if (message.action === 'CLEAR_HIGHLIGHTS') {
-                if (typeof CSS !== 'undefined' && 'highlights' in CSS) {
-                    // @ts-ignore
-                    CSS.highlights.delete('seld-match');
-                }
+                clearAll();
                 sendResponse({ success: true });
             }
             return true;
