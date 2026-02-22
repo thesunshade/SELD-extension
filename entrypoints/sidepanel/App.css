@@ -59,8 +59,8 @@ body {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  padding: 12px;
-  gap: 12px;
+  padding: 8px;
+  gap: 2px;
   font-size: var(--font-size-percent, 100%);
   /* Scaling point */
 }
@@ -101,7 +101,7 @@ body {
 
 /* Section 1: Search */
 .search-section {
-  padding: 8px;
+  padding: 2px;
   flex-shrink: 0;
 }
 

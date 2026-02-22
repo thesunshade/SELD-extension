@@ -171,7 +171,7 @@ function App() {
 
             {view === 'search' && (
                 <>
-                    <div className="search-section glassmorphism">
+                    <div className="search-section">
                         <input type="text" value={query} onChange={(e) => { setQuery(e.target.value); handleSearch(e.target.value); }} placeholder="Search..." className="search-input" />
                     </div>
                     <div className="content-area">
