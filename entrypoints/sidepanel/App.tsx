@@ -20,6 +20,8 @@ function App() {
     const selectedRef = useRef<HTMLDivElement>(null);
     const isResizing = useRef(false);
 
+    const isInitialized = useRef(false);
+
     useEffect(() => {
         // Load settings
         chrome.storage.local.get(['theme', 'fontSize', 'seldLookupEnabled', 'listHeight'], (res) => {
@@ -29,16 +31,60 @@ function App() {
             if (res.listHeight) setListHeight(res.listHeight);
         });
 
+        // Load session state and check for a new query
+        chrome.storage.local.get(['seldSearchQuery'], (localRes) => {
+            const newQueryFromClick = localRes.seldSearchQuery;
+
+            chrome.storage.session.get(['view', 'query', 'selectedWord'], async (sessionRes) => {
+                let currentQuery = newQueryFromClick || sessionRes.query || '';
+                let currentSelected = newQueryFromClick ? null : (sessionRes.selectedWord || null);
+
+                if (sessionRes.view && !newQueryFromClick) setView(sessionRes.view as View);
+                else if (newQueryFromClick) setView('search');
+
+                if (currentQuery) {
+                    setQuery(currentQuery);
+                    const matches = await stardict.searchWords(currentQuery, 30);
+                    setResults(matches);
+                    if (currentSelected) {
+                        setSelectedWord(currentSelected);
+                        const def = await stardict.getDefinition(currentSelected);
+                        setDefinition(def);
+                    } else if (matches.length > 0) {
+                        const exact = matches.find(m => m.word === currentQuery);
+                        const wordToSelect = exact ? exact.word : matches[0].word;
+                        setSelectedWord(wordToSelect);
+                        const def = await stardict.getDefinition(wordToSelect);
+                        setDefinition(def);
+                    }
+                }
+                isInitialized.current = true;
+
+                // Consume the local storage query so it doesn't reopen next time
+                if (newQueryFromClick) {
+                    chrome.storage.local.remove('seldSearchQuery');
+                }
+            });
+        });
+
         const handleStorageChange = (changes: any, namespace: string) => {
-            if (namespace === 'local' && changes.seldSearchQuery) {
-                setQuery(changes.seldSearchQuery.newValue);
-                handleSearch(changes.seldSearchQuery.newValue);
+            if (namespace === 'local' && changes.seldSearchQuery && changes.seldSearchQuery.newValue) {
+                const newQuery = changes.seldSearchQuery.newValue;
+                setQuery(newQuery);
+                handleSearch(newQuery);
                 setView('search');
+                chrome.storage.local.remove('seldSearchQuery');
             }
         };
         chrome.storage.onChanged.addListener(handleStorageChange);
         return () => chrome.storage.onChanged.removeListener(handleStorageChange);
     }, []);
+
+    useEffect(() => {
+        if (isInitialized.current) {
+            chrome.storage.session.set({ view, query, selectedWord });
+        }
+    }, [view, query, selectedWord]);
 
     useEffect(() => {
         if (selectedRef.current) {
