@@ -4,8 +4,8 @@ import { defineConfig } from 'wxt';
 export default defineConfig({
     modules: ['@wxt-dev/module-react'],
     manifest: {
-        name: 'Sinhala Dictionary Reference',
-        description: 'StarDict dictionary extension for Sinhala lookup',
+        name: 'Sinhala English Learner’s Dictionary',
+        description: 'Lookup Sinhala words from the SELD',
         permissions: ['sidePanel', 'storage'],
         host_permissions: ['<all_urls>'],
         action: {
