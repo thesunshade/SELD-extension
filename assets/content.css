@@ -1,0 +1,5 @@
+::highlight(seld-match) {
+    text-decoration: underline dashed #999;
+    text-underline-offset: 3px;
+    cursor: help;
+}

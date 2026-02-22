@@ -22,6 +22,70 @@ function App() {
 
     const isInitialized = useRef(false);
 
+    // Dictionary Highlight Logic
+    useEffect(() => {
+        // Only run when view is 'search' and we know lookup is enabled
+        let isActive = true;
+
+        const handleHighlights = async () => {
+            try {
+                const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+                if (tabs.length === 0 || !tabs[0].id) {
+                    return;
+                }
+                const tabId = tabs[0].id;
+
+                // Fire off REQUEST_WORDS message
+                const response = await new Promise<any>((resolve) => {
+                    chrome.tabs.sendMessage(tabId, { action: 'REQUEST_WORDS' }, (res) => {
+                        if (chrome.runtime.lastError) {
+                            resolve(null);
+                        } else {
+                            resolve(res);
+                        }
+                    });
+                });
+
+                if (!isActive) return;
+                if (!response || !response.words) {
+                    return;
+                }
+
+                // Find exact matches
+                const uniqueWords = response.words as string[];
+                const exactMatches = await stardict.findExistingWords(uniqueWords);
+
+                if (!isActive || exactMatches.length === 0) return;
+
+                // Send matches back to content script
+                chrome.tabs.sendMessage(tabId, { action: 'APPLY_HIGHLIGHTS', words: exactMatches }, (res) => {
+                    if (chrome.runtime.lastError) {
+                        console.warn("Could not apply highlights:", chrome.runtime.lastError);
+                    }
+                });
+
+            } catch (e) {
+                console.error("Highlighting error in App.tsx:", e);
+            }
+        };
+
+        if (view === 'search' && lookupEnabled) {
+            handleHighlights();
+        }
+
+        return () => {
+            isActive = false;
+            // Clear highlights when sidepanel unmounts or changes view
+            chrome.tabs.query({ active: true, currentWindow: true }).then((tabs) => {
+                if (tabs.length > 0 && tabs[0].id) {
+                    chrome.tabs.sendMessage(tabs[0].id, { action: 'CLEAR_HIGHLIGHTS' }, () => {
+                        const _ = chrome.runtime.lastError; // Ignore error if content script is gone
+                    });
+                }
+            });
+        };
+    }, [view, lookupEnabled]);
+
     useEffect(() => {
         // Load settings
         chrome.storage.local.get(['theme', 'fontSize', 'seldLookupEnabled', 'listHeight'], (res) => {

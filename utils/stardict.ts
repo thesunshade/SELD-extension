@@ -85,6 +85,17 @@ class StarDictParser {
         return this.readDictData(entry.offset, entry.size);
     }
 
+    public async hasExactMatch(word: string): Promise<boolean> {
+        await this.load();
+        return this.indexList.some(e => e.word === word);
+    }
+
+    public async findExistingWords(words: string[]): Promise<string[]> {
+        await this.load();
+        const wordSet = new Set(this.indexList.map(e => e.word));
+        return words.filter(w => wordSet.has(w));
+    }
+
     // Prefix/partial match search
     public async searchWords(query: string, limit: number = 20): Promise<IndexEntry[]> {
         await this.load();
