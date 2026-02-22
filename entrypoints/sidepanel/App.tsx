@@ -54,6 +54,21 @@ function App() {
         return theme === 'dark' ? 'dark-theme' : 'light-theme';
     };
 
+    const themeClass = getThemeClass();
+
+    useEffect(() => {
+        const updateTheme = () => {
+            const currentClass = getThemeClass();
+            document.body.className = currentClass;
+            document.documentElement.className = currentClass;
+        };
+        updateTheme();
+
+        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        mediaQuery.addEventListener('change', updateTheme);
+        return () => mediaQuery.removeEventListener('change', updateTheme);
+    }, [theme]);
+
     const handleSearch = async (q: string) => {
         if (!q.trim()) {
             setResults([]);
@@ -118,7 +133,23 @@ function App() {
                     case 'p': return <p key={key}>{children}</p>;
                     case 'div': return <div key={key}>{children}</div>;
                     case 'span': return <span key={key}>{children}</span>;
-                    case 'font': return <span key={key} style={{ color: element.getAttribute('color') || 'inherit' }}>{children}</span>;
+                    case 'font': {
+                        let color = element.getAttribute('color') || '';
+                        let styleColor = color;
+                        if (themeClass === 'dark-theme') {
+                            const lower = color.toLowerCase();
+                            if (lower === 'black' || lower === '#000000' || lower === '#000' || lower === '#333333' || lower === '#1f2328') {
+                                styleColor = 'var(--text-primary)';
+                            } else if (lower === 'blue' || lower === '#0000ff' || lower === '#191970' || lower === '#000080') {
+                                styleColor = 'var(--accent)';
+                            } else if (lower === 'darkgreen' || lower === 'green' || lower === '#008000') {
+                                styleColor = '#4ade80';
+                            } else if (lower === 'red' || lower === '#ff0000') {
+                                styleColor = '#f87171';
+                            }
+                        }
+                        return <span key={key} style={styleColor ? { color: styleColor } : {}}>{children}</span>;
+                    }
                     default: return <React.Fragment key={key}>{children}</React.Fragment>;
                 }
             }
@@ -128,7 +159,7 @@ function App() {
     };
 
     return (
-        <div className={`container ${getThemeClass()}`} style={{ '--font-size-percent': `${fontSize}%` } as any} onMouseMove={resize} onMouseUp={stopResizing}>
+        <div className={`container ${themeClass}`} style={{ '--font-size-percent': `${fontSize}%` } as any} onMouseMove={resize} onMouseUp={stopResizing}>
             <div className="header-row">
                 <h3>SELD Dictionary</h3>
                 <div style={{ display: 'flex', gap: '8px' }}>

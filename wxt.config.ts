@@ -15,4 +15,10 @@ export default defineConfig({
     srcDir: '.',
     outDir: '.output',
     extensionApi: 'chrome',
+    runner: {
+        startUrls: [
+            'https://tripitaka.online/sutta/334',
+            'https://mahamegha.lk/2022/04/23/sirapa-wandanawa/',
+        ],
+    },
 });
