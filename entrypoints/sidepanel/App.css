@@ -67,7 +67,7 @@ body {
 
 .header-row {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
 }
 
@@ -200,6 +200,15 @@ body {
 
 .clickable-word {
   cursor: pointer;
+}
+
+.empty-state,
+.no-results {
+  padding: 1.5em;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.95em;
+  font-style: italic;
 }
 
 

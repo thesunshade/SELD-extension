@@ -79,7 +79,14 @@ function App() {
         const matches = await stardict.searchWords(q, 30);
         setResults(matches);
         const exact = matches.find(m => m.word === q);
-        if (exact) handleSelectWord(exact.word);
+        if (exact) {
+            handleSelectWord(exact.word);
+        } else if (matches.length > 0) {
+            handleSelectWord(matches[0].word);
+        } else {
+            setDefinition(null);
+            setSelectedWord(null);
+        }
     };
 
     const handleSelectWord = async (word: string) => {
@@ -161,7 +168,6 @@ function App() {
     return (
         <div className={`container ${themeClass}`} style={{ '--font-size-percent': `${fontSize}%` } as any} onMouseMove={resize} onMouseUp={stopResizing}>
             <div className="header-row">
-                <h3>SELD Dictionary</h3>
                 <div style={{ display: 'flex', gap: '8px' }}>
                     <button className="settings-btn" onClick={() => setView('search')}>Search</button>
                     <button className="settings-btn" onClick={() => setView('settings')}>Settings</button>
@@ -176,11 +182,15 @@ function App() {
                     </div>
                     <div className="content-area">
                         <div className="headword-list custom-scroll" style={{ height: `${listHeight}%`, flex: 'none' }}>
-                            {results.map((entry, idx) => (
-                                <div key={idx} ref={selectedWord === entry.word ? selectedRef : null} className={`headword-item ${selectedWord === entry.word ? 'selected' : ''}`} onClick={() => handleSelectWord(entry.word)}>
-                                    {entry.word}
-                                </div>
-                            ))}
+                            {results.length > 0 ? (
+                                results.map((entry, idx) => (
+                                    <div key={idx} ref={selectedWord === entry.word ? selectedRef : null} className={`headword-item ${selectedWord === entry.word ? 'selected' : ''}`} onClick={() => handleSelectWord(entry.word)}>
+                                        {entry.word}
+                                    </div>
+                                ))
+                            ) : (
+                                query.trim() ? <div className="no-results">No results found</div> : null
+                            )}
                         </div>
                         <div className="resize-divider" onMouseDown={startResizing}></div>
                         <div className="definition-area custom-scroll">
@@ -189,7 +199,11 @@ function App() {
                                     <h2 className="def-title">{selectedWord}</h2>
                                     <div className="definition-content">{renderHtmlDefinition(definition)}</div>
                                 </div>
-                            ) : <div className="empty-state">{query ? 'Select a word' : 'Highlight text on a page to look up'}</div>}
+                            ) : (
+                                !query ? <div className="empty-state">Highlight text on a page to look up</div> : (
+                                    results.length > 0 ? <div className="empty-state">Select a word</div> : null
+                                )
+                            )}
                         </div>
                     </div>
                 </>
