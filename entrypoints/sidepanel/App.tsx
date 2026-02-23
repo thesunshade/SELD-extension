@@ -312,7 +312,7 @@ function App() {
                         <input type="text" value={query} onChange={(e) => { setQuery(e.target.value); handleSearch(e.target.value); }} placeholder="Search..." className="search-input" />
                     </div>
                     <div className="content-area">
-                        <div className="headword-list custom-scroll" style={{ height: `${listHeight}%`, flex: 'none' }}>
+                        <div className="headword-list custom-scroll dynamic-font" style={{ height: `${listHeight}%`, flex: 'none' }}>
                             {results.length > 0 ? (
                                 results.map((entry, idx) => (
                                     <div key={idx} ref={selectedWord === entry.word ? selectedRef : null} className={`headword-item ${selectedWord === entry.word ? 'selected' : ''}`} onClick={() => handleSelectWord(entry.word)}>
@@ -324,7 +324,7 @@ function App() {
                             )}
                         </div>
                         <div className="resize-divider" onMouseDown={startResizing}></div>
-                        <div className="definition-area custom-scroll">
+                        <div className="definition-area custom-scroll dynamic-font">
                             {definition ? (
                                 <div className="definition-box">
                                     <h2 className="def-title">
@@ -377,6 +377,9 @@ function App() {
                                 }}
                             />
                             <span className="slider-value">{fontSize}%</span>
+                        </div>
+                        <div className="dynamic-font" style={{ marginTop: '0.4em', color: 'var(--text-primary)', textAlign: 'center' }}>
+                            ශබ්දකෝෂය
                         </div>
                     </div>
                     <div className="settings-group">

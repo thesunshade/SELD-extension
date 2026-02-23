@@ -61,8 +61,10 @@ body {
   height: 100vh;
   padding: 8px;
   gap: 2px;
+}
+
+.dynamic-font {
   font-size: var(--font-size-percent, 100%);
-  /* Scaling point */
 }
 
 .header-row {
