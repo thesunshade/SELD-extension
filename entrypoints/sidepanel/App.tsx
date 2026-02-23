@@ -14,7 +14,8 @@ function App() {
     // Settings state
     const [theme, setTheme] = useState<Theme>('system');
     const [fontSize, setFontSize] = useState(100);
-    const [lookupEnabled, setLookupEnabled] = useState(true);
+    const [ctrlClickLookup, setCtrlClickLookup] = useState(true);
+    const [underlineDictionaryWords, setUnderlineDictionaryWords] = useState(true);
     const [listHeight, setListHeight] = useState(35); // percentage
 
     const selectedRef = useRef<HTMLDivElement>(null);
@@ -22,9 +23,27 @@ function App() {
 
     const isInitialized = useRef(false);
 
+    // Sidebar State Notification
+    useEffect(() => {
+        chrome.tabs.query({ active: true, currentWindow: true }).then((tabs) => {
+            if (tabs.length > 0 && tabs[0].id) {
+                chrome.tabs.sendMessage(tabs[0].id, { action: 'SIDEPANEL_STATE', isOpen: true });
+            }
+        });
+        return () => {
+            chrome.tabs.query({ active: true, currentWindow: true }).then((tabs) => {
+                if (tabs.length > 0 && tabs[0].id) {
+                    chrome.tabs.sendMessage(tabs[0].id, { action: 'SIDEPANEL_STATE', isOpen: false });
+                    chrome.tabs.sendMessage(tabs[0].id, { action: 'CLEAR_HIGHLIGHTS' }, () => {
+                        const _ = chrome.runtime.lastError;
+                    });
+                }
+            });
+        };
+    }, []);
+
     // Dictionary Highlight Logic
     useEffect(() => {
-        // Only run when view is 'search' and we know lookup is enabled
         let isActive = true;
 
         const handleHighlights = async () => {
@@ -58,7 +77,7 @@ function App() {
                 if (!isActive || exactMatches.length === 0) return;
 
                 // Send matches back to content script
-                chrome.tabs.sendMessage(tabId, { action: 'APPLY_HIGHLIGHTS', words: exactMatches }, (res) => {
+                chrome.tabs.sendMessage(tabId, { action: 'APPLY_HIGHLIGHTS', words: exactMatches, underlineEnabled: underlineDictionaryWords }, (res) => {
                     if (chrome.runtime.lastError) {
                         console.warn("Could not apply highlights:", chrome.runtime.lastError);
                     }
@@ -69,9 +88,7 @@ function App() {
             }
         };
 
-        if (view === 'search' && lookupEnabled) {
-            handleHighlights();
-        }
+        handleHighlights();
 
         // Listen for tab updates (URL changes in SPA)
         const onTabUpdated = (tabId: number, changeInfo: chrome.tabs.TabChangeInfo, tab: chrome.tabs.Tab) => {
@@ -84,23 +101,16 @@ function App() {
         return () => {
             isActive = false;
             chrome.tabs.onUpdated.removeListener(onTabUpdated);
-            // Clear highlights when sidepanel unmounts or changes view
-            chrome.tabs.query({ active: true, currentWindow: true }).then((tabs) => {
-                if (tabs.length > 0 && tabs[0].id) {
-                    chrome.tabs.sendMessage(tabs[0].id, { action: 'CLEAR_HIGHLIGHTS' }, () => {
-                        const _ = chrome.runtime.lastError; // Ignore error if content script is gone
-                    });
-                }
-            });
         };
-    }, [view, lookupEnabled]);
+    }, [underlineDictionaryWords]);
 
     useEffect(() => {
         // Load settings
-        chrome.storage.local.get(['theme', 'fontSize', 'seldLookupEnabled', 'listHeight'], (res) => {
+        chrome.storage.local.get(['theme', 'fontSize', 'seldCtrlClickLookup', 'seldUnderlineWords', 'listHeight'], (res) => {
             if (res.theme) setTheme(res.theme);
             if (res.fontSize) setFontSize(res.fontSize);
-            if (res.seldLookupEnabled !== undefined) setLookupEnabled(res.seldLookupEnabled);
+            if (res.seldCtrlClickLookup !== undefined) setCtrlClickLookup(res.seldCtrlClickLookup);
+            if (res.seldUnderlineWords !== undefined) setUnderlineDictionaryWords(res.seldUnderlineWords);
             if (res.listHeight) setListHeight(res.listHeight);
         });
 
@@ -385,9 +395,33 @@ function App() {
                     <div className="settings-group">
                         <label className="settings-label">Behavior</label>
                         <div className="settings-control">
-                            <button className={`toggle-btn ${lookupEnabled ? 'active' : ''}`} onClick={() => { setLookupEnabled(!lookupEnabled); saveSetting('seldLookupEnabled', !lookupEnabled); }}>
-                                Double-Click Lookup: {lookupEnabled ? 'ON' : 'OFF'}
-                            </button>
+                            <label className="checkbox-container">
+                                <input
+                                    type="checkbox"
+                                    checked={ctrlClickLookup}
+                                    onChange={(e) => {
+                                        const val = e.target.checked;
+                                        setCtrlClickLookup(val);
+                                        saveSetting('seldCtrlClickLookup', val);
+                                    }}
+                                />
+                                <span className="custom-checkbox"></span>
+                                <span className="checkbox-label">Ctrl + click to look up</span>
+                            </label>
+
+                            <label className="checkbox-container">
+                                <input
+                                    type="checkbox"
+                                    checked={underlineDictionaryWords}
+                                    onChange={(e) => {
+                                        const val = e.target.checked;
+                                        setUnderlineDictionaryWords(val);
+                                        saveSetting('seldUnderlineWords', val);
+                                    }}
+                                />
+                                <span className="custom-checkbox"></span>
+                                <span className="checkbox-label">Underline words in dictionary</span>
+                            </label>
                         </div>
                     </div>
                 </div>

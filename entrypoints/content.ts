@@ -6,7 +6,12 @@ export default defineContentScript({
     main() {
         let lastQueryTime = 0;
 
+        let isSidebarOpen = false;
+        let underlineEnabled = true;
+
         const handleSelection = () => {
+            if (!isSidebarOpen) return;
+
             const selection = window.getSelection();
             if (!selection || selection.rangeCount === 0) return;
 
@@ -14,32 +19,58 @@ export default defineContentScript({
 
             // Limit to 50 characters to avoid grabbing massive text blocks accidentally
             if (text && text.length > 0 && text.length < 50) {
-                chrome.storage.local.get(['seldLookupEnabled'], (result) => {
-                    // Default to true if not set, but user can toggle it
-                    const isEnabled = result.seldLookupEnabled !== false;
-                    if (!isEnabled) return;
-
-                    const now = Date.now();
-                    // Debounce simple lookups
-                    if (now - lastQueryTime > 300) {
-                        chrome.storage.local.set({ 'seldSearchQuery': text });
-                        // Attempt to open side panel
-                        chrome.runtime.sendMessage({ action: 'openSidePanel' });
-                        lastQueryTime = now;
-                    }
-                });
+                const now = Date.now();
+                // Debounce simple lookups
+                if (now - lastQueryTime > 300) {
+                    chrome.storage.local.set({ 'seldSearchQuery': text });
+                    // Attempt to open side panel
+                    chrome.runtime.sendMessage({ action: 'openSidePanel' });
+                    lastQueryTime = now;
+                }
             }
         };
 
+        const handleCtrlClick = (e: MouseEvent) => {
+            if (!e.ctrlKey) return;
+
+            chrome.storage.local.get(['seldCtrlClickLookup'], (result) => {
+                if (result.seldCtrlClickLookup === false) return;
+
+                // Attempt to find the word at the click point
+                const range = document.caretRangeFromPoint(e.clientX, e.clientY);
+                if (!range) return;
+
+                const textNode = range.startContainer;
+                if (textNode.nodeType !== Node.TEXT_NODE) return;
+
+                const text = textNode.nodeValue || '';
+                const offset = range.startOffset;
+
+                // Find word boundaries (roughly Sinhala or English)
+                const start = text.substring(0, offset).search(/[\u0D80-\u0DFFa-zA-Z]+$/);
+                const end = text.substring(offset).search(/[^\u0D80-\u0DFFa-zA-Z]/);
+
+                let word = '';
+                if (start !== -1) {
+                    const actualEnd = end === -1 ? text.length : offset + end;
+                    word = text.substring(start, actualEnd).trim();
+                }
+
+                if (word && word.length < 50) {
+                    chrome.storage.local.set({ 'seldSearchQuery': word });
+                    chrome.runtime.sendMessage({ action: 'openSidePanel' });
+                }
+            });
+        };
+
         window.addEventListener('mouseup', handleSelection);
-        // Double click often triggers mouseup, but we could also attach to dblclick if needed explicitly
+        window.addEventListener('click', handleCtrlClick);
 
         // -------------------------------------------------------------
         // Highlight Extraction Logic
         // -------------------------------------------------------------
+        // ... (SINHALA_REGEX and findWordRanges remain unchanged)
 
-        // We only extract Sinhala words, as processing the full English dictionary is probably out of scope 
-        // or just too huge. If needed, we can regex for English. Here we match rough Sinhala characters.
         const SINHALA_REGEX = /[\u0D80-\u0DFF]+/g;
 
         const findWordRanges = (targetWords: string[]): Range[] => {
@@ -100,7 +131,13 @@ export default defineContentScript({
         let debounceTimer: number | null = null;
 
         const applyHighlights = () => {
-            if (currentHeadwords.length === 0) return;
+            if (!isSidebarOpen || !underlineEnabled || currentHeadwords.length === 0) {
+                if (typeof CSS !== 'undefined' && 'highlights' in CSS) {
+                    // @ts-ignore
+                    CSS.highlights.delete('seld-match');
+                }
+                return;
+            }
 
             const ranges = findWordRanges(currentHeadwords);
             if (ranges.length > 0 && typeof CSS !== 'undefined' && 'highlights' in CSS) {
@@ -161,11 +198,20 @@ export default defineContentScript({
                 sendResponse({ words: uniqueWords });
             } else if (message.action === 'APPLY_HIGHLIGHTS') {
                 currentHeadwords = message.words || [];
+                underlineEnabled = message.underlineEnabled !== false;
                 applyHighlights();
                 setupObserver();
                 sendResponse({ success: true, count: currentHeadwords.length });
             } else if (message.action === 'CLEAR_HIGHLIGHTS') {
                 clearAll();
+                sendResponse({ success: true });
+            } else if (message.action === 'SIDEPANEL_STATE') {
+                isSidebarOpen = !!message.isOpen;
+                if (!isSidebarOpen) {
+                    clearAll();
+                } else {
+                    applyHighlights();
+                }
                 sendResponse({ success: true });
             }
             return true;
