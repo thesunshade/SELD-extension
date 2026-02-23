@@ -79,10 +79,17 @@ class StarDictParser {
     // Exact match search
     public async getDefinition(word: string): Promise<string | null> {
         await this.load();
-        const entry = this.indexList.find(e => e.word === word);
-        if (!entry) return null;
+        const entries = this.indexList.filter(e => e.word === word);
+        if (entries.length === 0) return null;
 
-        return this.readDictData(entry.offset, entry.size);
+        const definitions = await Promise.all(
+            entries.map(e => this.readDictData(e.offset, e.size))
+        );
+
+        if (definitions.length === 1) return definitions[0];
+
+        // Join definitions with a horizontal rule
+        return definitions.join('<hr class="homograph-separator" />');
     }
 
     public async hasExactMatch(word: string): Promise<boolean> {
@@ -97,20 +104,65 @@ class StarDictParser {
     }
 
     // Prefix/partial match search
-    public async searchWords(query: string, limit: number = 20): Promise<IndexEntry[]> {
+    public async searchWords(query: string, limit: number = 30): Promise<IndexEntry[]> {
         await this.load();
         if (!query) return [];
 
         const lowerQuery = query.toLowerCase();
-        return this.indexList
-            .filter(e => e.word.toLowerCase().includes(lowerQuery))
-            .slice(0, limit);
+        const uniqueMatches = new Map<string, IndexEntry>();
+
+        const addIfUnique = (entry: IndexEntry) => {
+            if (uniqueMatches.size >= limit) return;
+            if (!uniqueMatches.has(entry.word)) {
+                uniqueMatches.set(entry.word, entry);
+            }
+        };
+
+        // Exact matches
+        for (const entry of this.indexList) {
+            if (entry.word.toLowerCase() === lowerQuery) {
+                addIfUnique(entry);
+                if (uniqueMatches.size >= limit) break;
+            }
+        }
+
+        // Prefix matches
+        if (uniqueMatches.size < limit) {
+            for (const entry of this.indexList) {
+                const lowerWord = entry.word.toLowerCase();
+                if (lowerWord.startsWith(lowerQuery) && !uniqueMatches.has(entry.word)) {
+                    addIfUnique(entry);
+                    if (uniqueMatches.size >= limit) break;
+                }
+            }
+        }
+
+        // Contains matches
+        if (uniqueMatches.size < limit) {
+            for (const entry of this.indexList) {
+                const lowerWord = entry.word.toLowerCase();
+                if (lowerWord.includes(lowerQuery) && !uniqueMatches.has(entry.word)) {
+                    addIfUnique(entry);
+                    if (uniqueMatches.size >= limit) break;
+                }
+            }
+        }
+
+        return Array.from(uniqueMatches.values());
     }
 
     // Also support fetching full list (useful if showing initial state)
     public async getList(limit: number = 20): Promise<IndexEntry[]> {
         await this.load();
-        return this.indexList.slice(0, limit);
+        // Return unique words from the start
+        const unique = new Map<string, IndexEntry>();
+        for (const entry of this.indexList) {
+            if (!unique.has(entry.word)) {
+                unique.set(entry.word, entry);
+            }
+            if (unique.size >= limit) break;
+        }
+        return Array.from(unique.values());
     }
 
     private readDictData(offset: number, size: number): string {

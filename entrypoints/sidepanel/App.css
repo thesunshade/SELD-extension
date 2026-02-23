@@ -198,8 +198,37 @@ body {
   line-height: 1.6;
 }
 
+.definition-content ul {
+  margin: 0.5em 0;
+  padding-left: 1.2em;
+  list-style-type: disc;
+}
+
+.definition-content li {
+  margin-bottom: 0.4em;
+}
+
+.examplescontents {
+  list-style-type: none !important;
+  padding-left: 0.5em !important;
+  border-left: 2px solid var(--border-color);
+  margin: 0.8em 0 !important;
+}
+
+.examplescontent {
+  margin-bottom: 0.6em !important;
+  font-style: italic;
+}
+
 .clickable-word {
   cursor: pointer;
+}
+
+.homograph-separator {
+  border: 0;
+  border-top: 1px dashed var(--border-color);
+  margin: 1.5em 0;
+  opacity: 0.6;
 }
 
 .empty-state,

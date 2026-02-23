@@ -125,10 +125,14 @@ function App() {
                         setDefinition(def);
                     } else if (matches.length > 0) {
                         const exact = matches.find(m => m.word === currentQuery);
-                        const wordToSelect = exact ? exact.word : matches[0].word;
-                        setSelectedWord(wordToSelect);
-                        const def = await stardict.getDefinition(wordToSelect);
-                        setDefinition(def);
+                        if (exact) {
+                            setSelectedWord(exact.word);
+                            const def = await stardict.getDefinition(exact.word);
+                            setDefinition(def);
+                        } else {
+                            setSelectedWord(null);
+                            setDefinition(null);
+                        }
                     }
                 }
                 isInitialized.current = true;
@@ -200,8 +204,6 @@ function App() {
         const exact = matches.find(m => m.word === q);
         if (exact) {
             handleSelectWord(exact.word);
-        } else if (matches.length > 0) {
-            handleSelectWord(matches[0].word);
         } else {
             setDefinition(null);
             setSelectedWord(null);
@@ -253,12 +255,15 @@ function App() {
                 const children = Array.from(element.childNodes).map((child, i) => convertNode(child, `${key}-${i}`));
                 switch (tagName) {
                     case 'br': return <br key={key} />;
-                    case 'b': case 'strong': return <strong key={key}>{children}</strong>;
-                    case 'i': case 'em': return <em key={key}>{children}</em>;
-                    case 'u': return <u key={key}>{children}</u>;
-                    case 'p': return <p key={key}>{children}</p>;
-                    case 'div': return <div key={key}>{children}</div>;
-                    case 'span': return <span key={key}>{children}</span>;
+                    case 'hr': return <hr key={key} className={element.className} />;
+                    case 'b': case 'strong': return <strong key={key} className={element.className}>{children}</strong>;
+                    case 'i': case 'em': return <em key={key} className={element.className}>{children}</em>;
+                    case 'u': return <u key={key} className={element.className}>{children}</u>;
+                    case 'p': return <p key={key} className={element.className}>{children}</p>;
+                    case 'div': return <div key={key} className={element.className}>{children}</div>;
+                    case 'span': return <span key={key} className={element.className}>{children}</span>;
+                    case 'ul': return <ul key={key} className={element.className}>{children}</ul>;
+                    case 'li': return <li key={key} className={element.className}>{children}</li>;
                     case 'font': {
                         let color = element.getAttribute('color') || '';
                         let styleColor = color;
@@ -274,7 +279,7 @@ function App() {
                                 styleColor = '#f87171';
                             }
                         }
-                        return <span key={key} style={styleColor ? { color: styleColor } : {}}>{children}</span>;
+                        return <span key={key} className={element.className} style={styleColor ? { color: styleColor } : {}}>{children}</span>;
                     }
                     default: return <React.Fragment key={key}>{children}</React.Fragment>;
                 }
