@@ -7,7 +7,13 @@ export default defineConfig({
         name: 'Sinhala English Learner’s Dictionary',
         description: 'Lookup Sinhala words from the SELD',
         permissions: ['sidePanel', 'storage'],
-        host_permissions: ['<all_urls>'],
+        host_permissions: [
+            '<all_urls>',
+            'https://translate.google.com/*'
+        ],
+        content_security_policy: {
+            extension_pages: "script-src 'self'; object-src 'self'; media-src 'self' https://translate.google.com;",
+        },
         action: {
             default_title: 'Click to open Dictionary side panel',
             default_icon: {
@@ -25,6 +31,7 @@ export default defineConfig({
         startUrls: [
             'https://tripitaka.online/sutta/334',
             'https://mahamegha.lk/2022/04/23/sirapa-wandanawa/',
+            'https://sinhala.adaderana.lk/news/221717'
         ],
     },
 });

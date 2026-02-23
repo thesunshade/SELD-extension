@@ -216,6 +216,13 @@ function App() {
         setDefinition(def);
     };
 
+    const handleSpeak = (text: string) => {
+        if (!text) return;
+        const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=si&client=tw-ob`;
+        const audio = new Audio(url);
+        audio.play().catch(e => console.error("TTS Playback error:", e));
+    };
+
     const startResizing = () => { isResizing.current = true; };
     const stopResizing = () => { isResizing.current = false; };
     const resize = (e: React.MouseEvent) => {
@@ -320,7 +327,19 @@ function App() {
                         <div className="definition-area custom-scroll">
                             {definition ? (
                                 <div className="definition-box">
-                                    <h2 className="def-title">{selectedWord}</h2>
+                                    <h2 className="def-title">
+                                        {selectedWord}
+                                        <button
+                                            className="tts-button"
+                                            onClick={() => selectedWord && handleSpeak(selectedWord)}
+                                            title="Speak word"
+                                        >
+                                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                                                <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                                            </svg>
+                                        </button>
+                                    </h2>
                                     <div className="definition-content">{renderHtmlDefinition(definition)}</div>
                                 </div>
                             ) : (

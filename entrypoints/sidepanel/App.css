@@ -187,10 +187,39 @@ body {
 }
 
 .def-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin: 0 0 0.8em 0;
   font-size: 1.4em;
   border-bottom: 1px solid var(--border-color);
   padding-bottom: 0.5em;
+}
+
+.tts-button {
+  background: none;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.tts-button:hover {
+  background: var(--accent-bg);
+  color: var(--accent);
+  border-color: var(--accent);
+  transform: scale(1.05);
+}
+
+.tts-button:active {
+  transform: scale(0.95);
 }
 
 .definition-content {
