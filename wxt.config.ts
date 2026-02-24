@@ -1,19 +1,28 @@
 import { defineConfig } from 'wxt';
 
-// See https://wxt.dev/api/config.html
 export default defineConfig({
     modules: ['@wxt-dev/module-react'],
+    vite: (configEnv) => ({
+        server: {
+            headers: {
+                'Content-Security-Policy': "script-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:3000 ws://localhost:3000; object-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:3000; frame-src * http://localhost:3000;"
+            }
+        }
+    }),
     manifest: {
-        name: 'Sinhala English Learner’s Dictionary',
+        name: 'Sinhala English Learners Dictionary',
         description: 'Lookup Sinhala words from the SELD',
-        permissions: ['sidePanel', 'storage'],
+        permissions: ['storage'],
         host_permissions: [
             '<all_urls>',
             'https://translate.google.com/*'
         ],
-        content_security_policy: {
-            extension_pages: "script-src 'self'; object-src 'self'; media-src 'self' https://translate.google.com;",
-        },
+        web_accessible_resources: [
+            {
+                matches: ['<all_urls>'],
+                resources: ['panel.html', 'panel/*']
+            }
+        ],
         action: {
             default_title: 'Click to open Dictionary side panel',
             default_icon: {
@@ -26,7 +35,6 @@ export default defineConfig({
     },
     srcDir: '.',
     outDir: '.output',
-    extensionApi: 'chrome',
     runner: {
         startUrls: [
             'https://tripitaka.online/sutta/334',

@@ -11,165 +11,62 @@ function App() {
     const [selectedWord, setSelectedWord] = useState<string | null>(null);
     const [definition, setDefinition] = useState<string | null>(null);
 
-    // Settings state
     const [theme, setTheme] = useState<Theme>('system');
     const [fontSize, setFontSize] = useState(100);
     const [ctrlClickLookup, setCtrlClickLookup] = useState(true);
     const [underlineDictionaryWords, setUnderlineDictionaryWords] = useState(true);
-    const [listHeight, setListHeight] = useState(35); // percentage
+    const [listHeight, setListHeight] = useState(35);
 
     const selectedRef = useRef<HTMLDivElement>(null);
     const isResizing = useRef(false);
 
     const isInitialized = useRef(false);
 
-    // Sidebar State Notification
+    const sendMessageToParent = (action: string, data?: any) => {
+        window.parent.postMessage({ action, ...data }, '*');
+    };
+
     useEffect(() => {
-        chrome.tabs.query({ active: true, currentWindow: true }).then((tabs) => {
-            if (tabs.length > 0 && tabs[0].id) {
-                chrome.tabs.sendMessage(tabs[0].id, { action: 'SIDEPANEL_STATE', isOpen: true });
+        const handleMessage = (event: MessageEvent) => {
+            if (!event.data || typeof event.data !== 'object') return;
+            const { action, ...data } = event.data;
+            
+            switch (action) {
+                case 'SETTINGS_RESPONSE':
+                    if (data.theme) setTheme(data.theme as Theme);
+                    if (data.fontSize) setFontSize(data.fontSize as number);
+                    if (data.seldCtrlClickLookup !== undefined) setCtrlClickLookup(data.seldCtrlClickLookup as boolean);
+                    if (data.seldUnderlineWords !== undefined) setUnderlineDictionaryWords(data.seldUnderlineWords as boolean);
+                    if (data.listHeight) setListHeight(data.listHeight as number);
+                    break;
+                case 'SEARCH_QUERY':
+                    if (data.query) {
+                        setQuery(data.query);
+                        handleSearch(data.query);
+                        setView('search');
+                    }
+                    break;
             }
-        });
+        };
+        window.addEventListener('message', handleMessage);
+        sendMessageToParent('GET_SETTINGS');
+        return () => window.removeEventListener('message', handleMessage);
+    }, []);
+
+    useEffect(() => {
+        sendMessageToParent('SIDEPANEL_OPEN');
         return () => {
-            chrome.tabs.query({ active: true, currentWindow: true }).then((tabs) => {
-                if (tabs.length > 0 && tabs[0].id) {
-                    chrome.tabs.sendMessage(tabs[0].id, { action: 'SIDEPANEL_STATE', isOpen: false });
-                    chrome.tabs.sendMessage(tabs[0].id, { action: 'CLEAR_HIGHLIGHTS' }, () => {
-                        const _ = chrome.runtime.lastError;
-                    });
-                }
-            });
+            sendMessageToParent('SIDEPANEL_CLOSE');
         };
     }, []);
 
-    // Dictionary Highlight Logic
     useEffect(() => {
-        let isActive = true;
-
-        const handleHighlights = async () => {
-            try {
-                const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
-                if (tabs.length === 0 || !tabs[0].id) {
-                    return;
-                }
-                const tabId = tabs[0].id;
-
-                // Fire off REQUEST_WORDS message
-                const response = await new Promise<any>((resolve) => {
-                    chrome.tabs.sendMessage(tabId, { action: 'REQUEST_WORDS' }, (res) => {
-                        if (chrome.runtime.lastError) {
-                            resolve(null);
-                        } else {
-                            resolve(res);
-                        }
-                    });
-                });
-
-                if (!isActive) return;
-                if (!response || !response.words) {
-                    return;
-                }
-
-                // Find exact matches
-                const uniqueWords = response.words as string[];
-                const exactMatches = await stardict.findExistingWords(uniqueWords);
-
-                if (!isActive || exactMatches.length === 0) return;
-
-                // Send matches back to content script
-                chrome.tabs.sendMessage(tabId, { action: 'APPLY_HIGHLIGHTS', words: exactMatches, underlineEnabled: underlineDictionaryWords }, (res) => {
-                    if (chrome.runtime.lastError) {
-                        console.warn("Could not apply highlights:", chrome.runtime.lastError);
-                    }
-                });
-
-            } catch (e) {
-                console.error("Highlighting error in App.tsx:", e);
-            }
-        };
-
-        handleHighlights();
-
-        // Listen for tab updates (URL changes in SPA)
-        const onTabUpdated = (tabId: number, changeInfo: chrome.tabs.TabChangeInfo, tab: chrome.tabs.Tab) => {
-            if ((changeInfo.status === 'complete' || changeInfo.url) && tab.active) {
-                handleHighlights();
-            }
-        };
-        chrome.tabs.onUpdated.addListener(onTabUpdated);
-
-        return () => {
-            isActive = false;
-            chrome.tabs.onUpdated.removeListener(onTabUpdated);
-        };
+        sendMessageToParent('REQUEST_HIGHLIGHTS', { underlineEnabled: underlineDictionaryWords });
     }, [underlineDictionaryWords]);
 
     useEffect(() => {
-        // Load settings
-        chrome.storage.local.get(['theme', 'fontSize', 'seldCtrlClickLookup', 'seldUnderlineWords', 'listHeight'], (res) => {
-            if (res.theme) setTheme(res.theme);
-            if (res.fontSize) setFontSize(res.fontSize);
-            if (res.seldCtrlClickLookup !== undefined) setCtrlClickLookup(res.seldCtrlClickLookup);
-            if (res.seldUnderlineWords !== undefined) setUnderlineDictionaryWords(res.seldUnderlineWords);
-            if (res.listHeight) setListHeight(res.listHeight);
-        });
-
-        // Load session state and check for a new query
-        chrome.storage.local.get(['seldSearchQuery'], (localRes) => {
-            const newQueryFromClick = localRes.seldSearchQuery;
-
-            chrome.storage.session.get(['view', 'query', 'selectedWord'], async (sessionRes) => {
-                let currentQuery = newQueryFromClick || sessionRes.query || '';
-                let currentSelected = newQueryFromClick ? null : (sessionRes.selectedWord || null);
-
-                if (sessionRes.view && !newQueryFromClick) setView(sessionRes.view as View);
-                else if (newQueryFromClick) setView('search');
-
-                if (currentQuery) {
-                    setQuery(currentQuery);
-                    const matches = await stardict.searchWords(currentQuery, 30);
-                    setResults(matches);
-                    if (currentSelected) {
-                        setSelectedWord(currentSelected);
-                        const def = await stardict.getDefinition(currentSelected);
-                        setDefinition(def);
-                    } else if (matches.length > 0) {
-                        const exact = matches.find(m => m.word === currentQuery);
-                        if (exact) {
-                            setSelectedWord(exact.word);
-                            const def = await stardict.getDefinition(exact.word);
-                            setDefinition(def);
-                        } else {
-                            setSelectedWord(null);
-                            setDefinition(null);
-                        }
-                    }
-                }
-                isInitialized.current = true;
-
-                // Consume the local storage query so it doesn't reopen next time
-                if (newQueryFromClick) {
-                    chrome.storage.local.remove('seldSearchQuery');
-                }
-            });
-        });
-
-        const handleStorageChange = (changes: any, namespace: string) => {
-            if (namespace === 'local' && changes.seldSearchQuery && changes.seldSearchQuery.newValue) {
-                const newQuery = changes.seldSearchQuery.newValue;
-                setQuery(newQuery);
-                handleSearch(newQuery);
-                setView('search');
-                chrome.storage.local.remove('seldSearchQuery');
-            }
-        };
-        chrome.storage.onChanged.addListener(handleStorageChange);
-        return () => chrome.storage.onChanged.removeListener(handleStorageChange);
-    }, []);
-
-    useEffect(() => {
         if (isInitialized.current) {
-            chrome.storage.session.set({ view, query, selectedWord });
+            sendMessageToParent('SAVE_SESSION', { view, query, selectedWord });
         }
     }, [view, query, selectedWord]);
 
@@ -179,7 +76,6 @@ function App() {
         }
     }, [selectedWord]);
 
-    // Apply theme class to container
     const getThemeClass = () => {
         if (theme === 'system') {
             return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark-theme' : 'light-theme';
@@ -201,6 +97,10 @@ function App() {
         mediaQuery.addEventListener('change', updateTheme);
         return () => mediaQuery.removeEventListener('change', updateTheme);
     }, [theme]);
+
+    useEffect(() => {
+        isInitialized.current = true;
+    }, []);
 
     const handleSearch = async (q: string) => {
         if (!q.trim()) {
@@ -241,12 +141,12 @@ function App() {
         const newHeight = (e.clientY / containerHeight) * 100;
         if (newHeight > 10 && newHeight < 80) {
             setListHeight(newHeight);
-            chrome.storage.local.set({ listHeight: newHeight });
+            sendMessageToParent('SAVE_SETTING', { key: 'listHeight', value: newHeight });
         }
     };
 
     const saveSetting = (key: string, value: any) => {
-        chrome.storage.local.set({ [key]: value });
+        sendMessageToParent('SAVE_SETTING', { key, value });
     };
 
     const renderTextWithClicks = (text: string) => {
