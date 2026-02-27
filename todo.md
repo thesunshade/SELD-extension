@@ -3,3 +3,4 @@
     - [ ] back and forward buttons
 - [ ] read word aloud when open
 - [ ] single click or double click option
+- [ ] compound verbs in definitions need to be clickable as a unit. like වන්දනා කරනවා.
