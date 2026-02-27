@@ -51,8 +51,19 @@ html.seld-active body {
     flex: 1;
 }
 
+.seld-resize-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 2147483647;
+    cursor: col-resize;
+}
+
 ::highlight(seld-match) {
-    text-decoration: underline dashed #999;
-    text-underline-offset: 3px;
+    text-decoration: underline solid #5e5e5e;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 2px;
     cursor: help;
 }

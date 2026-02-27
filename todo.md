@@ -1,0 +1,5 @@
+- [ ] underline should be one of three options: off, bold, subtle
+- [ ] history
+    - [ ] back and forward buttons
+- [ ] read word aloud when open
+- [ ] single click or double click option

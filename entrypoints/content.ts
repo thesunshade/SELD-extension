@@ -14,6 +14,7 @@ export default defineContentScript({
         let iframeEl: HTMLIFrameElement | null = null;
         let isResizing = false;
         let panelWidth = 360;
+        let resizeOverlay: HTMLDivElement | null = null;
 
         const MIN_WIDTH = 250;
         const MAX_WIDTH = 600;
@@ -53,8 +54,14 @@ export default defineContentScript({
             isResizing = true;
             document.body.style.userSelect = 'none';
             document.body.style.cursor = 'col-resize';
+            
             const handle = document.querySelector('.seld-resize-handle') as HTMLDivElement;
             if (handle) handle.style.background = 'rgba(9, 105, 218, 0.5)';
+            
+            resizeOverlay = document.createElement('div');
+            resizeOverlay.className = 'seld-resize-overlay';
+            document.body.appendChild(resizeOverlay);
+            
             document.addEventListener('mousemove', doResize);
             document.addEventListener('mouseup', stopResize);
         };
@@ -71,8 +78,15 @@ export default defineContentScript({
             isResizing = false;
             document.body.style.userSelect = '';
             document.body.style.cursor = '';
+            
             const handle = document.querySelector('.seld-resize-handle') as HTMLDivElement;
             if (handle) handle.style.background = 'transparent';
+            
+            if (resizeOverlay) {
+                resizeOverlay.remove();
+                resizeOverlay = null;
+            }
+            
             document.removeEventListener('mousemove', doResize);
             document.removeEventListener('mouseup', stopResize);
             await browser.storage.local.set({ seldPanelWidth: panelWidth });
