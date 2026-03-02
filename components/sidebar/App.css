@@ -10,18 +10,13 @@
   font-display: swap;
 }
 
-@font-face {
-  font-family: 'Noto Sans Sinhala';
-  /* Use the ~/assets alias for WXT/Vite to find the file */
-  src: url('~/assets/fonts/NotoSansSinhala-VariableFont_wdth,wght.ttf') format('truetype');
-  /* This range covers the variable weights available in the font */
-  font-weight: 200 800;
-  font-style: normal;
-  font-display: swap;
-}
-
 
 #seld-sidebar-root {
+  /* Move variables and core styling to the inner container where theme classes are applied */
+  box-sizing: border-box;
+}
+
+.seld-sidebar-container {
   --bg-color: #3af5f2;
   --bg-panel: rgba(246, 248, 250, 0.8);
   --text-primary: #1f2328;
@@ -34,6 +29,18 @@
   --accent-bg: rgba(9, 105, 218, 0.1);
   --input-bg: #ffffff;
   --font-multiplier: 1;
+
+  /* Core layout/theming */
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  font-family: 'Inter', 'Noto Sans Sinhala', sans-serif;
+  height: 100vh;
+  padding: 8px;
+  gap: 2px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid var(--border-color);
 }
 
 .dark-theme {
@@ -63,27 +70,9 @@
   }
 }
 
-#seld-sidebar-root {
+/* Ensure all children inherit correct box-sizing */
+#seld-sidebar-root * {
   box-sizing: border-box;
-  font-family: 'Inter', 'Noto Sans Sinhala', sans-serif;
-  background-color: var(--bg-color);
-  color: var(--text-primary);
-  height: 100vh;
-  overflow: hidden;
-  font-size: 16px;
-  line-height: normal;
-  /* Reset line-height */
-}
-
-/* Ensure container and its children inherit the correct color */
-.seld-sidebar-container {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  padding: 8px;
-  gap: 2px;
-  position: relative;
-  color: var(--text-primary);
 }
 
 .sidebar-resize-handle {

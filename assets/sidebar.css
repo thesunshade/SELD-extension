@@ -1,7 +1,5 @@
 :root {
 	--seld-panel-width: 350px;
-	--seld-bg: #f9f9f9;
-	--seld-border: #ddd;
 }
 
 /* Layout for Host Page */
@@ -26,19 +24,20 @@ body.seld-active {
 	position: relative;
 }
 
-/* Sidebar Styling */
+/* Sidebar Styling - The root is now a transparent shell for the grid/positioning */
 #seld-sidebar-root {
 	height: 100vh;
 	position: fixed;
 	right: 0;
 	top: 0;
 	bottom: 0;
-	background: var(--seld-bg);
-	border-left: 1px solid var(--seld-border);
+	background: transparent;
+	border-left: none;
 	z-index: 2147483647;
 	width: var(--seld-panel-width);
 	box-sizing: border-box;
 	display: flex;
 	flex-direction: column;
-	overflow-y: auto;
+	overflow: hidden;
+	/* Inner container handles scroll */
 }
