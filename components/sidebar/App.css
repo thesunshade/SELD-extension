@@ -10,6 +10,24 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: 'Noto Sans';
+  src: url('~/assets/fonts/NotoSans-VariableFont_wdth,wght.ttf') format('truetype');
+  /* Noto Sans variable usually supports 100-900 weight */
+  font-weight: 100 900;
+  /* It also supports width (stretch) from 62.5% to 100% */
+  font-stretch: 62.5% 100%;
+  font-style: normal;
+}
+
+/* Noto Sans - Italic */
+@font-face {
+  font-family: 'Noto Sans';
+  src: url('~/assets/fonts/NotoSans-Italic-VariableFont_wdth,wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-stretch: 62.5% 100%;
+  font-style: italic;
+}
 
 
 #seld-sidebar-root {
@@ -76,6 +94,22 @@
   height: 100vh;
   padding: 8px;
   gap: 2px;
+  position: relative;
+}
+
+.sidebar-resize-handle {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 5px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 1000;
+  transition: background 0.2s;
+}
+
+.sidebar-resize-handle:hover {
+  background: var(--accent-bg);
 }
 
 #seld-sidebar-root .dynamic-font {

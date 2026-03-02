@@ -19,9 +19,10 @@ function App() {
     const [ctrlClickLookup, setCtrlClickLookup] = useState(true);
     const [underlineDictionaryWords, setUnderlineDictionaryWords] = useState(true);
     const [listHeight, setListHeight] = useState(35); // percentage
-
+    const [sidebarWidth, setSidebarWidth] = useState(350);
     const selectedRef = useRef<HTMLDivElement>(null);
-    const isResizing = useRef(false);
+    const isResizingVertical = useRef(false);
+    const isResizingSidebar = useRef(false);
 
     const isInitialized = useRef(false);
 
@@ -77,11 +78,12 @@ function App() {
 
     useEffect(() => {
         // Load settings
-        browser.storage.local.get(['theme', 'fontSize', 'seldCtrlClickLookup', 'seldUnderlineWords', 'listHeight', 'seldSearchQuery']).then((res) => {
+        browser.storage.local.get(['theme', 'fontSize', 'seldCtrlClickLookup', 'seldUnderlineWords', 'listHeight', 'seldSearchQuery', 'sidebarWidth']).then((res) => {
             if (res.theme) setTheme(res.theme as Theme);
             if (res.fontSize) setFontSize(res.fontSize as number);
             if (res.seldCtrlClickLookup !== undefined) setCtrlClickLookup(res.seldCtrlClickLookup as boolean);
             if (res.seldUnderlineWords !== undefined) setUnderlineDictionaryWords(res.seldUnderlineWords as boolean);
+            if (res.sidebarWidth) setSidebarWidth(res.sidebarWidth as number);
             if (res.listHeight) setListHeight(res.listHeight as number);
 
             if (res.seldSearchQuery) {
@@ -144,6 +146,47 @@ function App() {
         return () => mediaQuery.removeEventListener('change', updateTheme);
     }, [theme]);
 
+    useEffect(() => {
+        // Update the CSS variable for the sidebar width
+        document.documentElement.style.setProperty('--seld-panel-width', `${sidebarWidth}px`);
+    }, [sidebarWidth]);
+
+    useEffect(() => {
+        const handleGlobalMouseMove = (e: MouseEvent) => {
+            if (isResizingVertical.current) {
+                const containerHeight = window.innerHeight;
+                const newHeight = (e.clientY / containerHeight) * 100;
+                if (newHeight > 10 && newHeight < 80) {
+                    setListHeight(newHeight);
+                    chrome.storage.local.set({ listHeight: newHeight });
+                }
+            }
+
+            if (isResizingSidebar.current) {
+                const width = window.innerWidth - e.clientX;
+                if (width > 200 && width < window.innerWidth * 0.8) {
+                    setSidebarWidth(width);
+                    chrome.storage.local.set({ sidebarWidth: width });
+                }
+            }
+        };
+
+        const handleGlobalMouseUp = () => {
+            isResizingVertical.current = false;
+            isResizingSidebar.current = false;
+            document.body.style.userSelect = "";
+            document.body.style.cursor = "";
+        };
+
+        window.addEventListener('mousemove', handleGlobalMouseMove);
+        window.addEventListener('mouseup', handleGlobalMouseUp);
+
+        return () => {
+            window.removeEventListener('mousemove', handleGlobalMouseMove);
+            window.removeEventListener('mouseup', handleGlobalMouseUp);
+        };
+    }, []);
+
 
     const handleSearch = async (q: string) => {
         if (!q.trim()) {
@@ -176,16 +219,23 @@ function App() {
         audio.play().catch(e => console.error("TTS Playback error:", e));
     };
 
-    const startResizing = () => { isResizing.current = true; };
-    const stopResizing = () => { isResizing.current = false; };
-    const resize = (e: React.MouseEvent) => {
-        if (!isResizing.current) return;
-        const containerHeight = window.innerHeight;
-        const newHeight = (e.clientY / containerHeight) * 100;
-        if (newHeight > 10 && newHeight < 80) {
-            setListHeight(newHeight);
-            chrome.storage.local.set({ listHeight: newHeight });
-        }
+    const startVerticalResizing = () => {
+        isResizingVertical.current = true;
+        document.body.style.userSelect = "none";
+        document.body.style.cursor = "row-resize";
+    };
+
+    const stopResizing = () => {
+        isResizingVertical.current = false;
+        isResizingSidebar.current = false;
+        document.body.style.userSelect = "";
+        document.body.style.cursor = "";
+    };
+
+    const startSidebarResizing = (e: React.MouseEvent) => {
+        isResizingSidebar.current = true;
+        document.body.style.userSelect = "none";
+        document.body.style.cursor = "col-resize";
     };
 
     const saveSetting = (key: string, value: any) => {
@@ -251,7 +301,8 @@ function App() {
     };
 
     return (
-        <div id="seld-sidebar-inner" className={`seld-sidebar-container ${themeClass}`} style={{ '--font-size-percent': `${fontSize}%` } as any} onMouseMove={resize} onMouseUp={stopResizing}>
+        <div id="seld-sidebar-inner" className={`seld-sidebar-container ${themeClass}`} style={{ '--font-size-percent': `${fontSize}%` } as any}>
+            <div className="sidebar-resize-handle" onMouseDown={startSidebarResizing}></div>
             <div className="header-row">
                 <div style={{ display: 'flex', gap: '8px' }}>
                     <button className="settings-btn" onClick={() => setView('search')}>Search</button>
@@ -277,7 +328,7 @@ function App() {
                                 query.trim() ? <div className="no-results">No results found</div> : null
                             )}
                         </div>
-                        <div className="resize-divider" onMouseDown={startResizing}></div>
+                        <div className="resize-divider" onMouseDown={startVerticalResizing}></div>
                         <div className="definition-area custom-scroll dynamic-font">
                             {definition ? (
                                 <div className="definition-box">
