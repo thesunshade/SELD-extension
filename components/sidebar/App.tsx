@@ -258,39 +258,37 @@ function App() {
     const renderHtmlDefinition = (html: string) => {
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
+        // Remove style and script tags to prevent leakage or execution
+        const styles = doc.querySelectorAll('style, script');
+        styles.forEach(s => s.remove());
+
         const convertNode = (node: Node, key: string): React.ReactNode => {
             if (node.nodeType === Node.TEXT_NODE) return <React.Fragment key={key}>{renderTextWithClicks(node.textContent || '')}</React.Fragment>;
             if (node.nodeType === Node.ELEMENT_NODE) {
-                const element = node as Element;
+                const element = node as HTMLElement;
                 const tagName = element.tagName.toLowerCase();
                 const children = Array.from(element.childNodes).map((child, i) => convertNode(child, `${key}-${i}`));
+
+                // Final cleanup: remove color from style attribute if it exists
+                if (element.style && element.style.color) {
+                    element.style.color = '';
+                }
+
                 switch (tagName) {
                     case 'br': return <br key={key} />;
                     case 'hr': return <hr key={key} className={element.className} />;
                     case 'b': case 'strong': return <strong key={key} className={element.className}>{children}</strong>;
                     case 'i': case 'em': return <em key={key} className={element.className}>{children}</em>;
                     case 'u': return <u key={key} className={element.className}>{children}</u>;
-                    case 'p': return <p key={key} className={element.className}>{children}</p>;
-                    case 'div': return <div key={key} className={element.className}>{children}</div>;
-                    case 'span': return <span key={key} className={element.className}>{children}</span>;
+                    case 'p': return <p key={key} className={element.className} style={{ color: 'inherit' }}>{children}</p>;
+                    case 'div': return <div key={key} className={element.className} style={{ color: 'inherit' }}>{children}</div>;
+                    case 'span': return <span key={key} className={element.className} style={{ color: 'inherit' }}>{children}</span>;
                     case 'ul': return <ul key={key} className={element.className}>{children}</ul>;
-                    case 'li': return <li key={key} className={element.className}>{children}</li>;
+                    case 'li': return <li key={key} className={element.className} style={{ color: 'inherit' }}>{children}</li>;
                     case 'font': {
-                        let color = element.getAttribute('color') || '';
-                        let styleColor = color;
-                        if (themeClass === 'dark-theme') {
-                            const lower = color.toLowerCase();
-                            if (lower === 'black' || lower === '#000000' || lower === '#000' || lower === '#333333' || lower === '#1f2328') {
-                                styleColor = 'var(--text-primary)';
-                            } else if (lower === 'blue' || lower === '#0000ff' || lower === '#191970' || lower === '#000080') {
-                                styleColor = 'var(--accent)';
-                            } else if (lower === 'darkgreen' || lower === 'green' || lower === '#008000') {
-                                styleColor = '#4ade80';
-                            } else if (lower === 'red' || lower === '#ff0000') {
-                                styleColor = '#f87171';
-                            }
-                        }
-                        return <span key={key} className={element.className} style={styleColor ? { color: styleColor } : {}}>{children}</span>;
+                        // User suggestion: strip colors clearly. Any specific mapping should be minimal.
+                        // We will ignore the color attribute entirely.
+                        return <span key={key} className={element.className} style={{ color: 'inherit' }}>{children}</span>;
                     }
                     default: return <React.Fragment key={key}>{children}</React.Fragment>;
                 }

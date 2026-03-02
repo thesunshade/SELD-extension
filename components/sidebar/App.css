@@ -11,22 +11,13 @@
 }
 
 @font-face {
-  font-family: 'Noto Sans';
-  src: url('~/assets/fonts/NotoSans-VariableFont_wdth,wght.ttf') format('truetype');
-  /* Noto Sans variable usually supports 100-900 weight */
-  font-weight: 100 900;
-  /* It also supports width (stretch) from 62.5% to 100% */
-  font-stretch: 62.5% 100%;
+  font-family: 'Noto Sans Sinhala';
+  /* Use the ~/assets alias for WXT/Vite to find the file */
+  src: url('~/assets/fonts/NotoSansSinhala-VariableFont_wdth,wght.ttf') format('truetype');
+  /* This range covers the variable weights available in the font */
+  font-weight: 200 800;
   font-style: normal;
-}
-
-/* Noto Sans - Italic */
-@font-face {
-  font-family: 'Noto Sans';
-  src: url('~/assets/fonts/NotoSans-Italic-VariableFont_wdth,wght.ttf') format('truetype');
-  font-weight: 100 900;
-  font-stretch: 62.5% 100%;
-  font-style: italic;
+  font-display: swap;
 }
 
 
@@ -84,10 +75,7 @@
   /* Reset line-height */
 }
 
-#seld-sidebar-root * {
-  box-sizing: border-box;
-}
-
+/* Ensure container and its children inherit the correct color */
 .seld-sidebar-container {
   display: flex;
   flex-direction: column;
@@ -95,6 +83,7 @@
   padding: 8px;
   gap: 2px;
   position: relative;
+  color: var(--text-primary);
 }
 
 .sidebar-resize-handle {
