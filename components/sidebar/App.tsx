@@ -91,6 +91,7 @@ function App() {
                 setView('search');
                 browser.storage.local.remove('seldSearchQuery');
             }
+            isInitialized.current = true;
         });
 
         const handleStorageChange = (changes: any, namespace: string) => {

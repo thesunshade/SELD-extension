@@ -1,12 +1,25 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+Sinhala:wght@400;600&display=swap');
 
+@font-face {
+  font-family: 'Noto Sans Sinhala';
+  /* Use the ~/assets alias for WXT/Vite to find the file */
+  src: url('~/assets/fonts/NotoSansSinhala-VariableFont_wdth,wght.ttf') format('truetype');
+  /* This range covers the variable weights available in the font */
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+
+
 #seld-sidebar-root {
-  --bg-color: #ffffff;
+  --bg-color: #3af5f2;
   --bg-panel: rgba(246, 248, 250, 0.8);
   --text-primary: #1f2328;
   --text-secondary: #636c76;
   --border-color: #d0d7de;
-  --accent: #0969da;
+  --accent: #da8609;
+  /* --accent: #0969da; */
   --accent-fg: #ffffff;
   --accent-hover: #0a4da0;
   --accent-bg: rgba(9, 105, 218, 0.1);
@@ -15,12 +28,13 @@
 }
 
 .dark-theme {
-  --bg-color: #000000;
+  --bg-color: #ab0f0f;
   --bg-panel: rgba(24, 24, 24, 0.85);
   --text-primary: #ffffff;
   --text-secondary: #d1d5db;
   --border-color: #404040;
-  --accent: #60a5fa;
+  --accent: #da8609;
+  /* --accent: #60a5fa; */
   --accent-fg: #000000;
   --accent-hover: #93c5fd;
   --accent-bg: rgba(96, 165, 250, 0.15);

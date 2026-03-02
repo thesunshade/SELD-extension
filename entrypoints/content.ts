@@ -75,8 +75,9 @@ export default defineContentScript({
             }
         };
 
-        const handleSelection = () => {
+        const handleSelection = (e: MouseEvent) => {
             if (!isSidebarOpen) return;
+            if (e.target instanceof HTMLElement && e.target.closest('#seld-sidebar-root')) return;
 
             const selection = window.getSelection();
             if (!selection || selection.rangeCount === 0) return;
@@ -94,6 +95,7 @@ export default defineContentScript({
 
         const handleCtrlClick = (e: MouseEvent) => {
             if (!e.ctrlKey) return;
+            if (e.target instanceof HTMLElement && e.target.closest('#seld-sidebar-root')) return;
 
             browser.storage.local.get(['seldCtrlClickLookup']).then((result) => {
                 if (result.seldCtrlClickLookup === false) return;
