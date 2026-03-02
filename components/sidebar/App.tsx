@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { stardict, IndexEntry } from '../../utils/stardict';
+import { extractUniqueSinhalaWords, applyHighlights } from '../../utils/dom-highlights';
+import { browser } from 'wxt/browser';
 
 type View = 'search' | 'settings' | 'info';
 type Theme = 'light' | 'dark' | 'system';
@@ -25,20 +27,11 @@ function App() {
 
     // Sidebar State Notification
     useEffect(() => {
-        chrome.tabs.query({ active: true, currentWindow: true }).then((tabs) => {
-            if (tabs.length > 0 && tabs[0].id) {
-                chrome.tabs.sendMessage(tabs[0].id, { action: 'SIDEPANEL_STATE', isOpen: true });
-            }
-        });
+        // No longer need to send messages to background/content since we ARE in the content script
+        // But we might want to tell the content script state directly if it was watching.
         return () => {
-            chrome.tabs.query({ active: true, currentWindow: true }).then((tabs) => {
-                if (tabs.length > 0 && tabs[0].id) {
-                    chrome.tabs.sendMessage(tabs[0].id, { action: 'SIDEPANEL_STATE', isOpen: false });
-                    chrome.tabs.sendMessage(tabs[0].id, { action: 'CLEAR_HIGHLIGHTS' }, () => {
-                        const _ = chrome.runtime.lastError;
-                    });
-                }
-            });
+            // Cleanup highlights when closed
+            applyHighlights([], false);
         };
     }, []);
 
@@ -48,40 +41,16 @@ function App() {
 
         const handleHighlights = async () => {
             try {
-                const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
-                if (tabs.length === 0 || !tabs[0].id) {
-                    return;
-                }
-                const tabId = tabs[0].id;
-
-                // Fire off REQUEST_WORDS message
-                const response = await new Promise<any>((resolve) => {
-                    chrome.tabs.sendMessage(tabId, { action: 'REQUEST_WORDS' }, (res) => {
-                        if (chrome.runtime.lastError) {
-                            resolve(null);
-                        } else {
-                            resolve(res);
-                        }
-                    });
-                });
-
+                // Now directly calling the domestic function
+                const uniqueWords = extractUniqueSinhalaWords();
                 if (!isActive) return;
-                if (!response || !response.words) {
-                    return;
-                }
 
                 // Find exact matches
-                const uniqueWords = response.words as string[];
                 const exactMatches = await stardict.findExistingWords(uniqueWords);
+                if (!isActive) return;
 
-                if (!isActive || exactMatches.length === 0) return;
-
-                // Send matches back to content script
-                chrome.tabs.sendMessage(tabId, { action: 'APPLY_HIGHLIGHTS', words: exactMatches, underlineEnabled: underlineDictionaryWords }, (res) => {
-                    if (chrome.runtime.lastError) {
-                        console.warn("Could not apply highlights:", chrome.runtime.lastError);
-                    }
-                });
+                // Directly apply highlights
+                applyHighlights(exactMatches, underlineDictionaryWords);
 
             } catch (e) {
                 console.error("Highlighting error in App.tsx:", e);
@@ -90,68 +59,38 @@ function App() {
 
         handleHighlights();
 
-        // Listen for tab updates (URL changes in SPA)
-        const onTabUpdated = (tabId: number, changeInfo: chrome.tabs.TabChangeInfo, tab: chrome.tabs.Tab) => {
-            if ((changeInfo.status === 'complete' || changeInfo.url) && tab.active) {
-                handleHighlights();
-            }
-        };
-        chrome.tabs.onUpdated.addListener(onTabUpdated);
+        // Content scripts don't have browser.tabs access.
+        // We rely on the parent (content.ts) or a MutationObserver to re-trigger if needed.
+        // For now, let's trigger on a simple interval or rely on the initial load.
+        // Re-run highlights when DOM changes (simplified)
+        const observer = new MutationObserver(() => {
+            handleHighlights();
+        });
+        observer.observe(document.body, { childList: true, subtree: true, characterData: true });
 
         return () => {
             isActive = false;
-            chrome.tabs.onUpdated.removeListener(onTabUpdated);
+            observer.disconnect();
         };
     }, [underlineDictionaryWords]);
 
+
     useEffect(() => {
         // Load settings
-        chrome.storage.local.get(['theme', 'fontSize', 'seldCtrlClickLookup', 'seldUnderlineWords', 'listHeight'], (res) => {
-            if (res.theme) setTheme(res.theme);
-            if (res.fontSize) setFontSize(res.fontSize);
-            if (res.seldCtrlClickLookup !== undefined) setCtrlClickLookup(res.seldCtrlClickLookup);
-            if (res.seldUnderlineWords !== undefined) setUnderlineDictionaryWords(res.seldUnderlineWords);
-            if (res.listHeight) setListHeight(res.listHeight);
-        });
+        browser.storage.local.get(['theme', 'fontSize', 'seldCtrlClickLookup', 'seldUnderlineWords', 'listHeight', 'seldSearchQuery']).then((res) => {
+            if (res.theme) setTheme(res.theme as Theme);
+            if (res.fontSize) setFontSize(res.fontSize as number);
+            if (res.seldCtrlClickLookup !== undefined) setCtrlClickLookup(res.seldCtrlClickLookup as boolean);
+            if (res.seldUnderlineWords !== undefined) setUnderlineDictionaryWords(res.seldUnderlineWords as boolean);
+            if (res.listHeight) setListHeight(res.listHeight as number);
 
-        // Load session state and check for a new query
-        chrome.storage.local.get(['seldSearchQuery'], (localRes) => {
-            const newQueryFromClick = localRes.seldSearchQuery;
-
-            chrome.storage.session.get(['view', 'query', 'selectedWord'], async (sessionRes) => {
-                let currentQuery = newQueryFromClick || sessionRes.query || '';
-                let currentSelected = newQueryFromClick ? null : (sessionRes.selectedWord || null);
-
-                if (sessionRes.view && !newQueryFromClick) setView(sessionRes.view as View);
-                else if (newQueryFromClick) setView('search');
-
-                if (currentQuery) {
-                    setQuery(currentQuery);
-                    const matches = await stardict.searchWords(currentQuery, 30);
-                    setResults(matches);
-                    if (currentSelected) {
-                        setSelectedWord(currentSelected);
-                        const def = await stardict.getDefinition(currentSelected);
-                        setDefinition(def);
-                    } else if (matches.length > 0) {
-                        const exact = matches.find(m => m.word === currentQuery);
-                        if (exact) {
-                            setSelectedWord(exact.word);
-                            const def = await stardict.getDefinition(exact.word);
-                            setDefinition(def);
-                        } else {
-                            setSelectedWord(null);
-                            setDefinition(null);
-                        }
-                    }
-                }
-                isInitialized.current = true;
-
-                // Consume the local storage query so it doesn't reopen next time
-                if (newQueryFromClick) {
-                    chrome.storage.local.remove('seldSearchQuery');
-                }
-            });
+            if (res.seldSearchQuery) {
+                const q = res.seldSearchQuery as string;
+                setQuery(q);
+                handleSearch(q);
+                setView('search');
+                browser.storage.local.remove('seldSearchQuery');
+            }
         });
 
         const handleStorageChange = (changes: any, namespace: string) => {
@@ -160,18 +99,20 @@ function App() {
                 setQuery(newQuery);
                 handleSearch(newQuery);
                 setView('search');
-                chrome.storage.local.remove('seldSearchQuery');
+                browser.storage.local.remove('seldSearchQuery');
             }
         };
-        chrome.storage.onChanged.addListener(handleStorageChange);
-        return () => chrome.storage.onChanged.removeListener(handleStorageChange);
+        browser.storage.onChanged.addListener(handleStorageChange);
+        return () => browser.storage.onChanged.removeListener(handleStorageChange);
     }, []);
+
 
     useEffect(() => {
         if (isInitialized.current) {
-            chrome.storage.session.set({ view, query, selectedWord });
+            browser.storage.local.set({ view, query, selectedWord });
         }
     }, [view, query, selectedWord]);
+
 
     useEffect(() => {
         if (selectedRef.current) {
@@ -192,8 +133,8 @@ function App() {
     useEffect(() => {
         const updateTheme = () => {
             const currentClass = getThemeClass();
-            document.body.className = currentClass;
-            document.documentElement.className = currentClass;
+            // Don't set document.body className - it leaks to the host page
+            // Instead, we rely on the theme class on our own container
         };
         updateTheme();
 
@@ -201,6 +142,7 @@ function App() {
         mediaQuery.addEventListener('change', updateTheme);
         return () => mediaQuery.removeEventListener('change', updateTheme);
     }, [theme]);
+
 
     const handleSearch = async (q: string) => {
         if (!q.trim()) {
@@ -246,8 +188,9 @@ function App() {
     };
 
     const saveSetting = (key: string, value: any) => {
-        chrome.storage.local.set({ [key]: value });
+        browser.storage.local.set({ [key]: value });
     };
+
 
     const renderTextWithClicks = (text: string) => {
         const tokens = text.split(/([^a-zA-Z\u0D80-\u0DFF]+)/);
@@ -307,7 +250,7 @@ function App() {
     };
 
     return (
-        <div className={`container ${themeClass}`} style={{ '--font-size-percent': `${fontSize}%` } as any} onMouseMove={resize} onMouseUp={stopResizing}>
+        <div id="seld-sidebar-inner" className={`seld-sidebar-container ${themeClass}`} style={{ '--font-size-percent': `${fontSize}%` } as any} onMouseMove={resize} onMouseUp={stopResizing}>
             <div className="header-row">
                 <div style={{ display: 'flex', gap: '8px' }}>
                     <button className="settings-btn" onClick={() => setView('search')}>Search</button>

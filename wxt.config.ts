@@ -6,7 +6,7 @@ export default defineConfig({
     manifest: {
         name: 'Sinhala English Learner’s Dictionary',
         description: 'Lookup Sinhala words from the SELD',
-        permissions: ['sidePanel', 'storage'],
+        permissions: ['storage'],
         host_permissions: [
             '<all_urls>',
             'https://translate.google.com/*'

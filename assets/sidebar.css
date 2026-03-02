@@ -1,0 +1,42 @@
+:root {
+	--seld-panel-width: 350px;
+	--seld-bg: #f9f9f9;
+	--seld-border: #ddd;
+}
+
+/* Layout for Host Page */
+html.seld-active {
+	overflow-x: hidden !important;
+}
+
+body.seld-active {
+	display: grid !important;
+	grid-template-columns: calc(100vw - var(--seld-panel-width)) var(--seld-panel-width) !important;
+	width: 100vw !important;
+	margin: 0 !important;
+	padding: 0 !important;
+}
+
+/* Container for existing content */
+#seld-main-content {
+	height: 100vh;
+	overflow-y: auto;
+	position: relative;
+}
+
+/* Sidebar Styling */
+#seld-sidebar-root {
+	height: 100vh;
+	position: fixed;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	background: var(--seld-bg);
+	border-left: 1px solid var(--seld-border);
+	z-index: 2147483647;
+	width: var(--seld-panel-width);
+	box-sizing: border-box;
+	display: flex;
+	flex-direction: column;
+	overflow-y: auto;
+}
