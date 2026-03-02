@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+Sinhala:wght@400;600&display=swap');
 
-:root {
+#seld-sidebar-root {
   --bg-color: #ffffff;
   --bg-panel: rgba(246, 248, 250, 0.8);
   --text-primary: #1f2328;
@@ -29,7 +29,7 @@
 
 /* High contrast / Accessibility focus */
 @media (prefers-contrast: more) {
-  :root {
+  #seld-sidebar-root {
     --border-color: #000000;
     --text-primary: #000000;
   }

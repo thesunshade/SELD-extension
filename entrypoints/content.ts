@@ -1,5 +1,6 @@
 import '../assets/content.css';
 import '../assets/sidebar.css';
+import '../components/sidebar/App.css';
 import { defineContentScript } from 'wxt/sandbox';
 import React from 'react';
 import ReactDOM from 'react-dom/client';

@@ -23,7 +23,14 @@ export default defineConfig({
                 "128": "icon-128.png"
             }
         },
+        web_accessible_resources: [
+            {
+                resources: ["SELD.idx", "SELD.dict"],
+                matches: ["<all_urls>"]
+            }
+        ]
     },
+
     srcDir: '.',
     outDir: '.output',
     extensionApi: 'chrome',
