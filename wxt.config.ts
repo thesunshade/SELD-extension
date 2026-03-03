@@ -6,7 +6,7 @@ export default defineConfig({
     manifest: {
         name: 'Sinhala English Learner’s Dictionary',
         description: 'Lookup Sinhala words from the SELD',
-        permissions: ['sidePanel', 'storage'],
+        permissions: ['storage'],
         host_permissions: [
             '<all_urls>',
             'https://translate.google.com/*'
@@ -23,7 +23,14 @@ export default defineConfig({
                 "128": "icon-128.png"
             }
         },
+        web_accessible_resources: [
+            {
+                resources: ["SELD.idx", "SELD.dict"],
+                matches: ["<all_urls>"]
+            }
+        ]
     },
+
     srcDir: '.',
     outDir: '.output',
     extensionApi: 'chrome',
@@ -31,7 +38,6 @@ export default defineConfig({
         startUrls: [
             'https://tripitaka.online/sutta/334',
             'https://mahamegha.lk/2022/04/23/sirapa-wandanawa/',
-            'https://sinhala.adaderana.lk/news/221717'
         ],
     },
 });

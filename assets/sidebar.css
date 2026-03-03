@@ -1,0 +1,43 @@
+:root {
+	--seld-panel-width: 350px;
+}
+
+/* Layout for Host Page */
+html.seld-active {
+	overflow-x: hidden !important;
+}
+
+body.seld-active {
+	display: grid !important;
+	grid-template-columns: calc(100vw - var(--seld-panel-width)) var(--seld-panel-width) !important;
+	width: 100vw !important;
+	margin: 0 !important;
+	padding: 0 !important;
+	transition: grid-template-columns 0.05s linear;
+	/* Slight transition for smoother drag if needed, though often better without */
+}
+
+/* Container for existing content */
+#seld-main-content {
+	height: 100vh;
+	overflow-y: auto;
+	position: relative;
+}
+
+/* Sidebar Styling - The root is now a transparent shell for the grid/positioning */
+#seld-sidebar-root {
+	height: 100vh;
+	position: fixed;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	background: transparent;
+	border-left: none;
+	z-index: 2147483647;
+	width: var(--seld-panel-width);
+	box-sizing: border-box;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	/* Inner container handles scroll */
+}

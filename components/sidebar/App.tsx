@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { stardict, IndexEntry } from '../../utils/stardict';
+import { extractUniqueSinhalaWords, applyHighlights } from '../../utils/dom-highlights';
+import { browser } from 'wxt/browser';
 
 type View = 'search' | 'settings' | 'info';
 type Theme = 'light' | 'dark' | 'system';
@@ -16,29 +18,28 @@ function App() {
     const [fontSize, setFontSize] = useState(100);
     const [ctrlClickLookup, setCtrlClickLookup] = useState(true);
     const [underlineDictionaryWords, setUnderlineDictionaryWords] = useState(true);
+    const [autoPlayTTS, setAutoPlayTTS] = useState(false);
+    const autoPlayTTSRef = useRef(false);
     const [listHeight, setListHeight] = useState(35); // percentage
-
+    const [sidebarWidth, setSidebarWidth] = useState(350);
     const selectedRef = useRef<HTMLDivElement>(null);
-    const isResizing = useRef(false);
+    const isResizingVertical = useRef(false);
+    const isResizingSidebar = useRef(false);
+
+    // History navigation state
+    const [history, setHistory] = useState<string[]>([]);
+    const historyIndex = useRef(-1);
+    const isNavigatingHistory = useRef(false);
 
     const isInitialized = useRef(false);
 
     // Sidebar State Notification
     useEffect(() => {
-        chrome.tabs.query({ active: true, currentWindow: true }).then((tabs) => {
-            if (tabs.length > 0 && tabs[0].id) {
-                chrome.tabs.sendMessage(tabs[0].id, { action: 'SIDEPANEL_STATE', isOpen: true });
-            }
-        });
+        // No longer need to send messages to background/content since we ARE in the content script
+        // But we might want to tell the content script state directly if it was watching.
         return () => {
-            chrome.tabs.query({ active: true, currentWindow: true }).then((tabs) => {
-                if (tabs.length > 0 && tabs[0].id) {
-                    chrome.tabs.sendMessage(tabs[0].id, { action: 'SIDEPANEL_STATE', isOpen: false });
-                    chrome.tabs.sendMessage(tabs[0].id, { action: 'CLEAR_HIGHLIGHTS' }, () => {
-                        const _ = chrome.runtime.lastError;
-                    });
-                }
-            });
+            // Cleanup highlights when closed
+            applyHighlights([], false);
         };
     }, []);
 
@@ -48,40 +49,16 @@ function App() {
 
         const handleHighlights = async () => {
             try {
-                const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
-                if (tabs.length === 0 || !tabs[0].id) {
-                    return;
-                }
-                const tabId = tabs[0].id;
-
-                // Fire off REQUEST_WORDS message
-                const response = await new Promise<any>((resolve) => {
-                    chrome.tabs.sendMessage(tabId, { action: 'REQUEST_WORDS' }, (res) => {
-                        if (chrome.runtime.lastError) {
-                            resolve(null);
-                        } else {
-                            resolve(res);
-                        }
-                    });
-                });
-
+                // Now directly calling the domestic function
+                const uniqueWords = extractUniqueSinhalaWords();
                 if (!isActive) return;
-                if (!response || !response.words) {
-                    return;
-                }
 
                 // Find exact matches
-                const uniqueWords = response.words as string[];
                 const exactMatches = await stardict.findExistingWords(uniqueWords);
+                if (!isActive) return;
 
-                if (!isActive || exactMatches.length === 0) return;
-
-                // Send matches back to content script
-                chrome.tabs.sendMessage(tabId, { action: 'APPLY_HIGHLIGHTS', words: exactMatches, underlineEnabled: underlineDictionaryWords }, (res) => {
-                    if (chrome.runtime.lastError) {
-                        console.warn("Could not apply highlights:", chrome.runtime.lastError);
-                    }
-                });
+                // Directly apply highlights
+                applyHighlights(exactMatches, underlineDictionaryWords);
 
             } catch (e) {
                 console.error("Highlighting error in App.tsx:", e);
@@ -90,68 +67,41 @@ function App() {
 
         handleHighlights();
 
-        // Listen for tab updates (URL changes in SPA)
-        const onTabUpdated = (tabId: number, changeInfo: chrome.tabs.TabChangeInfo, tab: chrome.tabs.Tab) => {
-            if ((changeInfo.status === 'complete' || changeInfo.url) && tab.active) {
-                handleHighlights();
-            }
-        };
-        chrome.tabs.onUpdated.addListener(onTabUpdated);
+        // Content scripts don't have browser.tabs access.
+        // We rely on the parent (content.ts) or a MutationObserver to re-trigger if needed.
+        // For now, let's trigger on a simple interval or rely on the initial load.
+        // Re-run highlights when DOM changes (simplified)
+        const observer = new MutationObserver(() => {
+            handleHighlights();
+        });
+        observer.observe(document.body, { childList: true, subtree: true, characterData: true });
 
         return () => {
             isActive = false;
-            chrome.tabs.onUpdated.removeListener(onTabUpdated);
+            observer.disconnect();
         };
     }, [underlineDictionaryWords]);
 
+
     useEffect(() => {
         // Load settings
-        chrome.storage.local.get(['theme', 'fontSize', 'seldCtrlClickLookup', 'seldUnderlineWords', 'listHeight'], (res) => {
-            if (res.theme) setTheme(res.theme);
-            if (res.fontSize) setFontSize(res.fontSize);
-            if (res.seldCtrlClickLookup !== undefined) setCtrlClickLookup(res.seldCtrlClickLookup);
-            if (res.seldUnderlineWords !== undefined) setUnderlineDictionaryWords(res.seldUnderlineWords);
-            if (res.listHeight) setListHeight(res.listHeight);
-        });
+        browser.storage.local.get(['theme', 'fontSize', 'seldCtrlClickLookup', 'seldUnderlineWords', 'seldAutoPlayTTS', 'listHeight', 'seldSearchQuery', 'sidebarWidth']).then((res) => {
+            if (res.theme) setTheme(res.theme as Theme);
+            if (res.fontSize) setFontSize(res.fontSize as number);
+            if (res.seldCtrlClickLookup !== undefined) setCtrlClickLookup(res.seldCtrlClickLookup as boolean);
+            if (res.seldUnderlineWords !== undefined) setUnderlineDictionaryWords(res.seldUnderlineWords as boolean);
+            if (res.seldAutoPlayTTS !== undefined) { setAutoPlayTTS(res.seldAutoPlayTTS as boolean); autoPlayTTSRef.current = res.seldAutoPlayTTS as boolean; }
+            if (res.sidebarWidth) setSidebarWidth(res.sidebarWidth as number);
+            if (res.listHeight) setListHeight(res.listHeight as number);
 
-        // Load session state and check for a new query
-        chrome.storage.local.get(['seldSearchQuery'], (localRes) => {
-            const newQueryFromClick = localRes.seldSearchQuery;
-
-            chrome.storage.session.get(['view', 'query', 'selectedWord'], async (sessionRes) => {
-                let currentQuery = newQueryFromClick || sessionRes.query || '';
-                let currentSelected = newQueryFromClick ? null : (sessionRes.selectedWord || null);
-
-                if (sessionRes.view && !newQueryFromClick) setView(sessionRes.view as View);
-                else if (newQueryFromClick) setView('search');
-
-                if (currentQuery) {
-                    setQuery(currentQuery);
-                    const matches = await stardict.searchWords(currentQuery, 30);
-                    setResults(matches);
-                    if (currentSelected) {
-                        setSelectedWord(currentSelected);
-                        const def = await stardict.getDefinition(currentSelected);
-                        setDefinition(def);
-                    } else if (matches.length > 0) {
-                        const exact = matches.find(m => m.word === currentQuery);
-                        if (exact) {
-                            setSelectedWord(exact.word);
-                            const def = await stardict.getDefinition(exact.word);
-                            setDefinition(def);
-                        } else {
-                            setSelectedWord(null);
-                            setDefinition(null);
-                        }
-                    }
-                }
-                isInitialized.current = true;
-
-                // Consume the local storage query so it doesn't reopen next time
-                if (newQueryFromClick) {
-                    chrome.storage.local.remove('seldSearchQuery');
-                }
-            });
+            if (res.seldSearchQuery) {
+                const q = res.seldSearchQuery as string;
+                setQuery(q);
+                handleSearch(q);
+                setView('search');
+                browser.storage.local.remove('seldSearchQuery');
+            }
+            isInitialized.current = true;
         });
 
         const handleStorageChange = (changes: any, namespace: string) => {
@@ -160,18 +110,20 @@ function App() {
                 setQuery(newQuery);
                 handleSearch(newQuery);
                 setView('search');
-                chrome.storage.local.remove('seldSearchQuery');
+                browser.storage.local.remove('seldSearchQuery');
             }
         };
-        chrome.storage.onChanged.addListener(handleStorageChange);
-        return () => chrome.storage.onChanged.removeListener(handleStorageChange);
+        browser.storage.onChanged.addListener(handleStorageChange);
+        return () => browser.storage.onChanged.removeListener(handleStorageChange);
     }, []);
+
 
     useEffect(() => {
         if (isInitialized.current) {
-            chrome.storage.session.set({ view, query, selectedWord });
+            browser.storage.local.set({ view, query, selectedWord });
         }
     }, [view, query, selectedWord]);
+
 
     useEffect(() => {
         if (selectedRef.current) {
@@ -192,8 +144,8 @@ function App() {
     useEffect(() => {
         const updateTheme = () => {
             const currentClass = getThemeClass();
-            document.body.className = currentClass;
-            document.documentElement.className = currentClass;
+            // Don't set document.body className - it leaks to the host page
+            // Instead, we rely on the theme class on our own container
         };
         updateTheme();
 
@@ -202,16 +154,65 @@ function App() {
         return () => mediaQuery.removeEventListener('change', updateTheme);
     }, [theme]);
 
+    useEffect(() => {
+        // Update the CSS variable for the sidebar width
+        document.documentElement.style.setProperty('--seld-panel-width', `${sidebarWidth}px`);
+    }, [sidebarWidth]);
+
+    useEffect(() => {
+        const handleGlobalMouseMove = (e: MouseEvent) => {
+            if (isResizingVertical.current) {
+                const containerHeight = window.innerHeight;
+                const newHeight = (e.clientY / containerHeight) * 100;
+                if (newHeight > 10 && newHeight < 80) {
+                    setListHeight(newHeight);
+                    chrome.storage.local.set({ listHeight: newHeight });
+                }
+            }
+
+            if (isResizingSidebar.current) {
+                const width = window.innerWidth - e.clientX;
+                if (width > 200 && width < window.innerWidth * 0.8) {
+                    setSidebarWidth(width);
+                    chrome.storage.local.set({ sidebarWidth: width });
+                }
+            }
+        };
+
+        const handleGlobalMouseUp = () => {
+            isResizingVertical.current = false;
+            isResizingSidebar.current = false;
+            document.body.style.userSelect = "";
+            document.body.style.cursor = "";
+        };
+
+        window.addEventListener('mousemove', handleGlobalMouseMove);
+        window.addEventListener('mouseup', handleGlobalMouseUp);
+
+        return () => {
+            window.removeEventListener('mousemove', handleGlobalMouseMove);
+            window.removeEventListener('mouseup', handleGlobalMouseUp);
+        };
+    }, []);
+
+
+    const sanitizeSearchQuery = (q: string) => {
+        // Sanitize leading and trailing whitespace and punctuation: . , ; : ' " ‘ ’ “ ” - – —
+        // Using Unicode codepoints for robustness as requested
+        return q.replace(/^[\u002E\u002C\u003B\u003A\u0027\u0022\u2018\u2019\u201C\u201D\u002D\u2013\u2014\s]+|[\u002E\u002C\u003B\u003A\u0027\u0022\u2018\u2019\u201C\u201D\u002D\u2013\u2014\s]+$/g, '');
+    };
+
     const handleSearch = async (q: string) => {
-        if (!q.trim()) {
+        const sanitized = sanitizeSearchQuery(q);
+        if (!sanitized) {
             setResults([]);
             setDefinition(null);
             setSelectedWord(null);
             return;
         }
-        const matches = await stardict.searchWords(q, 30);
+        const matches = await stardict.searchWords(sanitized, 30);
         setResults(matches);
-        const exact = matches.find(m => m.word === q);
+        const exact = matches.find(m => m.word === sanitized);
         if (exact) {
             handleSelectWord(exact.word);
         } else {
@@ -224,30 +225,88 @@ function App() {
         setSelectedWord(word);
         const def = await stardict.getDefinition(word);
         setDefinition(def);
+        if (autoPlayTTSRef.current) handleSpeak(word);
+
+        // Push to history unless we're navigating via back/forward
+        if (!isNavigatingHistory.current) {
+            setHistory(prev => {
+                // Truncate any forward history
+                const truncated = prev.slice(0, historyIndex.current + 1);
+                // Don't add duplicates if the same word is already the latest
+                if (truncated.length > 0 && truncated[truncated.length - 1] === word) {
+                    return truncated;
+                }
+                const updated = [...truncated, word];
+                historyIndex.current = updated.length - 1;
+                return updated;
+            });
+        }
+    };
+
+    const goBack = async () => {
+        if (historyIndex.current <= 0) return;
+        historyIndex.current -= 1;
+        const word = history[historyIndex.current];
+        isNavigatingHistory.current = true;
+        setQuery(word);
+        await handleSearch(word);
+        await handleSelectWord(word);
+        isNavigatingHistory.current = false;
+    };
+
+    const goForward = async () => {
+        if (historyIndex.current >= history.length - 1) return;
+        historyIndex.current += 1;
+        const word = history[historyIndex.current];
+        isNavigatingHistory.current = true;
+        setQuery(word);
+        await handleSearch(word);
+        await handleSelectWord(word);
+        isNavigatingHistory.current = false;
     };
 
     const handleSpeak = (text: string) => {
         if (!text) return;
-        const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=si&client=tw-ob`;
-        const audio = new Audio(url);
-        audio.play().catch(e => console.error("TTS Playback error:", e));
+
+        browser.runtime.sendMessage({ action: 'GET_TTS_AUDIO', text, tl: 'si' })
+            .then((response: any) => {
+
+                if (response.error) {
+                    console.error("TTS Proxy error:", response.error);
+                    return;
+                }
+                if (response.audioData) {
+                    const audio = new Audio(`data:audio/mpeg;base64,${response.audioData}`);
+                    audio.play().catch(e => console.error("TTS Playback error:", e));
+                }
+            })
+            .catch(e => console.error("Error communicating with background for TTS:", e));
     };
 
-    const startResizing = () => { isResizing.current = true; };
-    const stopResizing = () => { isResizing.current = false; };
-    const resize = (e: React.MouseEvent) => {
-        if (!isResizing.current) return;
-        const containerHeight = window.innerHeight;
-        const newHeight = (e.clientY / containerHeight) * 100;
-        if (newHeight > 10 && newHeight < 80) {
-            setListHeight(newHeight);
-            chrome.storage.local.set({ listHeight: newHeight });
-        }
+
+    const startVerticalResizing = () => {
+        isResizingVertical.current = true;
+        document.body.style.userSelect = "none";
+        document.body.style.cursor = "row-resize";
+    };
+
+    const stopResizing = () => {
+        isResizingVertical.current = false;
+        isResizingSidebar.current = false;
+        document.body.style.userSelect = "";
+        document.body.style.cursor = "";
+    };
+
+    const startSidebarResizing = (e: React.MouseEvent) => {
+        isResizingSidebar.current = true;
+        document.body.style.userSelect = "none";
+        document.body.style.cursor = "col-resize";
     };
 
     const saveSetting = (key: string, value: any) => {
-        chrome.storage.local.set({ [key]: value });
+        browser.storage.local.set({ [key]: value });
     };
+
 
     const renderTextWithClicks = (text: string) => {
         const tokens = text.split(/([^a-zA-Z\u0D80-\u0DFF]+)/);
@@ -264,39 +323,37 @@ function App() {
     const renderHtmlDefinition = (html: string) => {
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
+        // Remove style and script tags to prevent leakage or execution
+        const styles = doc.querySelectorAll('style, script');
+        styles.forEach(s => s.remove());
+
         const convertNode = (node: Node, key: string): React.ReactNode => {
             if (node.nodeType === Node.TEXT_NODE) return <React.Fragment key={key}>{renderTextWithClicks(node.textContent || '')}</React.Fragment>;
             if (node.nodeType === Node.ELEMENT_NODE) {
-                const element = node as Element;
+                const element = node as HTMLElement;
                 const tagName = element.tagName.toLowerCase();
                 const children = Array.from(element.childNodes).map((child, i) => convertNode(child, `${key}-${i}`));
+
+                // Final cleanup: remove color from style attribute if it exists
+                if (element.style && element.style.color) {
+                    element.style.color = '';
+                }
+
                 switch (tagName) {
                     case 'br': return <br key={key} />;
                     case 'hr': return <hr key={key} className={element.className} />;
                     case 'b': case 'strong': return <strong key={key} className={element.className}>{children}</strong>;
                     case 'i': case 'em': return <em key={key} className={element.className}>{children}</em>;
                     case 'u': return <u key={key} className={element.className}>{children}</u>;
-                    case 'p': return <p key={key} className={element.className}>{children}</p>;
-                    case 'div': return <div key={key} className={element.className}>{children}</div>;
-                    case 'span': return <span key={key} className={element.className}>{children}</span>;
+                    case 'p': return <p key={key} className={element.className} style={{ color: 'inherit' }}>{children}</p>;
+                    case 'div': return <div key={key} className={element.className} style={{ color: 'inherit' }}>{children}</div>;
+                    case 'span': return <span key={key} className={element.className} style={{ color: 'inherit' }}>{children}</span>;
                     case 'ul': return <ul key={key} className={element.className}>{children}</ul>;
-                    case 'li': return <li key={key} className={element.className}>{children}</li>;
+                    case 'li': return <li key={key} className={element.className} style={{ color: 'inherit' }}>{children}</li>;
                     case 'font': {
-                        let color = element.getAttribute('color') || '';
-                        let styleColor = color;
-                        if (themeClass === 'dark-theme') {
-                            const lower = color.toLowerCase();
-                            if (lower === 'black' || lower === '#000000' || lower === '#000' || lower === '#333333' || lower === '#1f2328') {
-                                styleColor = 'var(--text-primary)';
-                            } else if (lower === 'blue' || lower === '#0000ff' || lower === '#191970' || lower === '#000080') {
-                                styleColor = 'var(--accent)';
-                            } else if (lower === 'darkgreen' || lower === 'green' || lower === '#008000') {
-                                styleColor = '#4ade80';
-                            } else if (lower === 'red' || lower === '#ff0000') {
-                                styleColor = '#f87171';
-                            }
-                        }
-                        return <span key={key} className={element.className} style={styleColor ? { color: styleColor } : {}}>{children}</span>;
+                        // User suggestion: strip colors clearly. Any specific mapping should be minimal.
+                        // We will ignore the color attribute entirely.
+                        return <span key={key} className={element.className} style={{ color: 'inherit' }}>{children}</span>;
                     }
                     default: return <React.Fragment key={key}>{children}</React.Fragment>;
                 }
@@ -307,8 +364,23 @@ function App() {
     };
 
     return (
-        <div className={`container ${themeClass}`} style={{ '--font-size-percent': `${fontSize}%` } as any} onMouseMove={resize} onMouseUp={stopResizing}>
+        <div id="seld-sidebar-inner" className={`seld-sidebar-container ${themeClass}`} style={{ '--font-size-percent': `${fontSize}%` } as any}>
+            <div className="sidebar-resize-handle" onMouseDown={startSidebarResizing}></div>
             <div className="header-row">
+                <div className="history-nav">
+                    <button
+                        className="history-btn"
+                        onClick={goBack}
+                        disabled={historyIndex.current <= 0}
+                        title="Go back"
+                    >&lt;</button>
+                    <button
+                        className="history-btn"
+                        onClick={goForward}
+                        disabled={historyIndex.current >= history.length - 1}
+                        title="Go forward"
+                    >&gt;</button>
+                </div>
                 <div style={{ display: 'flex', gap: '8px' }}>
                     <button className="settings-btn" onClick={() => setView('search')}>Search</button>
                     <button className="settings-btn" onClick={() => setView('settings')}>Settings</button>
@@ -333,7 +405,7 @@ function App() {
                                 query.trim() ? <div className="no-results">No results found</div> : null
                             )}
                         </div>
-                        <div className="resize-divider" onMouseDown={startResizing}></div>
+                        <div className="resize-divider" onMouseDown={startVerticalResizing}></div>
                         <div className="definition-area custom-scroll dynamic-font">
                             {definition ? (
                                 <div className="definition-box">
@@ -350,10 +422,10 @@ function App() {
                                             </svg>
                                         </button>
                                     </h2>
-                                    <div className="definition-content">{renderHtmlDefinition(definition)}</div>
+                                    <div className="definition-content">{definition ? renderHtmlDefinition(definition) : null}</div>
                                 </div>
                             ) : (
-                                !query ? <div className="empty-state">Highlight text on a page to look up</div> : (
+                                !query ? <div className="empty-state">Highlight text or double click to look up</div> : (
                                     results.length > 0 ? <div className="empty-state">Select a word</div> : null
                                 )
                             )}
@@ -389,7 +461,7 @@ function App() {
                             <span className="slider-value">{fontSize}%</span>
                         </div>
                         <div className="dynamic-font" style={{ marginTop: '0.4em', color: 'var(--text-primary)', textAlign: 'center' }}>
-                            ශබ්දකෝෂය
+                            ෴ශබ්දකෝෂය෴
                         </div>
                     </div>
                     <div className="settings-group">
@@ -422,6 +494,21 @@ function App() {
                                 <span className="custom-checkbox"></span>
                                 <span className="checkbox-label">Underline words in dictionary</span>
                             </label>
+
+                            <label className="checkbox-container">
+                                <input
+                                    type="checkbox"
+                                    checked={autoPlayTTS}
+                                    onChange={(e) => {
+                                        const val = e.target.checked;
+                                        setAutoPlayTTS(val);
+                                        autoPlayTTSRef.current = val;
+                                        saveSetting('seldAutoPlayTTS', val);
+                                    }}
+                                />
+                                <span className="custom-checkbox"></span>
+                                <span className="checkbox-label">Auto-play TTS for matched words</span>
+                            </label>
                         </div>
                     </div>
                 </div>
@@ -430,15 +517,10 @@ function App() {
             {view === 'info' && (
                 <div className="info-pane glassmorphism custom-scroll">
                     <h3>About SELD Dictionary</h3>
-                    <p>Sinhala-English Language Dictionary (SELD) Browser Extension.</p>
-                    <p>Features:</p>
-                    <ul>
-                        <li>StarDict local parsing</li>
-                        <li>Double-click lookups</li>
-                        <li>Interactive definitions</li>
-                        <li>Customizable themes & text size</li>
-                    </ul>
-                    <p>Version 2.0.0</p>
+                    <p>Sinhala-English Learner's Dictionary (SELD).</p>
+                    <p>Double click or select words to look up.</p>
+                    <p>Text to speech provided by Google.</p>
+
                 </div>
             )}
         </div>
