@@ -1,39 +1,109 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+Sinhala:wght@400;600&display=swap');
-
 @font-face {
   font-family: 'Noto Sans Sinhala';
-  /* Use the ~/assets alias for WXT/Vite to find the file */
   src: url('~/assets/fonts/NotoSansSinhala-VariableFont_wdth,wght.ttf') format('truetype');
-  /* This range covers the variable weights available in the font */
   font-weight: 200 800;
   font-style: normal;
   font-display: swap;
 }
 
-
-#seld-sidebar-root {
-  /* Move variables and core styling to the inner container where theme classes are applied */
-  box-sizing: border-box;
+@font-face {
+  font-family: 'Noto Sans';
+  src: url('~/assets/fonts/NotoSans-VariableFont_wdth,wght.ttf') format('truetype');
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
 }
 
-.seld-sidebar-container {
+@font-face {
+  font-family: 'Noto Sans';
+  src: url('~/assets/fonts/NotoSans-Italic-VariableFont_wdth,wght.ttf') format('truetype');
+  font-weight: 200 800;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Base Reset */
+#seld-sidebar-root {
+  all: initial;
+  display: block;
+  box-sizing: border-box;
+  font-family: 'Noto Sans', 'Noto Sans Sinhala', sans-serif;
+  z-index: 2147483647;
+}
+
+#seld-sidebar-root *,
+#seld-sidebar-root *::before,
+#seld-sidebar-root *::after {
+  box-sizing: border-box;
+  font-family: 'Noto Sans', 'Noto Sans Sinhala', sans-serif;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  vertical-align: baseline;
+  text-decoration: none;
+  list-style: none;
+}
+
+/* Restore basic display properties for common elements within sidebar */
+/* Restore basic display properties for common elements within sidebar */
+#seld-sidebar-root div,
+#seld-sidebar-root section,
+#seld-sidebar-root p,
+#seld-sidebar-root ul,
+#seld-sidebar-root li,
+#seld-sidebar-root h1,
+#seld-sidebar-root h2,
+#seld-sidebar-root h3,
+#seld-sidebar-root h4,
+#seld-sidebar-root h5,
+#seld-sidebar-root h6 {
+  display: block;
+}
+
+#seld-sidebar-root span,
+#seld-sidebar-root strong,
+#seld-sidebar-root em,
+#seld-sidebar-root b,
+#seld-sidebar-root i,
+#seld-sidebar-root u {
+  display: inline;
+}
+
+#seld-sidebar-root button,
+#seld-sidebar-root input {
+  display: inline-block;
+  appearance: none;
+  -webkit-appearance: none;
+  font-family: inherit;
+  font-size: 100%;
+  line-height: normal;
+  background: transparent;
+  color: inherit;
+  outline: none;
+  cursor: pointer;
+}
+
+#seld-sidebar-root svg {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Main Container - use ID prefix to win specificity */
+#seld-sidebar-root .seld-sidebar-container {
   --bg-color: #f8fafc;
   --bg-panel: rgba(255, 255, 255, 0.9);
   --text-primary: #0f172a;
   --text-secondary: #475569;
   --border-color: #e2e8f0;
   --accent: #0f172a;
-  /* --accent: #0969da; */
   --accent-fg: #ffffff;
   --accent-hover: #1e293b;
   --accent-bg: rgba(15, 23, 42, 0.05);
   --input-bg: #ffffff;
   --font-multiplier: 1;
 
-  /* Core layout/theming */
   background-color: var(--bg-color);
   color: var(--text-primary);
-  font-family: 'Inter', 'Noto Sans Sinhala', sans-serif;
   height: 100vh;
   padding: 8px;
   gap: 2px;
@@ -43,39 +113,33 @@
   border-left: 1px solid var(--border-color);
 }
 
-.dark-theme {
+#seld-sidebar-root .dark-theme {
   --bg-color: #020617;
   --bg-panel: rgba(15, 23, 42, 0.9);
   --text-primary: #f8fafc;
   --text-secondary: #94a3b8;
   --border-color: #1e293b;
   --accent: #f8fafc;
-  /* --accent: #60a5fa; */
   --accent-fg: #0f172a;
   --accent-hover: #e2e8f0;
   --accent-bg: rgba(248, 250, 252, 0.1);
   --input-bg: #0f172a;
 }
 
-/* High contrast / Accessibility focus */
+/* High contrast */
 @media (prefers-contrast: more) {
-  #seld-sidebar-root {
+  #seld-sidebar-root .seld-sidebar-container {
     --border-color: #000000;
     --text-primary: #000000;
   }
 
-  .dark-theme {
+  #seld-sidebar-root .dark-theme {
     --border-color: #ffffff;
     --text-primary: #ffffff;
   }
 }
 
-/* Ensure all children inherit correct box-sizing */
-#seld-sidebar-root * {
-  box-sizing: border-box;
-}
-
-.sidebar-resize-handle {
+#seld-sidebar-root .sidebar-resize-handle {
   position: absolute;
   left: 0;
   top: 0;
@@ -86,7 +150,7 @@
   transition: background 0.2s;
 }
 
-.sidebar-resize-handle:hover {
+#seld-sidebar-root .sidebar-resize-handle:hover {
   background: var(--accent-bg);
 }
 
@@ -98,11 +162,6 @@
   display: flex;
   justify-content: flex-end;
   align-items: center;
-}
-
-#seld-sidebar-root .header-row h3 {
-  font-size: 1.1em;
-  margin: 0;
 }
 
 #seld-sidebar-root .settings-btn {
@@ -143,9 +202,7 @@
   border: 1px solid var(--border-color);
   background: var(--input-bg);
   color: var(--text-primary);
-  font-family: inherit;
   font-size: 0.9em;
-  outline: none;
 }
 
 #seld-sidebar-root .search-input:focus {
@@ -157,6 +214,8 @@
   flex: 1;
   flex-direction: column;
   min-height: 0;
+  overflow: hidden;
+  /* Prevent child overflow from expanding container */
 }
 
 #seld-sidebar-root .resize-divider {
@@ -223,7 +282,6 @@
   border-bottom: 1px solid var(--border-color);
   padding-bottom: 0.5em;
   color: var(--text-primary);
-  /* Explicitly set to fix inheritance issue */
 }
 
 #seld-sidebar-root .tts-button {
@@ -238,7 +296,6 @@
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s ease;
-  padding: 0;
 }
 
 #seld-sidebar-root .tts-button:hover {
@@ -246,10 +303,6 @@
   color: var(--accent);
   border-color: var(--accent);
   transform: scale(1.05);
-}
-
-#seld-sidebar-root .tts-button:active {
-  transform: scale(0.95);
 }
 
 #seld-sidebar-root .definition-content {
@@ -268,14 +321,14 @@
 }
 
 #seld-sidebar-root .examplescontents {
-  list-style-type: none !important;
-  padding-left: 0.5em !important;
+  list-style-type: none;
+  padding-left: 0.5em;
   border-left: 2px solid var(--border-color);
-  margin: 0.8em 0 !important;
+  margin: 0.8em 0;
 }
 
 #seld-sidebar-root .examplescontent {
-  margin-bottom: 0.6em !important;
+  margin-bottom: 0.6em;
   font-style: italic;
 }
 
@@ -299,8 +352,6 @@
   font-style: italic;
 }
 
-
-/* Settings View */
 #seld-sidebar-root .settings-panel {
   padding: 1.2em;
   display: flex;
@@ -334,13 +385,12 @@
   background: var(--bg-color);
   color: var(--text-primary);
   border-radius: 6px;
-  cursor: pointer;
   font-size: 0.85em;
 }
 
 #seld-sidebar-root .toggle-btn.active {
   background: var(--accent);
-  color: var(--accent-fg, white);
+  color: var(--accent-fg);
   border-color: var(--accent);
 }
 
@@ -362,20 +412,12 @@
   font-size: 0.9em;
 }
 
-/* Info Pane */
 #seld-sidebar-root .info-pane {
   padding: 1.2em;
   font-size: 0.9em;
   line-height: 1.5;
 }
 
-#seld-sidebar-root .custom-scroll::-webkit-scrollbar-thumb {
-  background: var(--border-color);
-  border-radius: 10px;
-}
-
-
-/* Custom Scrollbar */
 #seld-sidebar-root .custom-scroll::-webkit-scrollbar {
   width: 6px;
 }
@@ -393,7 +435,6 @@
   background: var(--text-secondary);
 }
 
-/* Checkbox Styles */
 #seld-sidebar-root .checkbox-container {
   display: flex;
   align-items: center;
@@ -433,7 +474,7 @@
 
 #seld-sidebar-root .custom-checkbox::after {
   content: '✓';
-  color: var(--accent-fg, white);
+  color: var(--accent-fg);
   font-size: 14px;
   display: none;
 }
