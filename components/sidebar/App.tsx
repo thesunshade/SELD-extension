@@ -26,6 +26,11 @@ function App() {
     const isResizingVertical = useRef(false);
     const isResizingSidebar = useRef(false);
 
+    // History navigation state
+    const [history, setHistory] = useState<string[]>([]);
+    const historyIndex = useRef(-1);
+    const isNavigatingHistory = useRef(false);
+
     const isInitialized = useRef(false);
 
     // Sidebar State Notification
@@ -214,6 +219,43 @@ function App() {
         const def = await stardict.getDefinition(word);
         setDefinition(def);
         if (autoPlayTTSRef.current) handleSpeak(word);
+
+        // Push to history unless we're navigating via back/forward
+        if (!isNavigatingHistory.current) {
+            setHistory(prev => {
+                // Truncate any forward history
+                const truncated = prev.slice(0, historyIndex.current + 1);
+                // Don't add duplicates if the same word is already the latest
+                if (truncated.length > 0 && truncated[truncated.length - 1] === word) {
+                    return truncated;
+                }
+                const updated = [...truncated, word];
+                historyIndex.current = updated.length - 1;
+                return updated;
+            });
+        }
+    };
+
+    const goBack = async () => {
+        if (historyIndex.current <= 0) return;
+        historyIndex.current -= 1;
+        const word = history[historyIndex.current];
+        isNavigatingHistory.current = true;
+        setQuery(word);
+        await handleSearch(word);
+        await handleSelectWord(word);
+        isNavigatingHistory.current = false;
+    };
+
+    const goForward = async () => {
+        if (historyIndex.current >= history.length - 1) return;
+        historyIndex.current += 1;
+        const word = history[historyIndex.current];
+        isNavigatingHistory.current = true;
+        setQuery(word);
+        await handleSearch(word);
+        await handleSelectWord(word);
+        isNavigatingHistory.current = false;
     };
 
     const handleSpeak = (text: string) => {
@@ -318,6 +360,20 @@ function App() {
         <div id="seld-sidebar-inner" className={`seld-sidebar-container ${themeClass}`} style={{ '--font-size-percent': `${fontSize}%` } as any}>
             <div className="sidebar-resize-handle" onMouseDown={startSidebarResizing}></div>
             <div className="header-row">
+                <div className="history-nav">
+                    <button
+                        className="history-btn"
+                        onClick={goBack}
+                        disabled={historyIndex.current <= 0}
+                        title="Go back"
+                    >&lt;</button>
+                    <button
+                        className="history-btn"
+                        onClick={goForward}
+                        disabled={historyIndex.current >= history.length - 1}
+                        title="Go forward"
+                    >&gt;</button>
+                </div>
                 <div style={{ display: 'flex', gap: '8px' }}>
                     <button className="settings-btn" onClick={() => setView('search')}>Search</button>
                     <button className="settings-btn" onClick={() => setView('settings')}>Settings</button>

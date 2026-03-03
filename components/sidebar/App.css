@@ -160,8 +160,37 @@
 
 #seld-sidebar-root .header-row {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
+}
+
+#seld-sidebar-root .history-nav {
+  display: flex;
+  gap: 4px;
+}
+
+#seld-sidebar-root .history-btn {
+  background: var(--bg-color);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  border-radius: 6px;
+  padding: 0.4em 0.7em;
+  cursor: pointer;
+  font-size: 0.85em;
+  font-weight: 600;
+  line-height: 1;
+  transition: all 0.2s ease;
+}
+
+#seld-sidebar-root .history-btn:hover:not(:disabled) {
+  background: var(--accent);
+  color: var(--accent-fg);
+  border-color: var(--accent);
+}
+
+#seld-sidebar-root .history-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
 }
 
 #seld-sidebar-root .settings-btn {
