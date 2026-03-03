@@ -41,7 +41,7 @@
   border: 0;
   vertical-align: baseline;
   text-decoration: none;
-  list-style: none;
+  /* list-style: none; */
 }
 
 /* Restore basic display properties for common elements within sidebar */
@@ -58,6 +58,7 @@
 #seld-sidebar-root h5,
 #seld-sidebar-root h6 {
   display: block;
+  color: inherit;
 }
 
 #seld-sidebar-root span,
@@ -118,7 +119,7 @@
   --bg-panel: rgba(15, 23, 42, 0.9);
   --text-primary: #f8fafc;
   --text-secondary: #94a3b8;
-  --border-color: #1e293b;
+  --border-color: #3c5379;
   --accent: #f8fafc;
   --accent-fg: #0f172a;
   --accent-hover: #e2e8f0;
@@ -313,7 +314,8 @@
   color: var(--text-primary);
 }
 
-#seld-sidebar-root .tts-button {
+#seld-sidebar-root .tts-button,
+#seld-sidebar-root .copy-button {
   background: var(--bg-color);
   border: 1px solid var(--border-color);
   color: var(--text-primary);
@@ -327,7 +329,8 @@
   transition: all 0.2s ease;
 }
 
-#seld-sidebar-root .tts-button:hover {
+#seld-sidebar-root .tts-button:hover,
+#seld-sidebar-root .copy-button:hover {
   background: var(--accent-bg);
   color: var(--accent);
   border-color: var(--accent);
@@ -372,7 +375,7 @@
 
 #seld-sidebar-root .homograph-separator {
   border: 0;
-  border-top: 1px dashed var(--border-color);
+  border-top: 1px solid var(--border-color);
   margin: 1.5em 0;
   opacity: 0.6;
 }
@@ -572,7 +575,47 @@
   opacity: .6;
 }
 
-.variantformentrybackrefs {
+.variantformentrybackrefs,
+.complexformentryrefs,
+.lexsensereferences {
   display: block !important;
   opacity: .6;
+}
+
+#seld-sidebar-root .toast-notification {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--accent);
+  color: var(--accent-fg);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.85em;
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  animation: toast-fade-in 0.2s ease-out;
+  z-index: 10000;
+  white-space: nowrap;
+}
+
+@keyframes toast-fade-in {
+  from {
+    opacity: 0;
+    bottom: 10px;
+  }
+
+  to {
+    opacity: 1;
+    bottom: 24px;
+  }
+}
+
+.test-sites {
+  list-style: disk;
+}
+
+.test-sites li a {
+  color: var(--text-primary) !important;
+  text-decoration: underline !important;
 }

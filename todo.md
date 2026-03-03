@@ -6,3 +6,4 @@
 - [ ] compound verbs in definitions need to be clickable as a unit. like වන්දනා කරනවා.
 - [x] add fonts locally
 - [x] scrub input so leading trailing spaces and punctuation are removed.
+- [ ] need some way to give key to abbreviations

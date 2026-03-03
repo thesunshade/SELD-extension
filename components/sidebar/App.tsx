@@ -20,6 +20,8 @@ function App() {
     const [underlineDictionaryWords, setUnderlineDictionaryWords] = useState(true);
     const [autoPlayTTS, setAutoPlayTTS] = useState(false);
     const autoPlayTTSRef = useRef(false);
+    const [showToast, setShowToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState('');
     const [listHeight, setListHeight] = useState(35); // percentage
     const [sidebarWidth, setSidebarWidth] = useState(350);
     const selectedRef = useRef<HTMLDivElement>(null);
@@ -283,6 +285,40 @@ function App() {
             .catch(e => console.error("Error communicating with background for TTS:", e));
     };
 
+    const handleCopy = async () => {
+        if (!selectedWord || !definition) return;
+
+        try {
+            // Helper to strip HTML tags for plain text version
+            const stripHtml = (html: string) => {
+                const tmp = document.createElement("DIV");
+                tmp.innerHTML = html;
+                return tmp.textContent || tmp.innerText || "";
+            };
+
+            const htmlContent = `<h2>${selectedWord}</h2><div>${definition}</div>`;
+            const plainText = `${selectedWord}\n\n${stripHtml(definition)}`;
+
+            const blobHtml = new Blob([htmlContent], { type: 'text/html' });
+            const blobText = new Blob([plainText], { type: 'text/plain' });
+
+            const data = [new ClipboardItem({
+                'text/html': blobHtml,
+                'text/plain': blobText,
+            })];
+
+            await navigator.clipboard.write(data);
+            setToastMessage("Entry copied!");
+            setShowToast(true);
+            setTimeout(() => setShowToast(false), 2000);
+        } catch (err) {
+            console.error('Failed to copy: ', err);
+            setToastMessage("Failed to copy");
+            setShowToast(true);
+            setTimeout(() => setShowToast(false), 2000);
+        }
+    };
+
 
     const startVerticalResizing = () => {
         isResizingVertical.current = true;
@@ -411,16 +447,28 @@ function App() {
                                 <div className="definition-box">
                                     <h2 className="def-title">
                                         {selectedWord}
-                                        <button
-                                            className="tts-button"
-                                            onClick={() => selectedWord && handleSpeak(selectedWord)}
-                                            title="Speak word"
-                                        >
-                                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-                                                <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-                                            </svg>
-                                        </button>
+                                        <div style={{ display: 'flex', gap: '8px' }}>
+                                            <button
+                                                className="copy-button"
+                                                onClick={handleCopy}
+                                                title="Copy entry"
+                                            >
+                                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                                                    <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                                                </svg>
+                                            </button>
+                                            <button
+                                                className="tts-button"
+                                                onClick={() => selectedWord && handleSpeak(selectedWord)}
+                                                title="Speak word"
+                                            >
+                                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                                                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                                                </svg>
+                                            </button>
+                                        </div>
                                     </h2>
                                     <div className="definition-content">{definition ? renderHtmlDefinition(definition) : null}</div>
                                 </div>
@@ -520,9 +568,18 @@ function App() {
                     <p>Sinhala-English Learner's Dictionary (SELD).</p>
                     <p>Double click or select words to look up.</p>
                     <p>Text to speech provided by Google.</p>
+                    <details>
+                        <summary>Pages to try</summary>
+                        <p>The following pages have good coverage in the SELD</p>
+                        <ul className='test-sites'>
+                            <li><a rel='noreferrer' target='_blank' href='https://mahamegha.lk/2022/04/23/sirapa-wandanawa/'>සිරිපා වන්දනාවේ ගිය ගැමි කවියෝ</a></li>
+                            <li><a rel='noreferrer' target='_blank' href='https://tripitaka.online/sutta/7478'>අංගුත්තර නිකාය තික නිපාතෝ 3.1.1.1. </a></li>
+                        </ul>
 
+                    </details>
                 </div>
             )}
+            {showToast && <div className="toast-notification">{toastMessage}</div>}
         </div>
     );
 }
