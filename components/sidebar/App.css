@@ -561,3 +561,7 @@
 #seld-sidebar-root .checkbox-label {
   color: var(--text-primary);
 }
+
+.partofspeech {
+  opacity: .5;
+}

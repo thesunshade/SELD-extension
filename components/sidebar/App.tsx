@@ -418,7 +418,7 @@ function App() {
                                     <div className="definition-content">{renderHtmlDefinition(definition)}</div>
                                 </div>
                             ) : (
-                                !query ? <div className="empty-state">Highlight text on a page to look up</div> : (
+                                !query ? <div className="empty-state">Highlight text or double click to look up</div> : (
                                     results.length > 0 ? <div className="empty-state">Select a word</div> : null
                                 )
                             )}
@@ -510,15 +510,10 @@ function App() {
             {view === 'info' && (
                 <div className="info-pane glassmorphism custom-scroll">
                     <h3>About SELD Dictionary</h3>
-                    <p>Sinhala-English Language Dictionary (SELD) Browser Extension.</p>
-                    <p>Features:</p>
-                    <ul>
-                        <li>StarDict local parsing</li>
-                        <li>Double-click lookups</li>
-                        <li>Interactive definitions</li>
-                        <li>Customizable themes & text size</li>
-                    </ul>
-                    <p>Version 2.0.0</p>
+                    <p>Sinhala-English Learner's Dictionary (SELD).</p>
+                    <p>Double click or select words to look up.</p>
+                    <p>Text to speech provided by Google.</p>
+
                 </div>
             )}
         </div>
