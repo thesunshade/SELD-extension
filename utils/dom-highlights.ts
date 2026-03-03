@@ -1,5 +1,10 @@
 export const SINHALA_REGEX = /[\u0D80-\u0DFF]+/g;
 
+const isInsideSidebar = (node: Node): boolean => {
+	const el = node.parentElement;
+	return !!el?.closest('#seld-sidebar-root');
+};
+
 export const findWordRanges = (targetWords: string[]): Range[] => {
 	const ranges: Range[] = [];
 	const targetSet = new Set(targetWords);
@@ -12,9 +17,10 @@ export const findWordRanges = (targetWords: string[]): Range[] => {
 		const text = node.nodeValue;
 		if (!text || text.trim() === '') continue;
 
-		// Skip script and style tags
+		// Skip script, style tags, and sidebar content
 		const parentName = node.parentElement?.tagName.toLowerCase();
 		if (parentName === 'script' || parentName === 'style' || parentName === 'noscript') continue;
+		if (isInsideSidebar(node)) continue;
 
 		let match;
 		while ((match = SINHALA_REGEX.exec(text)) !== null) {
@@ -41,6 +47,7 @@ export const extractUniqueSinhalaWords = (): string[] => {
 
 		const parentName = node.parentElement?.tagName.toLowerCase();
 		if (parentName === 'script' || parentName === 'style' || parentName === 'noscript') continue;
+		if (isInsideSidebar(node)) continue;
 
 		let match;
 		while ((match = SINHALA_REGEX.exec(text)) !== null) {
