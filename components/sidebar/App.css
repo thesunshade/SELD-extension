@@ -351,9 +351,14 @@
 
 #seld-sidebar-root .examplescontents {
   list-style-type: none;
-  padding-left: 0.5em;
+  padding-left: 0.4em;
+  padding-right: .4rem;
+  padding-top: .5em;
+  padding-bottom: .5em;
   border-left: 2px solid var(--border-color);
   margin: 0.8em 0;
+  background-color: #8383834f;
+
 }
 
 #seld-sidebar-root .examplescontent {
@@ -563,5 +568,10 @@
 }
 
 .partofspeech {
-  opacity: .5;
+  opacity: .6;
+}
+
+.variantformentrybackrefs {
+  display: block !important;
+  opacity: .6;
 }

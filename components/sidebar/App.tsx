@@ -196,16 +196,23 @@ function App() {
     }, []);
 
 
+    const sanitizeSearchQuery = (q: string) => {
+        // Sanitize leading and trailing whitespace and punctuation: . , ; : ' " ‘ ’ “ ” - – —
+        // Using Unicode codepoints for robustness as requested
+        return q.replace(/^[\u002E\u002C\u003B\u003A\u0027\u0022\u2018\u2019\u201C\u201D\u002D\u2013\u2014\s]+|[\u002E\u002C\u003B\u003A\u0027\u0022\u2018\u2019\u201C\u201D\u002D\u2013\u2014\s]+$/g, '');
+    };
+
     const handleSearch = async (q: string) => {
-        if (!q.trim()) {
+        const sanitized = sanitizeSearchQuery(q);
+        if (!sanitized) {
             setResults([]);
             setDefinition(null);
             setSelectedWord(null);
             return;
         }
-        const matches = await stardict.searchWords(q, 30);
+        const matches = await stardict.searchWords(sanitized, 30);
         setResults(matches);
-        const exact = matches.find(m => m.word === q);
+        const exact = matches.find(m => m.word === sanitized);
         if (exact) {
             handleSelectWord(exact.word);
         } else {
@@ -415,7 +422,7 @@ function App() {
                                             </svg>
                                         </button>
                                     </h2>
-                                    <div className="definition-content">{renderHtmlDefinition(definition)}</div>
+                                    <div className="definition-content">{definition ? renderHtmlDefinition(definition) : null}</div>
                                 </div>
                             ) : (
                                 !query ? <div className="empty-state">Highlight text or double click to look up</div> : (
@@ -454,7 +461,7 @@ function App() {
                             <span className="slider-value">{fontSize}%</span>
                         </div>
                         <div className="dynamic-font" style={{ marginTop: '0.4em', color: 'var(--text-primary)', textAlign: 'center' }}>
-                            ශබ්දකෝෂය
+                            ෴ශබ්දකෝෂය෴
                         </div>
                     </div>
                     <div className="settings-group">
