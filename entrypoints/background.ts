@@ -22,9 +22,32 @@ export default defineBackground(() => {
         if (message.action === 'openSidePanel') {
             // This was for the old sidePanel, keeping it empty or removing it
             // since we are moving to custom injection.
+        } else if (message.action === 'GET_TTS_AUDIO') {
+            const { text, tl } = message;
+            const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=${tl || 'si'}&client=tw-ob`;
+
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response.arrayBuffer();
+                })
+                .then(buffer => {
+                    // Convert ArrayBuffer to Base64
+                    const base64 = btoa(
+                        new Uint8Array(buffer)
+                            .reduce((data, byte) => data + String.fromCharCode(byte), '')
+                    );
+                    sendResponse({ audioData: base64 });
+                })
+                .catch(error => {
+                    console.error("[SELD] TTS fetch error:", error);
+                    sendResponse({ error: error.message });
+                });
+            return true; // Keep message channel open for async response
         }
         return true;
     });
+
 });
 
 

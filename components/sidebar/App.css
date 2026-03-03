@@ -17,16 +17,16 @@
 }
 
 .seld-sidebar-container {
-  --bg-color: #3af5f2;
-  --bg-panel: rgba(246, 248, 250, 0.8);
-  --text-primary: #1f2328;
-  --text-secondary: #636c76;
-  --border-color: #d0d7de;
-  --accent: #da8609;
+  --bg-color: #f8fafc;
+  --bg-panel: rgba(255, 255, 255, 0.9);
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --border-color: #e2e8f0;
+  --accent: #0f172a;
   /* --accent: #0969da; */
   --accent-fg: #ffffff;
-  --accent-hover: #0a4da0;
-  --accent-bg: rgba(9, 105, 218, 0.1);
+  --accent-hover: #1e293b;
+  --accent-bg: rgba(15, 23, 42, 0.05);
   --input-bg: #ffffff;
   --font-multiplier: 1;
 
@@ -44,17 +44,17 @@
 }
 
 .dark-theme {
-  --bg-color: #ab0f0f;
-  --bg-panel: rgba(24, 24, 24, 0.85);
-  --text-primary: #ffffff;
-  --text-secondary: #d1d5db;
-  --border-color: #404040;
-  --accent: #da8609;
+  --bg-color: #020617;
+  --bg-panel: rgba(15, 23, 42, 0.9);
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --border-color: #1e293b;
+  --accent: #f8fafc;
   /* --accent: #60a5fa; */
-  --accent-fg: #000000;
-  --accent-hover: #93c5fd;
-  --accent-bg: rgba(96, 165, 250, 0.15);
-  --input-bg: #000000;
+  --accent-fg: #0f172a;
+  --accent-hover: #e2e8f0;
+  --accent-bg: rgba(248, 250, 252, 0.1);
+  --input-bg: #0f172a;
 }
 
 /* High contrast / Accessibility focus */
@@ -106,18 +106,21 @@
 }
 
 #seld-sidebar-root .settings-btn {
-  background: none;
+  background: var(--bg-color);
   border: 1px solid var(--border-color);
-  color: var(--text-secondary);
+  color: var(--text-primary);
   border-radius: 6px;
-  padding: 0.3em 0.6em;
+  padding: 0.4em 0.8em;
   cursor: pointer;
-  font-size: 0.75em;
+  font-size: 0.8em;
+  font-weight: 500;
+  transition: all 0.2s ease;
 }
 
 #seld-sidebar-root .settings-btn:hover {
-  background: var(--accent-bg);
-  color: var(--text-primary);
+  background: var(--accent);
+  color: var(--accent-fg);
+  border-color: var(--accent);
 }
 
 #seld-sidebar-root .glassmorphism {
@@ -219,12 +222,14 @@
   font-size: 1.4em;
   border-bottom: 1px solid var(--border-color);
   padding-bottom: 0.5em;
+  color: var(--text-primary);
+  /* Explicitly set to fix inheritance issue */
 }
 
 #seld-sidebar-root .tts-button {
-  background: none;
+  background: var(--bg-color);
   border: 1px solid var(--border-color);
-  color: var(--text-secondary);
+  color: var(--text-primary);
   border-radius: 50%;
   width: 32px;
   height: 32px;

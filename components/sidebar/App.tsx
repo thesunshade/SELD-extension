@@ -214,10 +214,22 @@ function App() {
 
     const handleSpeak = (text: string) => {
         if (!text) return;
-        const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=si&client=tw-ob`;
-        const audio = new Audio(url);
-        audio.play().catch(e => console.error("TTS Playback error:", e));
+
+        browser.runtime.sendMessage({ action: 'GET_TTS_AUDIO', text, tl: 'si' })
+            .then((response: any) => {
+
+                if (response.error) {
+                    console.error("TTS Proxy error:", response.error);
+                    return;
+                }
+                if (response.audioData) {
+                    const audio = new Audio(`data:audio/mpeg;base64,${response.audioData}`);
+                    audio.play().catch(e => console.error("TTS Playback error:", e));
+                }
+            })
+            .catch(e => console.error("Error communicating with background for TTS:", e));
     };
+
 
     const startVerticalResizing = () => {
         isResizingVertical.current = true;
