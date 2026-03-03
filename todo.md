@@ -1,8 +1,8 @@
 - [ ] underline should be one of three options: off, bold, subtle
-- [ ] history
-    - [ ] back and forward buttons
-- [ ] read word aloud when open
+- [x] history
+    - [x] back and forward buttons
+- [x] read word aloud when open
 - [ ] single click or double click option
 - [ ] compound verbs in definitions need to be clickable as a unit. like වන්දනා කරනවා.
-- [ ] add fonts locally
-- [ ] scrub input so leading trailing spaces and punctuation are removed.
+- [x] add fonts locally
+- [x] scrub input so leading trailing spaces and punctuation are removed.

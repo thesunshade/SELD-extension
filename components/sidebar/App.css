@@ -341,7 +341,7 @@
 
 #seld-sidebar-root .definition-content ul {
   margin: 0.5em 0;
-  padding-left: 1.2em;
+  padding-left: .5em;
   list-style-type: disc;
 }
 
@@ -351,7 +351,7 @@
 
 #seld-sidebar-root .examplescontents {
   list-style-type: none;
-  padding-left: 0.4em;
+  padding-left: 0.0em;
   padding-right: .4rem;
   padding-top: .5em;
   padding-bottom: .5em;
@@ -567,7 +567,8 @@
   color: var(--text-primary);
 }
 
-.partofspeech {
+.partofspeech,
+.usages {
   opacity: .6;
 }
 
