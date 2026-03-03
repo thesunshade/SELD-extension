@@ -18,6 +18,8 @@ function App() {
     const [fontSize, setFontSize] = useState(100);
     const [ctrlClickLookup, setCtrlClickLookup] = useState(true);
     const [underlineDictionaryWords, setUnderlineDictionaryWords] = useState(true);
+    const [autoPlayTTS, setAutoPlayTTS] = useState(false);
+    const autoPlayTTSRef = useRef(false);
     const [listHeight, setListHeight] = useState(35); // percentage
     const [sidebarWidth, setSidebarWidth] = useState(350);
     const selectedRef = useRef<HTMLDivElement>(null);
@@ -78,11 +80,12 @@ function App() {
 
     useEffect(() => {
         // Load settings
-        browser.storage.local.get(['theme', 'fontSize', 'seldCtrlClickLookup', 'seldUnderlineWords', 'listHeight', 'seldSearchQuery', 'sidebarWidth']).then((res) => {
+        browser.storage.local.get(['theme', 'fontSize', 'seldCtrlClickLookup', 'seldUnderlineWords', 'seldAutoPlayTTS', 'listHeight', 'seldSearchQuery', 'sidebarWidth']).then((res) => {
             if (res.theme) setTheme(res.theme as Theme);
             if (res.fontSize) setFontSize(res.fontSize as number);
             if (res.seldCtrlClickLookup !== undefined) setCtrlClickLookup(res.seldCtrlClickLookup as boolean);
             if (res.seldUnderlineWords !== undefined) setUnderlineDictionaryWords(res.seldUnderlineWords as boolean);
+            if (res.seldAutoPlayTTS !== undefined) { setAutoPlayTTS(res.seldAutoPlayTTS as boolean); autoPlayTTSRef.current = res.seldAutoPlayTTS as boolean; }
             if (res.sidebarWidth) setSidebarWidth(res.sidebarWidth as number);
             if (res.listHeight) setListHeight(res.listHeight as number);
 
@@ -210,6 +213,7 @@ function App() {
         setSelectedWord(word);
         const def = await stardict.getDefinition(word);
         setDefinition(def);
+        if (autoPlayTTSRef.current) handleSpeak(word);
     };
 
     const handleSpeak = (text: string) => {
@@ -426,6 +430,21 @@ function App() {
                                 />
                                 <span className="custom-checkbox"></span>
                                 <span className="checkbox-label">Underline words in dictionary</span>
+                            </label>
+
+                            <label className="checkbox-container">
+                                <input
+                                    type="checkbox"
+                                    checked={autoPlayTTS}
+                                    onChange={(e) => {
+                                        const val = e.target.checked;
+                                        setAutoPlayTTS(val);
+                                        autoPlayTTSRef.current = val;
+                                        saveSetting('seldAutoPlayTTS', val);
+                                    }}
+                                />
+                                <span className="custom-checkbox"></span>
+                                <span className="checkbox-label">Auto-play TTS for matched words</span>
                             </label>
                         </div>
                     </div>
