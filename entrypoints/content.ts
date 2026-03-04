@@ -5,7 +5,6 @@ import { defineContentScript } from 'wxt/sandbox';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from '../components/sidebar/App';
-import { extractUniqueSinhalaWords, SINHALA_REGEX } from '../utils/dom-highlights';
 import { browser } from 'wxt/browser';
 
 export default defineContentScript({
@@ -174,10 +173,7 @@ export default defineContentScript({
         // Listen for requests from the SidePanel
         // -------------------------------------------------------------
         browser.runtime.onMessage.addListener((message: any, sender, sendResponse) => {
-            if (message.action === 'REQUEST_WORDS') {
-                const uniqueWords = extractUniqueSinhalaWords();
-                sendResponse({ words: uniqueWords });
-            } else if (message.action === 'TOGGLE_SIDEBAR') {
+            if (message.action === 'TOGGLE_SIDEBAR') {
                 toggleSidebar();
                 sendResponse({ success: true });
             }

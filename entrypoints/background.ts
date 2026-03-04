@@ -19,10 +19,7 @@ export default defineBackground(() => {
 
     // Listen for messages from the content script (keeping existing for now if needed, but cleaning up sidePanel)
     browser.runtime.onMessage.addListener((message: any, sender, sendResponse) => {
-        if (message.action === 'openSidePanel') {
-            // This was for the old sidePanel, keeping it empty or removing it
-            // since we are moving to custom injection.
-        } else if (message.action === 'GET_TTS_AUDIO') {
+        if (message.action === 'GET_TTS_AUDIO') {
             const { text, tl } = message;
             const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=${tl || 'si'}&client=tw-ob`;
 
