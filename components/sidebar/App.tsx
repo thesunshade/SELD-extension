@@ -19,6 +19,7 @@ function App() {
     const [ctrlClickLookup, setCtrlClickLookup] = useState(true);
     const [underlineDictionaryWords, setUnderlineDictionaryWords] = useState(true);
     const [autoPlayTTS, setAutoPlayTTS] = useState(false);
+    const [overrideSinhalaFont, setOverrideSinhalaFont] = useState(false);
     const autoPlayTTSRef = useRef(false);
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
@@ -87,12 +88,13 @@ function App() {
 
     useEffect(() => {
         // Load settings
-        browser.storage.local.get(['theme', 'fontSize', 'seldCtrlClickLookup', 'seldUnderlineWords', 'seldAutoPlayTTS', 'listHeight', 'seldSearchQuery', 'sidebarWidth']).then((res) => {
+        browser.storage.local.get(['theme', 'fontSize', 'seldCtrlClickLookup', 'seldUnderlineWords', 'seldAutoPlayTTS', 'seldOverrideSinhalaFont', 'listHeight', 'seldSearchQuery', 'sidebarWidth']).then((res) => {
             if (res.theme) setTheme(res.theme as Theme);
             if (res.fontSize) setFontSize(res.fontSize as number);
             if (res.seldCtrlClickLookup !== undefined) setCtrlClickLookup(res.seldCtrlClickLookup as boolean);
             if (res.seldUnderlineWords !== undefined) setUnderlineDictionaryWords(res.seldUnderlineWords as boolean);
             if (res.seldAutoPlayTTS !== undefined) { setAutoPlayTTS(res.seldAutoPlayTTS as boolean); autoPlayTTSRef.current = res.seldAutoPlayTTS as boolean; }
+            if (res.seldOverrideSinhalaFont !== undefined) setOverrideSinhalaFont(res.seldOverrideSinhalaFont as boolean);
             if (res.sidebarWidth) setSidebarWidth(res.sidebarWidth as number);
             if (res.listHeight) setListHeight(res.listHeight as number);
 
@@ -556,6 +558,20 @@ function App() {
                                 />
                                 <span className="custom-checkbox"></span>
                                 <span className="checkbox-label">Auto-play TTS for matched words</span>
+                            </label>
+
+                            <label className="checkbox-container">
+                                <input
+                                    type="checkbox"
+                                    checked={overrideSinhalaFont}
+                                    onChange={(e) => {
+                                        const val = e.target.checked;
+                                        setOverrideSinhalaFont(val);
+                                        saveSetting('seldOverrideSinhalaFont', val);
+                                    }}
+                                />
+                                <span className="custom-checkbox"></span>
+                                <span className="checkbox-label">Override page Sinhala font</span>
                             </label>
                         </div>
                     </div>

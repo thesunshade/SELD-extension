@@ -25,7 +25,7 @@ export default defineConfig({
         },
         web_accessible_resources: [
             {
-                resources: ["SELD.idx", "SELD.dict"],
+                resources: ["SELD.idx", "SELD.dict", "assets/fonts/*.ttf"],
                 matches: ["<all_urls>"]
             }
         ]

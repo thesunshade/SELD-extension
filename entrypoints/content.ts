@@ -67,6 +67,48 @@ export default defineContentScript({
             isSidebarOpen = false;
         };
 
+        const FONT_STYLE_ID = 'seld-font-override';
+        const applyFontOverride = (enabled: boolean) => {
+            let styleEl = document.getElementById(FONT_STYLE_ID);
+            if (enabled) {
+                if (!styleEl) {
+                    styleEl = document.createElement('style');
+                    styleEl.id = FONT_STYLE_ID;
+                    document.head.appendChild(styleEl);
+                }
+                const runtime = browser.runtime as any;
+                const fontUrl = runtime.getURL('assets/fonts/NotoSansSinhala-VariableFont_wdth,wght.ttf');
+                styleEl.textContent = `
+                    @font-face {
+                        font-family: 'SeldNotoSansSinhala';
+                        src: url('${fontUrl}') format('truetype');
+                        font-weight: normal;
+                        font-style: normal;
+                        font-display: swap;
+                    }
+                    /* Aggressive override for everything EXCEPT the sidebar subtree */
+                    *:not(#seld-sidebar-root):not(#seld-sidebar-root *) {
+                        font-family: 'SeldNotoSansSinhala', 'Noto Sans Sinhala', sans-serif !important;
+                    }
+                `;
+            } else {
+                styleEl?.remove();
+            }
+        };
+
+        // Initial check for font override
+        browser.storage.local.get(['seldOverrideSinhalaFont']).then((res) => {
+            if (res.seldOverrideSinhalaFont) {
+                applyFontOverride(true);
+            }
+        });
+
+        browser.storage.onChanged.addListener((changes, namespace) => {
+            if (namespace === 'local' && changes.seldOverrideSinhalaFont) {
+                applyFontOverride(changes.seldOverrideSinhalaFont.newValue as boolean);
+            }
+        });
+
         const toggleSidebar = () => {
             if (isSidebarOpen) {
                 destroySidebar();
