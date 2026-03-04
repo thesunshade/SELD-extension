@@ -31,7 +31,11 @@ export default defineConfig({
         ],
         browser_specific_settings: {
             gecko: {
-                id: "info@readingfaithfully.org",
+                id: "{bbe80599-3b0c-4add-aef4-e6a03b7057d8}",
+                // @ts-ignore
+                data_collection_permissions: {
+                    required: ["none"],
+                },
             },
         },
     },
