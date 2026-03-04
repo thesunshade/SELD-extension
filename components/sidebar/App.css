@@ -369,6 +369,23 @@
   font-style: italic;
 }
 
+#seld-sidebar-root .examplescontents {
+  list-style-type: none;
+  padding-left: 0.0em;
+  padding-right: .4rem;
+  padding-top: .5em;
+  padding-bottom: .5em;
+  border-left: 2px solid var(--border-color);
+  margin: 0.8em 0;
+  background-color: #8383834f;
+
+}
+
+#seld-sidebar-root .examplescontent {
+  margin-bottom: 0.6em;
+  font-style: italic;
+}
+
 #seld-sidebar-root .clickable-word {
   cursor: pointer;
 }
@@ -582,6 +599,23 @@
   opacity: .6;
 }
 
+
+#seld-sidebar-root .checkbox-label {
+  color: var(--text-primary);
+}
+
+.partofspeech,
+.usages {
+  opacity: .6;
+}
+
+.variantformentrybackrefs,
+.complexformentryrefs,
+.lexsensereferences {
+  display: block !important;
+  opacity: .6;
+}
+
 #seld-sidebar-root .toast-notification {
   position: absolute;
   bottom: 24px;
@@ -618,4 +652,23 @@
 .test-sites li a {
   color: var(--text-primary) !important;
   text-decoration: underline !important;
+}
+
+#seld-sidebar-root .synthesized-header {
+  color: var(--accent-color, #007bff) !important;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: bold;
+  font-size: 1.2em;
+  margin-bottom: 8px;
+  margin-top: 4px;
+}
+
+#seld-sidebar-root .synthesized-header-text {
+  cursor: pointer;
+}
+
+#seld-sidebar-root .synthesized-header-text:hover {
+  text-decoration: underline;
 }

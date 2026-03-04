@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { stardict, IndexEntry } from '../../utils/stardict';
+import { stardict, IndexEntry, StructuredDefinition } from '../../utils/stardict';
 import { extractUniqueSinhalaWords, applyHighlights } from '../../utils/dom-highlights';
 import { browser } from 'wxt/browser';
 
@@ -11,7 +11,7 @@ function App() {
     const [query, setQuery] = useState('');
     const [results, setResults] = useState<IndexEntry[]>([]);
     const [selectedWord, setSelectedWord] = useState<string | null>(null);
-    const [definition, setDefinition] = useState<string | null>(null);
+    const [definition, setDefinition] = useState<StructuredDefinition[] | null>(null);
 
     // Settings state
     const [theme, setTheme] = useState<Theme>('system');
@@ -216,7 +216,7 @@ function App() {
         }
         const matches = await stardict.searchWords(sanitized, 30);
         setResults(matches);
-        const exact = matches.find(m => m.word === sanitized);
+        const exact = matches.find(m => m.word === sanitized) || matches.find(m => m.isSynthesizedMatch);
         if (exact) {
             handleSelectWord(exact.word);
         } else {
@@ -287,19 +287,30 @@ function App() {
             .catch(e => console.error("Error communicating with background for TTS:", e));
     };
 
-    const handleCopy = async () => {
-        if (!selectedWord || !definition) return;
+    const handleCopy = async (targetWord: string, specificDefBlock?: string | string[]) => {
+        if (!targetWord || !specificDefBlock) return;
 
         try {
-            // Helper to strip HTML tags for plain text version
+            // Helper to strip HTML tags and attempt to preserve block structure for plain text
             const stripHtml = (html: string) => {
+                let textWithNewlines = html
+                    .replace(/<hr[^>]*>/gi, '\n\n')
+                    .replace(/<br[^>]*>/gi, '\n')
+                    .replace(/<\/div>/gi, '\n')
+                    .replace(/<\/p>/gi, '\n\n')
+                    .replace(/<div class="synthesized-header"[^>]*>/gi, '\n');
+
                 const tmp = document.createElement("DIV");
-                tmp.innerHTML = html;
-                return tmp.textContent || tmp.innerText || "";
+                tmp.innerHTML = textWithNewlines;
+                return (tmp.textContent || tmp.innerText || "")
+                    .replace(/\n\s*\n/g, '\n\n')
+                    .trim();
             };
 
-            const htmlContent = `<h2>${selectedWord}</h2><div>${definition}</div>`;
-            const plainText = `${selectedWord}\n\n${stripHtml(definition)}`;
+            const joinedDef = Array.isArray(specificDefBlock) ? specificDefBlock.join('<hr/>') : specificDefBlock;
+
+            const htmlContent = `<h2>${targetWord}</h2><div>${joinedDef}</div>`;
+            const plainText = `${targetWord}\n\n${stripHtml(joinedDef)}`;
 
             const blobHtml = new Blob([htmlContent], { type: 'text/html' });
             const blobText = new Blob([plainText], { type: 'text/plain' });
@@ -447,13 +458,28 @@ function App() {
                         <div className="definition-area custom-scroll dynamic-font">
                             {definition ? (
                                 <div className="definition-box">
-                                    <h2 className="def-title">
-                                        {selectedWord}
-                                        <div style={{ display: 'flex', gap: '8px' }}>
+                                    <h2 className="def-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <span>{selectedWord}</span>
+                                        <div className="global-actions" style={{ display: 'flex', gap: '8px' }}>
                                             <button
                                                 className="copy-button"
-                                                onClick={handleCopy}
-                                                title="Copy entry"
+                                                onClick={() => {
+                                                    // Aggregate all definitions across blocks
+                                                    let allDefs: string[] = [];
+                                                    if (definition.length > 1) {
+                                                        // Compound word: Include component headers in the copy text so the breakdown makes sense
+                                                        allDefs = definition.map(b => {
+                                                            const header = `<div style="font-weight: bold; font-size: 1.2em; margin-bottom: 8px; margin-top: 4px;">${b.headword}</div><br/>`;
+                                                            const defs = b.homographDefinitions.join('<hr/>');
+                                                            return `${header}${defs}`;
+                                                        });
+                                                    } else {
+                                                        // Single word
+                                                        allDefs = definition[0].homographDefinitions;
+                                                    }
+                                                    handleCopy(selectedWord!, allDefs);
+                                                }}
+                                                title="Copy full entry"
                                             >
                                                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                                     <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
@@ -472,7 +498,56 @@ function App() {
                                             </button>
                                         </div>
                                     </h2>
-                                    <div className="definition-content">{definition ? renderHtmlDefinition(definition) : null}</div>
+                                    <div className="definition-content">
+                                        {definition.map((block, bIdx) => (
+                                            <div key={bIdx} className="synthesized-section" style={{ marginBottom: bIdx < definition.length - 1 ? '16px' : '0' }}>
+                                                {/* Header for each component only if it's a compound structure */}
+                                                {definition.length > 1 && (
+                                                    <div className="synthesized-header">
+                                                        <span
+                                                            className="synthesized-header-text"
+                                                            onClick={() => { setQuery(block.headword); handleSearch(block.headword); }}
+                                                            title="Search this word"
+                                                        >
+                                                            {block.headword}
+                                                        </span>
+                                                        <div style={{ display: 'flex', gap: '8px', opacity: 0.8, transform: 'scale(0.85)' }}>
+                                                            <button
+                                                                className="copy-button"
+                                                                onClick={() => handleCopy(block.headword, block.homographDefinitions)}
+                                                                title="Copy entry"
+                                                            >
+                                                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                                                                    <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                                                                </svg>
+                                                            </button>
+                                                            <button
+                                                                className="tts-button"
+                                                                onClick={() => handleSpeak(block.headword)}
+                                                                title="Speak word"
+                                                            >
+                                                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                                                                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                                                                </svg>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {/* Homograph definitions */}
+                                                {block.homographDefinitions.map((homograph, hIdx) => (
+                                                    <div key={hIdx}>
+                                                        {renderHtmlDefinition(homograph)}
+                                                        {hIdx < block.homographDefinitions.length - 1 && <hr className="homograph-separator" style={{ margin: '8px 0' }} />}
+                                                    </div>
+                                                ))}
+
+                                                {bIdx < definition.length - 1 && <hr style={{ margin: '16px 0', border: 'none', borderTop: '2px dashed var(--border-color)' }} />}
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             ) : (
                                 !query ? <div className="empty-state">Highlight text or double click to look up</div> : (
