@@ -28,7 +28,12 @@ export default defineConfig({
                 resources: ["SELD.idx", "SELD.dict", "assets/fonts/*.ttf"],
                 matches: ["<all_urls>"]
             }
-        ]
+        ],
+        browser_specific_settings: {
+            gecko: {
+                id: "info@readingfaithfully.org",
+            },
+        },
     },
 
     srcDir: '.',
