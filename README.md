@@ -69,12 +69,26 @@ This will generate the compiled extension files inside the `.output` directory.
 
 ### Create a Zip Archive (For Web Stores)
 
-To package the built extension into a `.zip` file for uploading to the Chrome Web Store or Firefox Add-ons site:
+To package the built extension into a `.zip` file for uploading to the Chrome Web Store:
 
 ```bash
 npm run zip
 ```
-This will automatically build the extension and create a `.zip` file in the project folder.
+*(Alternatively, you can use `npx wxt zip -b chrome`)*
+
+### Firefox Source Code Review
+
+When publishing to the Firefox Add-ons store, reviewers need to be able to rebuild the extension from the source code. To generate both the compiled extension `.zip` and the required `sources.zip` for Firefox review:
+
+1. Ensure dependencies are installed:
+   ```bash
+   npm install
+   ```
+2. Build the Firefox ZIPs:
+   ```bash
+   npx wxt zip -b firefox
+   ```
+This will automatically build the extension and create both `.zip` files in the `.output` directory.
 
 ## Project Structure
 

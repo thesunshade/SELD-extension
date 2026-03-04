@@ -655,7 +655,7 @@
 }
 
 #seld-sidebar-root .synthesized-header {
-  color: var(--accent-color, #007bff) !important;
+  color: var(--text-primary) !important;
   display: flex;
   justify-content: space-between;
   align-items: center;
