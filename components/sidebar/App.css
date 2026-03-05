@@ -672,3 +672,9 @@
 #seld-sidebar-root .synthesized-header-text:hover {
   text-decoration: underline;
 }
+
+#seld-sidebar-root .seld-transliteration {
+  font-family: inherit;
+  font-style: italic;
+  color: var(--text-secondary);
+}

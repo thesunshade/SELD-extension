@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { stardict, IndexEntry, StructuredDefinition } from '../../utils/stardict';
 import { extractUniqueSinhalaWords, applyHighlights } from '../../utils/dom-highlights';
+import { transliterateSinhala } from '../../utils/transliterate';
 import { browser } from 'wxt/browser';
 
 type View = 'search' | 'settings' | 'info';
@@ -20,6 +21,12 @@ function App() {
     const [underlineDictionaryWords, setUnderlineDictionaryWords] = useState(true);
     const [autoPlayTTS, setAutoPlayTTS] = useState(false);
     const [overrideSinhalaFont, setOverrideSinhalaFont] = useState(false);
+
+    // Transliteration settings
+    const [transliterateHeadwords, setTransliterateHeadwords] = useState(false);
+    const [transliterateResults, setTransliterateResults] = useState(false);
+    const [transliterateDefinitions, setTransliterateDefinitions] = useState(false);
+
     const autoPlayTTSRef = useRef(false);
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
@@ -88,13 +95,20 @@ function App() {
 
     useEffect(() => {
         // Load settings
-        browser.storage.local.get(['theme', 'fontSize', 'seldCtrlClickLookup', 'seldUnderlineWords', 'seldAutoPlayTTS', 'seldOverrideSinhalaFont', 'listHeight', 'seldSearchQuery', 'sidebarWidth']).then((res) => {
+        browser.storage.local.get([
+            'theme', 'fontSize', 'seldCtrlClickLookup', 'seldUnderlineWords',
+            'seldAutoPlayTTS', 'seldOverrideSinhalaFont', 'listHeight', 'seldSearchQuery', 'sidebarWidth',
+            'seldTransliterateHeadwords', 'seldTransliterateResults', 'seldTransliterateDefinitions'
+        ]).then((res) => {
             if (res.theme) setTheme(res.theme as Theme);
             if (res.fontSize) setFontSize(res.fontSize as number);
             if (res.seldCtrlClickLookup !== undefined) setCtrlClickLookup(res.seldCtrlClickLookup as boolean);
             if (res.seldUnderlineWords !== undefined) setUnderlineDictionaryWords(res.seldUnderlineWords as boolean);
             if (res.seldAutoPlayTTS !== undefined) { setAutoPlayTTS(res.seldAutoPlayTTS as boolean); autoPlayTTSRef.current = res.seldAutoPlayTTS as boolean; }
             if (res.seldOverrideSinhalaFont !== undefined) setOverrideSinhalaFont(res.seldOverrideSinhalaFont as boolean);
+            if (res.seldTransliterateHeadwords !== undefined) setTransliterateHeadwords(res.seldTransliterateHeadwords as boolean);
+            if (res.seldTransliterateResults !== undefined) setTransliterateResults(res.seldTransliterateResults as boolean);
+            if (res.seldTransliterateDefinitions !== undefined) setTransliterateDefinitions(res.seldTransliterateDefinitions as boolean);
             if (res.sidebarWidth) setSidebarWidth(res.sidebarWidth as number);
             if (res.listHeight) setListHeight(res.listHeight as number);
 
@@ -358,15 +372,66 @@ function App() {
 
 
     const renderTextWithClicks = (text: string) => {
-        const tokens = text.split(/([^a-zA-Z\u0D80-\u0DFF]+)/);
-        return tokens.map((token, i) => {
-            if (!/[a-zA-Z\u0D80-\u0DFF]/.test(token)) return <span key={i}>{token}</span>;
-            return (
-                <span key={i} className="clickable-word" onClick={(e) => { e.stopPropagation(); setQuery(token); handleSearch(token); }}>
-                    {token}
-                </span>
-            );
-        });
+        const tokens = text.split(/([^a-zA-Z\u0D80-\u0DFF]+)/).filter(Boolean);
+        const elements: React.ReactNode[] = [];
+
+        let i = 0;
+        while (i < tokens.length) {
+            const token = tokens[i];
+            const isWord = /[a-zA-Z\u0D80-\u0DFF]/.test(token);
+            const isSinhala = /[\u0D80-\u0DFF]/.test(token);
+            const isEnglish = isWord && !isSinhala;
+
+            if (isSinhala) {
+                // Find extent of this Sinhala phrase
+                let lastSinhalaIndex = i;
+                for (let j = i + 1; j < tokens.length; j++) {
+                    const nextToken = tokens[j];
+                    if (/[a-zA-Z\u0D80-\u0DFF]/.test(nextToken)) {
+                        if (/[\u0D80-\u0DFF]/.test(nextToken)) {
+                            lastSinhalaIndex = j;
+                        } else {
+                            break; // found English word, end of phrase
+                        }
+                    }
+                }
+
+                // Process tokens from i to lastSinhalaIndex
+                let phraseForTranslit = "";
+                for (let k = i; k <= lastSinhalaIndex; k++) {
+                    const t = tokens[k];
+                    phraseForTranslit += t;
+                    if (/[a-zA-Z\u0D80-\u0DFF]/.test(t)) {
+                        elements.push(
+                            <span key={k} className="clickable-word" onClick={(e) => { e.stopPropagation(); setQuery(t); handleSearch(t); }}>
+                                {t}
+                            </span>
+                        );
+                    } else {
+                        elements.push(<span key={k}>{t}</span>);
+                    }
+                }
+
+                if (transliterateDefinitions) {
+                    elements.push(
+                        <span key={`t-${i}`} className="seld-transliteration"> [{transliterateSinhala(phraseForTranslit.trim())}]</span>
+                    );
+                }
+
+                i = lastSinhalaIndex + 1;
+            } else if (isEnglish) {
+                elements.push(
+                    <span key={i} className="clickable-word" onClick={(e) => { e.stopPropagation(); setQuery(token); handleSearch(token); }}>
+                        {token}
+                    </span>
+                );
+                i++;
+            } else {
+                elements.push(<span key={i}>{token}</span>);
+                i++;
+            }
+        }
+        return elements;
     };
 
     const renderHtmlDefinition = (html: string) => {
@@ -448,6 +513,9 @@ function App() {
                                 results.map((entry, idx) => (
                                     <div key={idx} ref={selectedWord === entry.word ? selectedRef : null} className={`headword-item ${selectedWord === entry.word ? 'selected' : ''}`} onClick={() => handleSelectWord(entry.word)}>
                                         {entry.word}
+                                        {transliterateResults && /[\u0D80-\u0DFF]/.test(entry.word) && (
+                                            <span className="seld-transliteration"> {transliterateSinhala(entry.word)}</span>
+                                        )}
                                     </div>
                                 ))
                             ) : (
@@ -459,7 +527,12 @@ function App() {
                             {definition ? (
                                 <div className="definition-box">
                                     <h2 className="def-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <span>{selectedWord}</span>
+                                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                            <span>{selectedWord}</span>
+                                            {transliterateHeadwords && /[\u0D80-\u0DFF]/.test(selectedWord || '') && (
+                                                <span className="seld-transliteration" style={{ fontSize: '0.6em', fontWeight: 'normal', opacity: 0.8, marginTop: '2px' }}>{transliterateSinhala(selectedWord!)}</span>
+                                            )}
+                                        </div>
                                         <div className="global-actions" style={{ display: 'flex', gap: '8px' }}>
                                             <button
                                                 className="copy-button"
@@ -504,13 +577,18 @@ function App() {
                                                 {/* Header for each component only if it's a compound structure */}
                                                 {definition.length > 1 && (
                                                     <div className="synthesized-header">
-                                                        <span
-                                                            className="synthesized-header-text"
-                                                            onClick={() => { setQuery(block.headword); handleSearch(block.headword); }}
-                                                            title="Search this word"
-                                                        >
-                                                            {block.headword}
-                                                        </span>
+                                                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                                            <span
+                                                                className="synthesized-header-text"
+                                                                onClick={() => { setQuery(block.headword); handleSearch(block.headword); }}
+                                                                title="Search this word"
+                                                            >
+                                                                {block.headword}
+                                                            </span>
+                                                            {transliterateHeadwords && /[\u0D80-\u0DFF]/.test(block.headword) && (
+                                                                <span className="seld-transliteration" style={{ fontSize: '0.8em', fontWeight: 'normal', opacity: 0.8, marginTop: '2px' }}>{transliterateSinhala(block.headword)}</span>
+                                                            )}
+                                                        </div>
                                                         <div style={{ display: 'flex', gap: '8px', opacity: 0.8, transform: 'scale(0.85)' }}>
                                                             <button
                                                                 className="copy-button"
@@ -647,6 +725,53 @@ function App() {
                                 />
                                 <span className="custom-checkbox"></span>
                                 <span className="checkbox-label">Override page Sinhala font</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div className="settings-group">
+                        <label className="settings-label">Transliteration</label>
+                        <div className="settings-control">
+                            <label className="checkbox-container">
+                                <input
+                                    type="checkbox"
+                                    checked={transliterateHeadwords}
+                                    onChange={(e) => {
+                                        const val = e.target.checked;
+                                        setTransliterateHeadwords(val);
+                                        saveSetting('seldTransliterateHeadwords', val);
+                                    }}
+                                />
+                                <span className="custom-checkbox"></span>
+                                <span className="checkbox-label">Transliterate headwords</span>
+                            </label>
+
+                            <label className="checkbox-container">
+                                <input
+                                    type="checkbox"
+                                    checked={transliterateResults}
+                                    onChange={(e) => {
+                                        const val = e.target.checked;
+                                        setTransliterateResults(val);
+                                        saveSetting('seldTransliterateResults', val);
+                                    }}
+                                />
+                                <span className="custom-checkbox"></span>
+                                <span className="checkbox-label">Transliterate results list</span>
+                            </label>
+
+                            <label className="checkbox-container">
+                                <input
+                                    type="checkbox"
+                                    checked={transliterateDefinitions}
+                                    onChange={(e) => {
+                                        const val = e.target.checked;
+                                        setTransliterateDefinitions(val);
+                                        saveSetting('seldTransliterateDefinitions', val);
+                                    }}
+                                />
+                                <span className="custom-checkbox"></span>
+                                <span className="checkbox-label">Transliterate definitions inline</span>
                             </label>
                         </div>
                     </div>
