@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sinhala Academic Transliteration Tool</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 20px;
+        line-height: 1.6;
+        background-color: #f4f7f6;
+      }
+      .container {
+        background: white;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      h2 {
+        color: #2c3e50;
+        border-bottom: 2px solid #eee;
+        padding-bottom: 10px;
+      }
+      textarea {
+        width: 100%;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 18px;
+        box-sizing: border-box;
+        margin-bottom: 20px;
+        font-family: "Sinhala Sangam MN", "Iskoola Pota", serif;
+      }
+      .output-box {
+        background: #eef2f3;
+        padding: 20px;
+        border-left: 5px solid #3498db;
+        min-height: 50px;
+        font-size: 20px;
+        word-wrap: break-word;
+        font-style: italic;
+        color: #2c3e50;
+      }
+      .label {
+        font-weight: bold;
+        margin-bottom: 5px;
+        display: block;
+        color: #7f8c8d;
+        text-transform: uppercase;
+        font-size: 12px;
+      }
+      .footer {
+        margin-top: 30px;
+        font-size: 13px;
+        color: #95a5a6;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Sinhala Academic Transliteration</h2>
+
+      <label class="label">Input (Sinhala Unicode)</label>
+      <textarea id="sinhalaInput" rows="3" placeholder="Enter Sinhala text here... (e.g., බඹුන්, කිරීමට, භාෂාව)"></textarea>
+
+      <label class="label">Output (Academic Romanization)</label>
+      <div id="romanOutput" class="output-box"></div>
+
+      <div class="footer">
+        <p>
+          <strong>Note:</strong>
+          This tool uses IAST/ISO 15919 conventions. It handles pre-nasals (e.g., ඹ → n̆b), inherent vowels, and suppresses the vowel on final consonants with
+          <em>hal kirīma</em>
+          .
+        </p>
+      </div>
+    </div>
+
+    <script>
+      const sinhalaInput = document.getElementById("sinhalaInput");
+      const romanOutput = document.getElementById("romanOutput");
+
+      function transliterateSinhala(text) {
+        const vowelMapping = {
+          අ: "a",
+          ආ: "ā",
+          ඇ: "æ",
+          ඈ: "ǣ",
+          ඉ: "i",
+          ඊ: "ī",
+          උ: "u",
+          ඌ: "ū",
+          ඍ: "ṛ",
+          ඎ: "ṝ",
+          ඏ: "ḷ",
+          ඐ: "ḹ",
+          එ: "e",
+          ඒ: "ē",
+          ඓ: "ai",
+          ඔ: "o",
+          ඕ: "ō",
+          ඖ: "au",
+        };
+
+        const consonantMapping = {
+          ක: "k",
+          ඛ: "kh",
+          ග: "g",
+          ඝ: "gh",
+          ඞ: "ṅ",
+          ඟ: "n̆g",
+          ච: "c",
+          ඡ: "ch",
+          ජ: "j",
+          ඣ: "jh",
+          ඤ: "ñ",
+          ඥ: "jñ",
+          ඦ: "n̆j",
+          ට: "ṭ",
+          ඨ: "ṭh",
+          ඩ: "ḍ",
+          ඪ: "ḍh",
+          ණ: "ṇ",
+          ඬ: "n̆ḍ",
+          ත: "t",
+          ථ: "th",
+          ද: "d",
+          ධ: "dh",
+          න: "n",
+          ඳ: "n̆d",
+          ප: "p",
+          ඵ: "ph",
+          බ: "b",
+          භ: "bh",
+          ම: "m",
+          ඹ: "n̆b",
+          ය: "y",
+          ර: "r",
+          ල: "l",
+          ව: "v",
+          ශ: "ś",
+          ෂ: "ṣ",
+          ස: "s",
+          හ: "h",
+          ළ: "ḷ",
+          ෆ: "f",
+        };
+
+        const diacriticMapping = {
+          "\u0DCA": "",
+          "\u0DCF": "ā",
+          "\u0DD0": "æ",
+          "\u0DD1": "ǣ",
+          "\u0DD2": "i",
+          "\u0DD3": "ī",
+          "\u0DD4": "u",
+          "\u0DD6": "ū",
+          "\u0DD8": "ṛ",
+          "\u0DD9": "e",
+          "\u0DDA": "ē",
+          "\u0DDB": "ai",
+          "\u0DDC": "o",
+          "\u0DDD": "ō",
+          "\u0DDE": "au",
+        };
+
+        let result = "";
+        for (let i = 0; i < text.length; i++) {
+          let char = text[i];
+          let nextChar = text[i + 1];
+
+          if (vowelMapping[char]) {
+            result += vowelMapping[char];
+          } else if (consonantMapping[char]) {
+            let baseTranslit = consonantMapping[char];
+
+            if (nextChar === "ං") {
+              result += baseTranslit + "aṃ";
+              i++;
+            } else if (nextChar === "ඃ") {
+              result += baseTranslit + "aḥ";
+              i++;
+            } else if (nextChar === "\u0DCA") {
+              result += baseTranslit;
+              i++;
+            } else if (nextChar && diacriticMapping[nextChar] !== undefined) {
+              result += baseTranslit + diacriticMapping[nextChar];
+              i++;
+            } else {
+              result += baseTranslit + "a";
+            }
+          } else if (char === "ං") {
+            result += "ṃ";
+          } else if (char === "ඃ") {
+            result += "ḥ";
+          } else {
+            result += char;
+          }
+        }
+        return result;
+      }
+
+      sinhalaInput.addEventListener("input", () => {
+        romanOutput.innerText = transliterateSinhala(sinhalaInput.value);
+      });
+    </script>
+  </body>
+</html>

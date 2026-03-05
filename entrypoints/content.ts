@@ -141,14 +141,26 @@ export default defineContentScript({
             browser.storage.local.get(['seldCtrlClickLookup']).then((result) => {
                 if (result.seldCtrlClickLookup === false) return;
 
-                const range = document.caretRangeFromPoint(e.clientX, e.clientY);
-                if (!range) return;
+                let textNode: Node | null = null;
+                let offset: number = 0;
 
-                const textNode = range.startContainer;
-                if (textNode.nodeType !== Node.TEXT_NODE) return;
+                if (document.caretRangeFromPoint) {
+                    const range = document.caretRangeFromPoint(e.clientX, e.clientY);
+                    if (range) {
+                        textNode = range.startContainer;
+                        offset = range.startOffset;
+                    }
+                } else if ((document as any).caretPositionFromPoint) {
+                    const position = (document as any).caretPositionFromPoint(e.clientX, e.clientY);
+                    if (position) {
+                        textNode = position.offsetNode;
+                        offset = position.offset;
+                    }
+                }
+
+                if (!textNode || textNode.nodeType !== Node.TEXT_NODE) return;
 
                 const text = textNode.nodeValue || '';
-                const offset = range.startOffset;
 
                 const start = text.substring(0, offset).search(/[\u0D80-\u0DFFa-zA-Z]+$/);
                 const end = text.substring(offset).search(/[^\u0D80-\u0DFFa-zA-Z]/);
@@ -160,6 +172,9 @@ export default defineContentScript({
                 }
 
                 if (word && word.length < 50) {
+                    if (!isSidebarOpen) {
+                        initSidebar();
+                    }
                     browser.storage.local.set({ 'seldSearchQuery': word });
                 }
             });
