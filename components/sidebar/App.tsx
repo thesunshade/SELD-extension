@@ -494,7 +494,7 @@ function App() {
                         disabled={historyIndex.current >= history.length - 1}
                         title="Go forward"
                     >&gt;</button>
-                </div>
+                </div>SELD
                 <div style={{ display: 'flex', gap: '8px' }}>
                     <button className="settings-btn" onClick={() => setView('search')}>Search</button>
                     <button className="settings-btn" onClick={() => setView('settings')}>Settings</button>
