@@ -1,321 +1,440 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Welcome — Sinhala English Learner's Dictionary</title>
-  <style>
-    /* ─── Reset & Base ─── */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Welcome—Sinhala English Learner's Dictionary</title>
+	<link rel="icon" type="image/png" sizes="96x96" href="icon-96.png">
+	<style>
+		/* ─── Reset & Base ─── */
+		*,
+		*::before,
+		*::after {
+			box-sizing: border-box;
+			margin: 0;
+			padding: 0;
+		}
 
-    :root {
-      --bg: #f8fafc;
-      --bg-card: rgba(255,255,255,0.85);
-      --text: #0f172a;
-      --text-sub: #475569;
-      --border: #e2e8f0;
-      --accent: #0f172a;
-      --accent-fg: #ffffff;
-      --accent-soft: rgba(15,23,42,0.06);
-      --radius: 16px;
-      --shadow: 0 4px 24px rgba(0,0,0,0.06);
-    }
+		:root {
+			--bg: #f8fafc;
+			--bg-card: rgba(255, 255, 255, 0.85);
+			--text: #0f172a;
+			--text-sub: #475569;
+			--border: #e2e8f0;
+			--accent: #0f172a;
+			--accent-fg: #ffffff;
+			--accent-soft: rgba(15, 23, 42, 0.06);
+			--radius: 16px;
+			--shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+		}
 
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #020617;
-        --bg-card: rgba(15,23,42,0.85);
-        --text: #f8fafc;
-        --text-sub: #94a3b8;
-        --border: #3c5379;
-        --accent: #f8fafc;
-        --accent-fg: #0f172a;
-        --accent-soft: rgba(248,250,252,0.08);
-        --shadow: 0 4px 24px rgba(0,0,0,0.3);
-      }
-    }
+		@media (prefers-color-scheme: dark) {
+			:root {
+				--bg: #020617;
+				--bg-card: rgba(15, 23, 42, 0.85);
+				--text: #f8fafc;
+				--text-sub: #94a3b8;
+				--border: #3c5379;
+				--accent: #f8fafc;
+				--accent-fg: #0f172a;
+				--accent-soft: rgba(248, 250, 252, 0.08);
+				--shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+			}
+		}
 
-    body {
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      padding: 48px 24px 64px;
-    }
+		body {
+			font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+			background: var(--bg);
+			color: var(--text);
+			line-height: 1.6;
+			min-height: 100vh;
+			display: flex;
+			justify-content: center;
+			padding: 48px 24px 64px;
+		}
 
-    .container {
-      max-width: 680px;
-      width: 100%;
-    }
+		a {
+			color: var(--text);
+		}
 
-    /* ─── Hero ─── */
-    .hero {
-      text-align: center;
-      margin-bottom: 40px;
-      animation: fade-up 0.5s ease-out;
-    }
+		.container {
+			max-width: 680px;
+			width: 100%;
+		}
 
-    .hero img {
-      width: 96px;
-      height: 96px;
-      border-radius: 24px;
-      box-shadow: var(--shadow);
-      margin-bottom: 20px;
-    }
+		/* ─── Hero ─── */
+		.hero {
+			text-align: center;
+			margin-bottom: 40px;
+			animation: fade-up 0.5s ease-out;
+		}
 
-    .hero h1 {
-      font-size: 1.8em;
-      font-weight: 700;
-      margin-bottom: 6px;
-      letter-spacing: -0.02em;
-    }
+		.hero img {
+			width: 96px;
+			height: 96px;
+			border-radius: 24px;
+			box-shadow: var(--shadow);
+			margin-bottom: 20px;
+		}
 
-    .hero .subtitle {
-      color: var(--text-sub);
-      font-size: 1.05em;
-    }
+		.hero h1 {
+			font-size: 1.8em;
+			font-weight: 700;
+			margin-bottom: 6px;
+			letter-spacing: -0.02em;
+		}
 
-    .badge {
-      display: inline-block;
-      margin-top: 12px;
-      padding: 4px 14px;
-      border-radius: 999px;
-      background: var(--accent-soft);
-      color: var(--text-sub);
-      font-size: 0.82em;
-      font-weight: 600;
-      letter-spacing: 0.02em;
-    }
+		.hero .subtitle {
+			color: var(--text-sub);
+			font-size: 1.05em;
+		}
 
-    /* ─── Cards ─── */
-    .card {
-      background: var(--bg-card);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 28px 28px 24px;
-      margin-bottom: 20px;
-      box-shadow: var(--shadow);
-      animation: fade-up 0.5s ease-out both;
-    }
+		.badge {
+			display: inline-block;
+			margin-top: 12px;
+			padding: 4px 14px;
+			border-radius: 999px;
+			background: var(--accent-soft);
+			color: var(--text-sub);
+			font-size: 0.82em;
+			font-weight: 600;
+			letter-spacing: 0.02em;
+		}
 
-    .card:nth-child(2) { animation-delay: 0.08s; }
-    .card:nth-child(3) { animation-delay: 0.16s; }
-    .card:nth-child(4) { animation-delay: 0.24s; }
+		/* ─── Cards ─── */
+		.card {
+			background: var(--bg-card);
+			backdrop-filter: blur(12px);
+			-webkit-backdrop-filter: blur(12px);
+			border: 1px solid var(--border);
+			border-radius: var(--radius);
+			padding: 28px 28px 24px;
+			margin-bottom: 20px;
+			box-shadow: var(--shadow);
+			animation: fade-up 0.5s ease-out both;
+		}
 
-    .card h2 {
-      font-size: 1.15em;
-      font-weight: 700;
-      margin-bottom: 16px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+		.card:nth-child(2) {
+			animation-delay: 0.08s;
+		}
 
-    .card h2 .icon {
-      font-size: 1.3em;
-      line-height: 1;
-    }
+		.card:nth-child(3) {
+			animation-delay: 0.16s;
+		}
 
-    /* ─── Steps ─── */
-    .steps {
-      list-style: none;
-      counter-reset: step;
-    }
+		.card:nth-child(4) {
+			animation-delay: 0.24s;
+		}
 
-    .steps li {
-      counter-increment: step;
-      display: flex;
-      align-items: flex-start;
-      gap: 14px;
-      padding: 12px 0;
-      border-top: 1px solid var(--border);
-    }
+		.card h2 {
+			font-size: 1.15em;
+			font-weight: 700;
+			margin-bottom: 16px;
+			display: flex;
+			align-items: center;
+			gap: 10px;
+		}
 
-    .steps li:first-child {
-      border-top: none;
-      padding-top: 0;
-    }
+		.card h2 .icon {
+			font-size: 1.3em;
+			line-height: 1;
+		}
 
-    .steps li::before {
-      content: counter(step);
-      flex-shrink: 0;
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      background: var(--accent);
-      color: var(--accent-fg);
-      font-size: 0.82em;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-top: 2px;
-    }
+		/* ─── Steps ─── */
+		.steps {
+			list-style: none;
+			counter-reset: step;
+		}
 
-    .steps li .step-content {
-      flex: 1;
-    }
+		.steps li {
+			counter-increment: step;
+			display: flex;
+			align-items: flex-start;
+			gap: 14px;
+			padding: 12px 0;
+			border-top: 1px solid var(--border);
+		}
 
-    .steps li strong {
-      display: block;
-      margin-bottom: 2px;
-    }
+		.steps li:first-child {
+			border-top: none;
+			padding-top: 0;
+		}
 
-    .steps li .detail {
-      color: var(--text-sub);
-      font-size: 0.92em;
-    }
+		.steps li::before {
+			content: counter(step);
+			flex-shrink: 0;
+			width: 28px;
+			height: 28px;
+			border-radius: 50%;
+			background: var(--accent);
+			color: var(--accent-fg);
+			font-size: 0.82em;
+			font-weight: 700;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			margin-top: 2px;
+		}
 
-    kbd {
-      display: inline-block;
-      padding: 2px 7px;
-      border-radius: 5px;
-      border: 1px solid var(--border);
-      background: var(--accent-soft);
-      font-family: inherit;
-      font-size: 0.88em;
-      font-weight: 600;
-      line-height: 1.4;
-      white-space: nowrap;
-    }
+		.steps li .step-content {
+			flex: 1;
+		}
 
-    /* ─── Feature list ─── */
-    .features {
-      list-style: none;
-      display: grid;
-      gap: 10px;
-    }
+		.steps li strong {
+			display: block;
+			margin-bottom: 2px;
+		}
 
-    .features li {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 0.95em;
-    }
+		.steps li .detail {
+			color: var(--text-sub);
+			font-size: 0.92em;
+		}
 
-    .features li .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--accent);
-      flex-shrink: 0;
-    }
+		/* Hide the number circle if there is only one item in the list */
+		.steps li:only-child::before {
+			display: none;
+		}
 
-    /* ─── Tip box ─── */
-    .tip {
-      background: var(--accent-soft);
-      border-radius: 10px;
-      padding: 14px 18px;
-      font-size: 0.92em;
-      color: var(--text-sub);
-      margin-top: 16px;
-      line-height: 1.5;
-    }
+		/* Remove the gap so the text aligns flush with the heading */
+		.steps li:only-child {
+			gap: 0;
+		}
 
-    .tip strong { color: var(--text); }
+		kbd {
+			display: inline-block;
+			padding: 2px 7px;
+			border-radius: 5px;
+			border: 1px solid var(--border);
+			background: var(--accent-soft);
+			font-family: inherit;
+			font-size: 0.88em;
+			font-weight: 600;
+			line-height: 1.4;
+			white-space: nowrap;
+		}
 
-    /* ─── Animation ─── */
-    @keyframes fade-up {
-      from { opacity: 0; transform: translateY(16px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
+		/* ─── Feature list ─── */
+		.features {
+			list-style: none;
+			display: grid;
+			gap: 10px;
+		}
 
-    /* ─── Responsive ─── */
-    @media (max-width: 520px) {
-      body { padding: 32px 16px 48px; }
-      .card { padding: 20px; }
-      .hero h1 { font-size: 1.5em; }
-    }
-  </style>
+		.features li {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			font-size: 0.95em;
+		}
+
+		.features li .dot {
+			width: 8px;
+			height: 8px;
+			border-radius: 50%;
+			background: var(--accent);
+			flex-shrink: 0;
+		}
+
+		/* ─── Tip box ─── */
+		.tip {
+			background: var(--accent-soft);
+			border-radius: 10px;
+			padding: 14px 18px;
+			font-size: 0.92em;
+			color: var(--text-sub);
+			margin-top: 16px;
+			line-height: 1.5;
+		}
+
+		.tip strong {
+			color: var(--text);
+		}
+
+		/* ─── Animation ─── */
+		@keyframes fade-up {
+			from {
+				opacity: 0;
+				transform: translateY(16px);
+			}
+
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+
+		/* ─── Responsive ─── */
+		@media (max-width: 520px) {
+			body {
+				padding: 32px 16px 48px;
+			}
+
+			.card {
+				padding: 20px;
+			}
+
+			.hero h1 {
+				font-size: 1.5em;
+			}
+		}
+
+		/* ─── Browser Specific Overrides ─── */
+		.steps li.chrome-step::before {
+			content: "";
+			background: url('chrome_6125000.png') center/contain no-repeat;
+			background-color: transparent;
+		}
+
+		.steps li.firefox-step::before {
+			content: "";
+			background: url('firefox_5968827.png') center/contain no-repeat;
+			background-color: transparent;
+		}
+
+		.step-content ol {
+			list-style: decimal;
+			margin-left: 20px;
+			margin-top: 8px;
+		}
+
+		.step-content ol li {
+			display: list-item;
+			padding: 4px 0;
+			border: none;
+		}
+
+		.step-content ol li::before {
+			content: none;
+			display: none;
+		}
+	</style>
 </head>
+
 <body>
 
-  <div class="container">
+	<div class="container">
 
-    <!-- Hero -->
-    <div class="hero">
-      <img src="../icon-128.png" alt="SELD icon">
-      <h1>Sinhala English Learner's Dictionary</h1>
-      <p class="subtitle">Your Sinhala word lookup companion, right in the browser.</p>
-      <span class="badge">✨ Thank you for installing!</span>
-    </div>
+		<div class="hero">
+			<img src="../icon-128.png" alt="SELD icon">
+			<h1>Sinhala English Learner’s Dictionary</h1>
+			<p class="subtitle">You’re running the latest version!</p>
+			<p>&copy;
+				<script>document.write(new Date().getFullYear());</script>
+			</p>
+			<a
+				href="https://github.com/thesunshade/SELD-extension/blob/main/changelog.md#experimental-sinhala-english-learners-dictionary-browser-extension"><span
+					class="badge">View Changelog 📃</span></a>
+		</div>
 
-    <!-- Getting Started -->
-    <div class="card">
-      <h2><span class="icon">🚀</span> Getting Started</h2>
-      <ol class="steps">
-        <li>
-          <div class="step-content">
-            <strong>Open the Sidebar</strong>
-            <span class="detail">Click the SELD icon in your browser toolbar to toggle the dictionary sidebar on any webpage.</span>
-          </div>
-        </li>
-        <li>
-          <div class="step-content">
-            <strong>Search for a Word</strong>
-            <span class="detail">Type a Sinhala headword into the search box. Results appear instantly as you type.</span>
-          </div>
-        </li>
-        <li>
-          <div class="step-content">
-            <strong>View Definitions</strong>
-            <span class="detail">Select a word from the results list to see its full definition, examples, and grammatical information.</span>
-          </div>
-        </li>
-      </ol>
-    </div>
+		<div class="card">
+			<h2><span class="icon">🚀</span> Getting Started</h2>
+			<ol class="steps">
+				<li>
+					<div class="step-content">
+						<strong>📌 Pin to your toolbar (optional)</strong>
+						<span class="detail">Click on the extension icon in your toolbar. Select “Pin to toolbar.” <a
+								href="#browser-specific-instructions">See browser specific instructions.</a></span>
+					</div>
+				</li>
+				<li>
+					<div class="step-content">
+						<strong>Open the Sidebar</strong>
+						<span class="detail">Click the SELD icon in your browser toolbar to toggle the dictionary
+							sidebar on any webpage.</span>
+					</div>
+				</li>
+				<li>
+					<div class="step-content">
+						<strong>Search for a Word</strong>
+						<span class="detail">Type a Sinhala headword into the search box. Results appear instantly as
+							you type.</span>
+					</div>
+				</li>
+				<li>
+					<div class="step-content">
+						<strong>View Definitions</strong>
+						<span class="detail">Select a word from the results list to see its full definition, examples,
+							and grammatical information.</span>
+					</div>
+				</li>
+			</ol>
+		</div>
 
-    <!-- Quick Lookup -->
-    <div class="card">
-      <h2><span class="icon">⚡</span> Quick Lookup</h2>
-      <ol class="steps">
-        <li>
-          <div class="step-content">
-            <strong>Ctrl + Click any Sinhala word</strong>
-            <span class="detail">Hold <kbd>Ctrl</kbd> (or <kbd>⌘ Cmd</kbd> on Mac) and click any Sinhala word on a webpage to look it up instantly in the sidebar.</span>
-          </div>
-        </li>
-      </ol>
-      <div class="tip">
-        <strong>Tip:</strong> You can enable or disable <kbd>Ctrl</kbd>+Click lookup from the Settings panel inside the sidebar.
-      </div>
-    </div>
+		<div class="card">
+			<h2><span class="icon">⚡</span> Quick Lookup</h2>
+			<ol class="steps">
+				<li>
+					<div class="step-content">
+						<strong>Ctrl + Click any Sinhala word</strong>
+						<span class="detail">Hold <kbd>Ctrl</kbd> (or <kbd>⌘ Cmd</kbd> on Mac) and click any Sinhala
+							word on a webpage to look it up instantly in the sidebar.</span>
+					</div>
+				</li>
+			</ol>
+			<div class="tip">
+				<strong>Tip:</strong> You can enable or disable <kbd>Ctrl</kbd>+Click lookup from the Settings panel
+				inside the sidebar.
+			</div>
+		</div>
 
-    <!-- Features -->
-    <div class="card">
-      <h2><span class="icon">✨</span> Features</h2>
-      <ul class="features">
-        <li><span class="dot"></span> Text-to-Speech — hear the pronunciation of any headword</li>
-        <li><span class="dot"></span> Copy Definitions — copy formatted definitions to your clipboard</li>
-        <li><span class="dot"></span> Dark Mode — automatically matches your system theme, or set manually</li>
-        <li><span class="dot"></span> Adjustable Font Size — scale text up or down to your preference</li>
-        <li><span class="dot"></span> Transliteration — view romanized versions of Sinhala text</li>
-        <li><span class="dot"></span> Report Errors — suggest missing words or report incorrect definitions</li>
-      </ul>
-    </div>
+		<div class="card">
+			<h2><span class="icon">🔮</span> Features</h2>
+			<ul class="features">
+				<li><span class="dot"></span> Text-to-Speech — hear the pronunciation of any headword</li>
+				<li><span class="dot"></span> Copy Definitions — copy formatted definitions to your clipboard</li>
+				<li><span class="dot"></span> Dark Mode — automatically matches your system theme, or set manually</li>
+				<li><span class="dot"></span> Adjustable Font Size — scale text up or down to your preference</li>
+				<li><span class="dot"></span> Transliteration — view romanized versions of Sinhala text</li>
+				<li><span class="dot"></span> Report Errors — suggest missing words or report incorrect definitions</li>
+			</ul>
+		</div>
 
-    <!-- Settings -->
-    <div class="card">
-      <h2><span class="icon">⚙️</span> Customise</h2>
-      <ol class="steps">
-        <li>
-          <div class="step-content">
-            <strong>Open Settings</strong>
-            <span class="detail">Click the <strong>⚙ Settings</strong> button in the top-right corner of the sidebar to adjust theme, font size, transliteration, and quick-lookup behaviour.</span>
-          </div>
-        </li>
-      </ol>
-      <div class="tip">
-        <strong>Note:</strong> Settings are synced across all your open tabs automatically.
-      </div>
-    </div>
+		<div class="card">
+			<h2><span class="icon">⚙️</span> Customise</h2>
+			<ol class="steps">
+				<li>
+					<div class="step-content">
+						<strong>Open Settings</strong>
+						<span class="detail">Click the Settings button in the top-right corner of the
+							sidebar to adjust theme, font size, transliteration, and quick-lookup behaviour.</span>
+					</div>
+				</li>
+			</ol>
+			<div class="tip">
+				<strong>Note:</strong> Settings are synced across all your open tabs automatically.
+			</div>
+		</div>
 
-  </div>
 
+		<div class="card" id="browser-specific-instructions">
+			<h2>Browser specific instructions</h2>
+			<ul class="steps">
+				<li class="chrome-step">
+					<div class="step-content">
+						<strong>Chrome</strong>
+						<span class="detail"></span>
+						Click on the Extensions icon in your toolbar. Then select "Pin"
+						<img height=200 src="Chrome-Pin-screenshot.png">
+					</div>
+				</li>
+				<li class="firefox-step">
+					<div class="step-content">
+						<strong>FireFox</strong>
+						<span class="detail"></span>
+						<ol>
+							<li>Click on the Extensions icon in your toolbar.</li>
+							<li>Click the gear icon next to the extension.</li>
+							<li>Then select “Pin to toolbar.”</li>
+						</ol>
+						<img height=200 src="Firefox-Pin-screenshot.png">
+					</div>
+				</li>
+			</ul>
+		</div>
+
+		<div style="text-align: center;">Browser icons from Freepik</div>
+	</div>
 </body>
+
 </html>
