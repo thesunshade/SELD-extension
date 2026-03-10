@@ -4,5 +4,5 @@
 
 ## 0.0.3
 * Add feedback forms
-* add install/update notice
+* add install/update welcome page
 * improve html rendering
