@@ -650,11 +650,15 @@
 
 .variantformentrybackrefs,
 .complexformentryrefs,
-.lexsensereferences {
+.lexsensereferences,
+.minimallexreferences {
   display: block !important;
   opacity: .6;
 }
 
+.etymologies {
+  opacity: .6;
+}
 
 #seld-sidebar-root .checkbox-label {
   color: var(--text-primary);
@@ -733,4 +737,9 @@
   font-family: inherit;
   font-style: italic;
   color: var(--text-secondary);
+}
+
+
+.definitionorgloss {
+  font-weight: bold;
 }
