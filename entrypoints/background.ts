@@ -2,6 +2,15 @@ import { defineBackground } from 'wxt/sandbox';
 import { browser } from 'wxt/browser';
 
 export default defineBackground(() => {
+    // Open welcome page on install or update
+    browser.runtime.onInstalled.addListener(({ reason }) => {
+        if (reason === 'install' || reason === 'update') {
+            browser.tabs.create({
+                url: chrome.runtime.getURL('/extension-pages/welcome.html'),
+            });
+        }
+    });
+
     // Action API fallback for MV2 (Firefox) vs MV3 (Chrome)
     const action = browser.action || (browser as any).browserAction;
 
