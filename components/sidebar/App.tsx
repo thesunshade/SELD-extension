@@ -59,15 +59,12 @@ function App() {
 
     const handleHighlights = async () => {
       try {
-        // Now directly calling the domestic function
         const uniqueWords = extractUniqueSinhalaWords();
         if (!isActive) return;
 
-        // Find exact matches
         const exactMatches = await stardict.findExistingWords(uniqueWords);
         if (!isActive) return;
 
-        // Directly apply highlights
         applyHighlights(exactMatches, underlineDictionaryWords);
       } catch (e) {
         console.error("Highlighting error in App.tsx:", e);
@@ -76,10 +73,6 @@ function App() {
 
     handleHighlights();
 
-    // Content scripts don't have browser.tabs access.
-    // We rely on the parent (content.ts) or a MutationObserver to re-trigger if needed.
-    // For now, let's trigger on a simple interval or rely on the initial load.
-    // Re-run highlights when DOM changes (simplified)
     const observer = new MutationObserver(() => {
       handleHighlights();
     });
@@ -92,50 +85,67 @@ function App() {
   }, [underlineDictionaryWords]);
 
   useEffect(() => {
-    // Load settings
-    browser.storage.local.get(["theme", "fontSize", "seldCtrlClickLookup", "seldUnderlineWords", "seldAutoPlayTTS", "seldOverrideSinhalaFont", "listHeight", "seldSearchQuery", "sidebarWidth", "seldTransliterateHeadwords", "seldTransliterateResults", "seldTransliterateDefinitions"]).then(res => {
-      if (res.theme) setTheme(res.theme as Theme);
-      if (res.fontSize) setFontSize(res.fontSize as number);
-      if (res.seldCtrlClickLookup !== undefined) setCtrlClickLookup(res.seldCtrlClickLookup as boolean);
-      if (res.seldUnderlineWords !== undefined) setUnderlineDictionaryWords(res.seldUnderlineWords as boolean);
-      if (res.seldAutoPlayTTS !== undefined) {
-        setAutoPlayTTS(res.seldAutoPlayTTS as boolean);
-        autoPlayTTSRef.current = res.seldAutoPlayTTS as boolean;
-      }
-      if (res.seldOverrideSinhalaFont !== undefined) setOverrideSinhalaFont(res.seldOverrideSinhalaFont as boolean);
-      if (res.seldTransliterateHeadwords !== undefined) setTransliterateHeadwords(res.seldTransliterateHeadwords as boolean);
-      if (res.seldTransliterateResults !== undefined) setTransliterateResults(res.seldTransliterateResults as boolean);
-      if (res.seldTransliterateDefinitions !== undefined) setTransliterateDefinitions(res.seldTransliterateDefinitions as boolean);
-      if (res.sidebarWidth) setSidebarWidth(res.sidebarWidth as number);
-      if (res.listHeight) setListHeight(res.listHeight as number);
+    const settingsConfig: Record<string, (val: any) => void> = {
+      theme: (v) => setTheme(v as Theme),
+      fontSize: (v) => setFontSize(v as number),
+      seldCtrlClickLookup: (v) => setCtrlClickLookup(v as boolean),
+      seldUnderlineWords: (v) => setUnderlineDictionaryWords(v as boolean),
+      seldAutoPlayTTS: (v) => {
+        setAutoPlayTTS(v as boolean);
+        autoPlayTTSRef.current = v as boolean;
+      },
+      seldOverrideSinhalaFont: (v) => setOverrideSinhalaFont(v as boolean),
+      sidebarWidth: (v) => setSidebarWidth(v as number),
+      listHeight: (v) => setListHeight(v as number),
+      seldTransliterateHeadwords: (v) => setTransliterateHeadwords(v as boolean),
+      seldTransliterateResults: (v) => setTransliterateResults(v as boolean),
+      seldTransliterateDefinitions: (v) => setTransliterateDefinitions(v as boolean),
+    };
 
-      if (res.seldSearchQuery) {
-        const q = res.seldSearchQuery as string;
-        setQuery(q);
-        handleSearch(q);
-        setView("search");
-        browser.storage.local.remove("seldSearchQuery");
-      }
+    const keys = Object.keys(settingsConfig);
+
+    // Initial load
+    browser.storage.local.get(keys).then((res) => {
+      Object.entries(res).forEach(([key, value]) => {
+        if (value !== undefined && settingsConfig[key]) {
+          settingsConfig[key](value);
+        }
+      });
       isInitialized.current = true;
     });
 
-    const handleStorageChange = (changes: any, namespace: string) => {
-      if (namespace === "local" && changes.seldSearchQuery && changes.seldSearchQuery.newValue) {
-        const newQuery = changes.seldSearchQuery.newValue;
-        setQuery(newQuery);
-        handleSearch(newQuery);
-        setView("search");
-        browser.storage.local.remove("seldSearchQuery");
+    // Listen for changes from other tabs
+    const handleStorageChange = (changes: Record<string, any>, namespace: string) => {
+      if (namespace === "local") {
+        Object.entries(changes).forEach(([key, change]) => {
+          if (settingsConfig[key] && change.newValue !== undefined) {
+            settingsConfig[key](change.newValue);
+          }
+        });
       }
     };
+
+    const handleSearchEvent = (e: Event) => {
+      const query = (e as CustomEvent).detail;
+      if (query) {
+        setQuery(query);
+        handleSearch(query);
+        setView("search");
+      }
+    };
+
     browser.storage.onChanged.addListener(handleStorageChange);
-    return () => browser.storage.onChanged.removeListener(handleStorageChange);
+    window.addEventListener("seld:search", handleSearchEvent);
+
+    return () => {
+      browser.storage.onChanged.removeListener(handleStorageChange);
+      window.removeEventListener("seld:search", handleSearchEvent);
+    };
   }, []);
 
   useEffect(() => {
-    if (isInitialized.current) {
-      browser.storage.local.set({ view, query, selectedWord });
-    }
+    // Only persist non-transient settings if needed.
+    // View, query, and selectedWord should NOT be persisted globally as they are tab-local.
   }, [view, query, selectedWord]);
 
   useEffect(() => {

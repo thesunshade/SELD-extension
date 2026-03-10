@@ -128,7 +128,7 @@ export default defineContentScript({
             if (text && text.length > 0 && text.length < 50) {
                 const now = Date.now();
                 if (now - lastQueryTime > 300) {
-                    browser.storage.local.set({ 'seldSearchQuery': text });
+                    window.dispatchEvent(new CustomEvent('seld:search', { detail: text }));
                     lastQueryTime = now;
                 }
             }
@@ -175,7 +175,7 @@ export default defineContentScript({
                     if (!isSidebarOpen) {
                         initSidebar();
                     }
-                    browser.storage.local.set({ 'seldSearchQuery': word });
+                    window.dispatchEvent(new CustomEvent('seld:search', { detail: word }));
                 }
             });
         };
