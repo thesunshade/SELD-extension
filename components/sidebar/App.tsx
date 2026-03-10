@@ -785,7 +785,7 @@ function App() {
         <div className="settings-panel glassmorphism custom-scroll">
           <div className="settings-group">
             <label className="settings-label">Appearance</label>
-            <div className="settings-control">
+            <div className="settings-control-row">
               {(["system", "light", "dark"] as Theme[]).map(t => (
                 <button
                   key={t}

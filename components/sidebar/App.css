@@ -164,6 +164,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: .4rem;
 }
 
 #seld-sidebar-root .history-nav {
@@ -507,12 +508,18 @@
   text-transform: uppercase;
 }
 
-#seld-sidebar-root .settings-control {
+#seld-sidebar-root .settings-control,
+#seld-sidebar-root .settings-control-row {
   display: flex;
-  gap: 0.6em;
   flex-wrap: wrap;
   align-items: center;
 }
+
+
+#seld-sidebar-root .settings-control-row {
+  gap: 0.6em;
+}
+
 
 #seld-sidebar-root .toggle-btn {
   padding: 0.4em 0.8em;
