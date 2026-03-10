@@ -100,6 +100,7 @@
   --accent-fg: #ffffff;
   --accent-hover: #1e293b;
   --accent-bg: rgba(15, 23, 42, 0.05);
+  --accent-bg-darker: rgba(15, 23, 42, 0.2);
   --input-bg: #ffffff;
   --font-multiplier: 1;
 
@@ -279,17 +280,26 @@
 }
 
 #seld-sidebar-root .headword-item {
-  padding: 0.6em 1em;
+  padding: 0.2em .6em;
   cursor: pointer;
   font-size: 0.85em;
   color: var(--text-secondary);
   border-left: 3px solid transparent;
 }
 
+#seld-sidebar-root .headword-item:hover {
+  background: var(--accent-bg);
+}
+
+
 #seld-sidebar-root .headword-item.selected {
   background: var(--accent-bg);
   color: var(--accent);
   border-left-color: var(--accent);
+}
+
+#seld-sidebar-root .headword-item.selected:hover {
+  background: var(--accent-bg-darker);
 }
 
 #seld-sidebar-root .definition-area {

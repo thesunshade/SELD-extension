@@ -28,3 +28,4 @@ dist/
 .env.production.local
 trash
 .old
+pastepad.html
