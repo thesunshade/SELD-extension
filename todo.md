@@ -7,8 +7,8 @@
 - [x] add fonts locally
 - [x] scrub input so leading trailing spaces and punctuation are removed.
 - [ ] need some way to give key to abbreviations
-- [ ] ශාක්‍ය, බ්‍රාහ්මණයාට, and anything with a ZWJ(?) is not being underlined when they should be
-- [ ] actions in one tab affect all other tabs where plugin is open
+- [x] ශාක්‍ය, බ්‍රාහ්මණයාට, and anything with a ZWJ(?) is not being underlined when they should be
+- [x] actions in one tab affect all other tabs where plugin is open
 - [ ] particles should be treated like suffixes, e.g. ත්
 
 ## Possible new features
@@ -16,4 +16,7 @@
 - [ ] Paste pad where user can put in their own text
 - [ ] export words to Anki
 - [ ] export history
-- [ ] way to suggest additions
+- [x] way to suggest additions
+  - [x] additions when no results are found
+  - [x] corrections to words found
+  - [ ] general suggestions

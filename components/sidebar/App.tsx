@@ -305,28 +305,45 @@ function App() {
       .catch(e => console.error("Error communicating with background for TTS:", e));
   };
 
+  const stripHtml = (html: string) => {
+    let textWithNewlines = html
+      .replace(/<hr[^>]*>/gi, "\n\n")
+      .replace(/<br[^>]*>/gi, "\n")
+      .replace(/<\/div>/gi, "\n")
+      .replace(/<\/p>/gi, "\n\n")
+      .replace(/<div class="synthesized-header"[^>]*>/gi, "\n");
+
+    const tmp = document.createElement("DIV");
+    tmp.innerHTML = textWithNewlines;
+    return (tmp.textContent || tmp.innerText || "").replace(/\n\s*\n/g, "\n\n").trim();
+  };
+
+  const getCopyText = (word: string, defs: string | string[]) => {
+    const joinedDef = Array.isArray(defs) ? defs.join("<hr/>") : defs;
+    const htmlContent = `<h2>${word}</h2><div>${joinedDef}</div>`;
+    const plainText = `${word}\n\n${stripHtml(joinedDef)}`;
+    return { htmlContent, plainText };
+  };
+
+  const getFullEntryCopyData = (word: string, defs: StructuredDefinition[]) => {
+    let allDefs: string[] = [];
+    if (defs.length > 1) {
+      allDefs = defs.map(b => {
+        const header = `<div style="font-weight: bold; font-size: 1.2em; margin-bottom: 8px; margin-top: 4px;">${b.headword}</div><br/>`;
+        const homographs = b.homographDefinitions.join("<hr/>");
+        return `${header}${homographs}`;
+      });
+    } else {
+      allDefs = defs[0].homographDefinitions;
+    }
+    return getCopyText(word, allDefs);
+  };
+
   const handleCopy = async (targetWord: string, specificDefBlock?: string | string[]) => {
     if (!targetWord || !specificDefBlock) return;
 
     try {
-      // Helper to strip HTML tags and attempt to preserve block structure for plain text
-      const stripHtml = (html: string) => {
-        let textWithNewlines = html
-          .replace(/<hr[^>]*>/gi, "\n\n")
-          .replace(/<br[^>]*>/gi, "\n")
-          .replace(/<\/div>/gi, "\n")
-          .replace(/<\/p>/gi, "\n\n")
-          .replace(/<div class="synthesized-header"[^>]*>/gi, "\n");
-
-        const tmp = document.createElement("DIV");
-        tmp.innerHTML = textWithNewlines;
-        return (tmp.textContent || tmp.innerText || "").replace(/\n\s*\n/g, "\n\n").trim();
-      };
-
-      const joinedDef = Array.isArray(specificDefBlock) ? specificDefBlock.join("<hr/>") : specificDefBlock;
-
-      const htmlContent = `<h2>${targetWord}</h2><div>${joinedDef}</div>`;
-      const plainText = `${targetWord}\n\n${stripHtml(joinedDef)}`;
+      const { htmlContent, plainText } = getCopyText(targetWord, specificDefBlock);
 
       const blobHtml = new Blob([htmlContent], { type: "text/html" });
       const blobText = new Blob([plainText], { type: "text/plain" });
@@ -597,7 +614,17 @@ function App() {
                   </div>
                 ))
               ) : query.trim() ? (
-                <div className="no-results">No results found</div>
+                <div className="no-results">
+                  <div>No results found</div>
+                  <a
+                    href={`https://jotform.com/260678120991058?q2_textbox0=${encodeURIComponent(query)}&q4_textbox2=${encodeURIComponent(window.location.href)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="suggest-link-btn"
+                  >
+                    Suggest Definition
+                  </a>
+                </div>
               ) : null}
             </div>
             <div className="resize-divider" onMouseDown={startVerticalResizing}></div>
@@ -614,23 +641,35 @@ function App() {
                       )}
                     </div>
                     <div className="global-actions" style={{ display: "flex", gap: "8px" }}>
+                      <a
+                        href={`https://jotform.com/260678150051452?q2_textbox0=${encodeURIComponent(selectedWord || "")}&q4_textbox2=${encodeURIComponent(window.location.href)}&existingDefinition=${encodeURIComponent(getFullEntryCopyData(selectedWord!, definition!).plainText)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="report-button"
+                        title="Report an error"
+                      >
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                          <polyline points="22,6 12,13 2,6"></polyline>
+                        </svg>
+                      </a>
                       <button
                         className="copy-button"
                         onClick={() => {
-                          // Aggregate all definitions across blocks
-                          let allDefs: string[] = [];
+                          const { plainText } = getFullEntryCopyData(selectedWord!, definition!);
+                          // We still need handleCopy for original functionality if needed, but getFullEntryCopyData does the heavy lifting
+                          // Actually handleCopy takes specific definitions, we can just call it with the aggregated ones
+                          let allDefsHtml: string[] = [];
                           if (definition.length > 1) {
-                            // Compound word: Include component headers in the copy text so the breakdown makes sense
-                            allDefs = definition.map(b => {
+                            allDefsHtml = definition.map(b => {
                               const header = `<div style="font-weight: bold; font-size: 1.2em; margin-bottom: 8px; margin-top: 4px;">${b.headword}</div><br/>`;
-                              const defs = b.homographDefinitions.join("<hr/>");
-                              return `${header}${defs}`;
+                              const homographs = b.homographDefinitions.join("<hr/>");
+                              return `${header}${homographs}`;
                             });
                           } else {
-                            // Single word
-                            allDefs = definition[0].homographDefinitions;
+                            allDefsHtml = definition[0].homographDefinitions;
                           }
-                          handleCopy(selectedWord!, allDefs);
+                          handleCopy(selectedWord!, allDefsHtml);
                         }}
                         title="Copy full entry">
                         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
