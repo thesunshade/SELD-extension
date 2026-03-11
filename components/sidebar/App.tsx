@@ -203,7 +203,7 @@ function App({ onClose }: AppProps) {
 
       if (isResizingSidebar.current) {
         const width = sidebarPosition === 'right' ? window.innerWidth - e.clientX : e.clientX;
-        if (width > 200 && width < window.innerWidth * 0.8) {
+        if (width > 320 && width < window.innerWidth * 0.8) {
           setSidebarWidth(width);
           chrome.storage.local.set({ sidebarWidth: width });
         }
