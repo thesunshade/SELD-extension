@@ -1,5 +1,8 @@
+/* Main Container - use ID prefix to win specificity */
 :root {
 	--seld-panel-width: 350px;
+	--seld-sidebar-left: auto;
+	--seld-sidebar-right: 0;
 }
 
 /* Layout for Host Page */
@@ -7,14 +10,28 @@ html.seld-active {
 	overflow-x: hidden !important;
 }
 
+/* Side-specific overrides */
+html.seld-pos-left {
+	--seld-sidebar-left: 0;
+	--seld-sidebar-right: auto;
+}
+
 body.seld-active {
 	display: grid !important;
-	grid-template-columns: calc(100vw - var(--seld-panel-width)) var(--seld-panel-width) !important;
 	width: 100vw !important;
 	margin: 0 !important;
 	padding: 0 !important;
 	transition: grid-template-columns 0.05s linear;
-	/* Slight transition for smoother drag if needed, though often better without */
+}
+
+/* Right side grid default */
+body.seld-active {
+	grid-template-columns: 1fr var(--seld-panel-width) !important;
+}
+
+/* Left side grid */
+html.seld-pos-left body.seld-active {
+	grid-template-columns: var(--seld-panel-width) 1fr !important;
 }
 
 /* Container for existing content */
@@ -22,13 +39,24 @@ body.seld-active {
 	height: 100vh;
 	overflow-y: auto;
 	position: relative;
+	grid-row: 1;
 }
 
-/* Sidebar Styling - The root is now a transparent shell for the grid/positioning */
+/* Content should be in the correct column */
+body.seld-active #seld-main-content {
+	grid-column: 1;
+}
+
+html.seld-pos-left body.seld-active #seld-main-content {
+	grid-column: 2;
+}
+
+/* Sidebar Styling */
 #seld-sidebar-root {
 	height: 100vh;
 	position: fixed;
-	right: 0;
+	left: var(--seld-sidebar-left);
+	right: var(--seld-sidebar-right);
 	top: 0;
 	bottom: 0;
 	background: transparent;
@@ -39,5 +67,4 @@ body.seld-active {
 	display: flex;
 	flex-direction: column;
 	overflow: hidden;
-	/* Inner container handles scroll */
 }

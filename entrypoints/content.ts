@@ -15,8 +15,17 @@ export default defineContentScript({
         let isSidebarOpen = false;
         let root: ReactDOM.Root | null = null;
 
-        const initSidebar = () => {
+        const updateSidebarPositionClass = (position: 'left' | 'right') => {
+            document.documentElement.classList.remove('seld-pos-left', 'seld-pos-right');
+            document.documentElement.classList.add(`seld-pos-${position}`);
+        };
+
+        const initSidebar = async () => {
             if (document.getElementById('seld-sidebar-root')) return;
+
+            // Load position and apply class
+            const res = await browser.storage.local.get(['seldSidebarPosition']);
+            updateSidebarPositionClass(res.seldSidebarPosition || 'right');
 
             document.documentElement.classList.add('seld-active');
             document.body.classList.add('seld-active');
@@ -103,8 +112,13 @@ export default defineContentScript({
         });
 
         browser.storage.onChanged.addListener((changes, namespace) => {
-            if (namespace === 'local' && changes.seldOverrideSinhalaFont) {
-                applyFontOverride(changes.seldOverrideSinhalaFont.newValue as boolean);
+            if (namespace === 'local') {
+                if (changes.seldOverrideSinhalaFont) {
+                    applyFontOverride(changes.seldOverrideSinhalaFont.newValue as boolean);
+                }
+                if (changes.seldSidebarPosition) {
+                    updateSidebarPositionClass(changes.seldSidebarPosition.newValue as 'left' | 'right');
+                }
             }
         });
 

@@ -102,6 +102,11 @@
   border-left: 1px solid var(--border-color);
 }
 
+#seld-sidebar-root .seld-sidebar-container.left-position {
+  border-left: none;
+  border-right: 1px solid var(--border-color);
+}
+
 #seld-sidebar-root .sidebar-resize-handle {
   position: absolute;
   left: 0;
@@ -111,6 +116,11 @@
   cursor: col-resize;
   z-index: 1000;
   transition: background 0.2s;
+}
+
+#seld-sidebar-root .seld-sidebar-container.left-position .sidebar-resize-handle {
+  left: auto;
+  right: 0;
 }
 
 #seld-sidebar-root .sidebar-resize-handle:hover {

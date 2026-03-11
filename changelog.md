@@ -8,3 +8,4 @@
 * improve html rendering
 * Add Text Pad so users can work with their own texts
 * Add dictionary viewer 
+* Swap sidebar position

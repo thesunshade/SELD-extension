@@ -32,6 +32,7 @@ function App({ onClose }: AppProps) {
   const [transliterateHeadwords, setTransliterateHeadwords] = useState(false);
   const [transliterateResults, setTransliterateResults] = useState(false);
   const [transliterateDefinitions, setTransliterateDefinitions] = useState(false);
+  const [sidebarPosition, setSidebarPosition] = useState<'left' | 'right'>('right');
 
   const autoPlayTTSRef = useRef(false);
   const [showToast, setShowToast] = useState(false);
@@ -106,6 +107,7 @@ function App({ onClose }: AppProps) {
       seldTransliterateHeadwords: v => setTransliterateHeadwords(v as boolean),
       seldTransliterateResults: v => setTransliterateResults(v as boolean),
       seldTransliterateDefinitions: v => setTransliterateDefinitions(v as boolean),
+      seldSidebarPosition: v => setSidebarPosition(v as 'left' | 'right'),
     };
 
     const keys = Object.keys(settingsConfig);
@@ -200,7 +202,7 @@ function App({ onClose }: AppProps) {
       }
 
       if (isResizingSidebar.current) {
-        const width = window.innerWidth - e.clientX;
+        const width = sidebarPosition === 'right' ? window.innerWidth - e.clientX : e.clientX;
         if (width > 200 && width < window.innerWidth * 0.8) {
           setSidebarWidth(width);
           chrome.storage.local.set({ sidebarWidth: width });
@@ -222,7 +224,7 @@ function App({ onClose }: AppProps) {
       window.removeEventListener("mousemove", handleGlobalMouseMove);
       window.removeEventListener("mouseup", handleGlobalMouseUp);
     };
-  }, []);
+  }, [sidebarPosition]); // Added dependency to use correct width calculation
 
   const sanitizeSearchQuery = (q: string) => {
     // Sanitize leading and trailing whitespace and punctuation: . , ; : ' " ‘ ’ “ ” - – —
@@ -345,13 +347,6 @@ function App({ onClose }: AppProps) {
     document.body.style.cursor = "row-resize";
   };
 
-  const stopResizing = () => {
-    isResizingVertical.current = false;
-    isResizingSidebar.current = false;
-    document.body.style.userSelect = "";
-    document.body.style.cursor = "";
-  };
-
   const startSidebarResizing = (e: React.MouseEvent) => {
     isResizingSidebar.current = true;
     document.body.style.userSelect = "none";
@@ -363,7 +358,7 @@ function App({ onClose }: AppProps) {
   };
 
   return (
-    <div id="seld-sidebar-inner" className={`seld-sidebar-container seld-theme-vars ${themeClass}`} style={{ "--font-size-percent": `${fontSize}%` } as any}>
+    <div id="seld-sidebar-inner" className={`seld-sidebar-container seld-theme-vars ${themeClass} ${sidebarPosition === 'left' ? 'left-position' : ''}`} style={{ "--font-size-percent": `${fontSize}%` } as any}>
       <div className="sidebar-resize-handle" onMouseDown={startSidebarResizing}></div>
       <div className="header-row">
         <div className="history-nav">
@@ -400,11 +395,8 @@ function App({ onClose }: AppProps) {
             {sidebarWidth < 400 ? (
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="11.5" cy="6" r="0.5" fill="currentColor"></circle>
-
                 <line x1="11.5" y1="11" x2="11.5" y2="19"></line>
-
                 <line x1="9.5" y1="11" x2="11.5" y2="11"></line>
-
                 <line x1="8.5" y1="19" x2="14.5" y2="19"></line>
               </svg>
             ) : (
@@ -495,6 +487,34 @@ function App({ onClose }: AppProps) {
                   {t.toUpperCase()}
                 </button>
               ))}
+              <button
+                className="header-action-btn icon-only"
+                onClick={() => {
+                  const newPos = sidebarPosition === 'right' ? 'left' : 'right';
+                  setSidebarPosition(newPos);
+                  saveSetting("seldSidebarPosition", newPos);
+                }}
+                title={`Move to ${sidebarPosition === 'right' ? 'left' : 'right'}`}
+                style={{ marginLeft: '8px' }}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  style={{ transform: sidebarPosition === 'right' ? 'scaleX(-1)' : 'none' }}
+                >
+                  <path
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeMiterlimit="10"
+                    strokeWidth="1.5"
+                    d="m18 15 3-3m0 0-3-3m3 3H7m7 4v2.6a2.4 2.4 0 0 1-2.4 2.4H5.4A2.4 2.4 0 0 1 3 18.6V5.4A2.4 2.4 0 0 1 5.4 3h6.2A2.4 2.4 0 0 1 14 5.4V8"
+                  />
+                </svg>
+              </button>
             </div>
           </div>
           <div className="settings-group">
