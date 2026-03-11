@@ -11,6 +11,39 @@ export default defineBackground(() => {
         }
     });
 
+    const isRestrictedPage = (url?: string): boolean => {
+        if (!url) return true;
+        const restrictedPrefixes = [
+            'chrome://',
+            'chrome-extension://',
+            'about:',
+            'edge://',
+            'moz-extension://',
+            'https://chrome.google.com/webstore',
+            'https://addons.mozilla.org/'
+        ];
+        return restrictedPrefixes.some(prefix => url.startsWith(prefix));
+    };
+
+    const handleSidebarToggle = async (tabId?: number, url?: string) => {
+        if (isRestrictedPage(url)) {
+            browser.notifications.create({
+                type: 'basic',
+                iconUrl: browser.runtime.getURL('/icon-128.png'),
+                title: 'Action Restricted',
+                message: 'SELD Dictionary Sidebar cannot be opened on restricted browser pages.',
+            });
+            return;
+        }
+
+        if (tabId) {
+            try {
+                await browser.tabs.sendMessage(tabId, { action: 'TOGGLE_SIDEBAR' });
+            } catch (e) {
+                console.error("[SELD] Error sending TOGGLE_SIDEBAR from background:", e);
+            }
+        }
+    };
 
     // Listen for messages from the content script (keeping existing for now if needed, but cleaning up sidePanel)
     browser.runtime.onMessage.addListener((message: any, sender, sendResponse) => {
@@ -36,10 +69,15 @@ export default defineBackground(() => {
                     sendResponse({ error: error.message });
                 });
             return true; // Keep message channel open for async response
+        } else if (message.action === 'REQUEST_TOGGLE_SIDEBAR') {
+            browser.tabs.query({ active: true, currentWindow: true }).then((tabs) => {
+                const tab = tabs[0];
+                handleSidebarToggle(tab?.id, tab?.url);
+            });
+            sendResponse({ success: true });
         }
         return true;
     });
-
 });
 
 

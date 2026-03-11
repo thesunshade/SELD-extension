@@ -28,15 +28,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	sidebarBtn?.addEventListener('click', async () => {
 		try {
-			const tabs = await browser.tabs.query({ active: true, currentWindow: true });
-			const tab = tabs[0];
-			if (tab?.id && tab.url && !tab.url.startsWith('chrome://') && !tab.url.startsWith('about:')) {
-				await browser.tabs.sendMessage(tab.id, { action: 'TOGGLE_SIDEBAR' });
-			} else {
-				console.warn("[SELD] Cannot open sidebar on this page.");
-			}
+			await browser.runtime.sendMessage({ action: 'REQUEST_TOGGLE_SIDEBAR' });
 		} catch (e) {
-			console.error("[SELD] Error sending TOGGLE_SIDEBAR from popup:", e);
+			console.error("[SELD] Error sending REQUEST_TOGGLE_SIDEBAR from popup:", e);
 		}
 		window.close();
 	});
