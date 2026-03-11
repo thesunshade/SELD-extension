@@ -255,15 +255,42 @@ class StarDictParser {
     // Also support fetching full list (useful if showing initial state)
     public async getList(limit: number = 20): Promise<IndexEntry[]> {
         await this.load();
-        // Return unique words from the start
-        const unique = new Map<string, IndexEntry>();
+        return this.indexList.slice(0, limit);
+    }
+
+    // Get all loaded entries (for dictionary explorer)
+    public async getAllEntries(): Promise<IndexEntry[]> {
+        await this.load();
+        return this.indexList;
+    }
+
+    // Search full text of definitions
+    public async searchFullText(query: string, limit: number = 100): Promise<IndexEntry[]> {
+        await this.load();
+        if (!query) return [];
+        const lowerQuery = query.toLowerCase();
+        const results: IndexEntry[] = [];
+        const seen = new Set<string>();
+
         for (const entry of this.indexList) {
-            if (!unique.has(entry.word)) {
-                unique.set(entry.word, entry);
+            if (results.length >= limit) break;
+            if (seen.has(entry.word)) continue;
+
+            // Check headword first
+            if (entry.word.toLowerCase().includes(lowerQuery)) {
+                seen.add(entry.word);
+                results.push(entry);
+                continue;
             }
-            if (unique.size >= limit) break;
+
+            // Check definition text
+            const defText = this.readDictData(entry.offset, entry.size).toLowerCase();
+            if (defText.includes(lowerQuery)) {
+                seen.add(entry.word);
+                results.push(entry);
+            }
         }
-        return Array.from(unique.values());
+        return results;
     }
 
     private readDictData(offset: number, size: number): string {

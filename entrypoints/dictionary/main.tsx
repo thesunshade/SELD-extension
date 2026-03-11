@@ -1,11 +1,9 @@
-import { browser } from 'wxt/browser';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from '../../components/dictionary/App';
 import '../../assets/theme.css';
 
 document.addEventListener('DOMContentLoaded', () => {
-	const sidebarBtn = document.getElementById('open-sidebar');
-	const textpadBtn = document.getElementById('open-text-pad');
-	const dictBtn = document.getElementById('dictionary-explorer');
-
 	const applyTheme = (theme: string) => {
 		const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 		document.body.className = `seld-theme-vars ${isDark ? 'dark-theme' : 'light-theme'}`;
@@ -26,27 +24,10 @@ document.addEventListener('DOMContentLoaded', () => {
 			applyTheme(changes.theme.newValue as string);
 		}
 	});
-
-	sidebarBtn?.addEventListener('click', async () => {
-		try {
-			await browser.runtime.sendMessage({ action: 'REQUEST_TOGGLE_SIDEBAR' });
-		} catch (e) {
-			console.error("[SELD] Error sending REQUEST_TOGGLE_SIDEBAR from popup:", e);
-		}
-		window.close();
-	});
-
-	textpadBtn?.addEventListener('click', () => {
-		browser.tabs.create({
-			url: browser.runtime.getURL('/textpad.html'),
-		});
-		window.close();
-	});
-
-	dictBtn?.addEventListener('click', () => {
-		browser.tabs.create({
-			url: browser.runtime.getURL('/dictionary.html'),
-		});
-		window.close();
-	});
 });
+
+ReactDOM.createRoot(document.getElementById('app')!).render(
+	<React.StrictMode>
+		<App />
+	</React.StrictMode>
+);

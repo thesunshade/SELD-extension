@@ -3,6 +3,8 @@ import { stardict, IndexEntry, StructuredDefinition } from "../../utils/stardict
 import { extractUniqueSinhalaWords, applyHighlights } from "../../utils/dom-highlights";
 import { transliterateSinhala } from "../../utils/transliterate";
 import { browser } from "wxt/browser";
+import { getCopyText } from "../../utils/clipboard";
+import { DefinitionCard } from "../shared/DefinitionCard";
 
 type View = "search" | "settings" | "info";
 type Theme = "light" | "dark" | "system";
@@ -305,40 +307,6 @@ function App() {
       .catch(e => console.error("Error communicating with background for TTS:", e));
   };
 
-  const stripHtml = (html: string) => {
-    let textWithNewlines = html
-      .replace(/<hr[^>]*>/gi, "\n\n")
-      .replace(/<br[^>]*>/gi, "\n")
-      .replace(/<\/div>/gi, "\n")
-      .replace(/<\/p>/gi, "\n\n")
-      .replace(/<div class="synthesized-header"[^>]*>/gi, "\n");
-
-    const tmp = document.createElement("DIV");
-    tmp.innerHTML = textWithNewlines;
-    return (tmp.textContent || tmp.innerText || "").replace(/\n\s*\n/g, "\n\n").trim();
-  };
-
-  const getCopyText = (word: string, defs: string | string[]) => {
-    const joinedDef = Array.isArray(defs) ? defs.join("<hr/>") : defs;
-    const htmlContent = `<h2>${word}</h2><div>${joinedDef}</div>`;
-    const plainText = `${word}\n\n${stripHtml(joinedDef)}`;
-    return { htmlContent, plainText };
-  };
-
-  const getFullEntryCopyData = (word: string, defs: StructuredDefinition[]) => {
-    let allDefs: string[] = [];
-    if (defs.length > 1) {
-      allDefs = defs.map(b => {
-        const header = `<div style="font-weight: bold; font-size: 1.2em; margin-bottom: 8px; margin-top: 4px;">${b.headword}</div><br/>`;
-        const homographs = b.homographDefinitions.join("<hr/>");
-        return `${header}${homographs}`;
-      });
-    } else {
-      allDefs = defs[0].homographDefinitions;
-    }
-    return getCopyText(word, allDefs);
-  };
-
   const handleCopy = async (targetWord: string, specificDefBlock?: string | string[]) => {
     if (!targetWord || !specificDefBlock) return;
 
@@ -388,180 +356,6 @@ function App() {
 
   const saveSetting = (key: string, value: any) => {
     browser.storage.local.set({ [key]: value });
-  };
-
-  const renderTextWithClicks = (text: string) => {
-    // Added \u200D (ZWJ) and \u200C (ZWNJ) to the regex
-    const tokens = text.split(/([^a-zA-Z\u0D80-\u0DFF\u200D\u200C]+)/).filter(Boolean);
-    const elements: React.ReactNode[] = [];
-
-    let i = 0;
-    while (i < tokens.length) {
-      const token = tokens[i];
-      // Check for Sinhala including joiners
-      const isWord = /[a-zA-Z\u0D80-\u0DFF\u200D\u200C]/.test(token);
-      const isSinhala = /[\u0D80-\u0DFF\u200D\u200C]/.test(token);
-      const isEnglish = isWord && !isSinhala;
-
-      if (isSinhala) {
-        // Find extent of this Sinhala phrase
-        let lastSinhalaIndex = i;
-        for (let j = i + 1; j < tokens.length; j++) {
-          const nextToken = tokens[j];
-          if (/[a-zA-Z\u0D80-\u0DFF]/.test(nextToken)) {
-            if (/[\u0D80-\u0DFF]/.test(nextToken)) {
-              lastSinhalaIndex = j;
-            } else {
-              break; // found English word, end of phrase
-            }
-          }
-        }
-
-        // Process tokens from i to lastSinhalaIndex
-        let phraseForTranslit = "";
-        for (let k = i; k <= lastSinhalaIndex; k++) {
-          const t = tokens[k];
-          phraseForTranslit += t;
-          if (/[a-zA-Z\u0D80-\u0DFF]/.test(t)) {
-            elements.push(
-              <span
-                key={k}
-                className="clickable-word"
-                onClick={e => {
-                  e.stopPropagation();
-                  setQuery(t);
-                  handleSearch(t);
-                }}>
-                {t}
-              </span>,
-            );
-          } else {
-            elements.push(<span key={k}>{t}</span>);
-          }
-        }
-
-        if (transliterateDefinitions) {
-          elements.push(
-            <span key={`t-${i}`} className="seld-transliteration">
-              {" "}
-              [{transliterateSinhala(phraseForTranslit.trim())}]
-            </span>,
-          );
-        }
-
-        i = lastSinhalaIndex + 1;
-      } else if (isEnglish) {
-        elements.push(
-          <span
-            key={i}
-            className="clickable-word"
-            onClick={e => {
-              e.stopPropagation();
-              setQuery(token);
-              handleSearch(token);
-            }}>
-            {token}
-          </span>,
-        );
-        i++;
-      } else {
-        elements.push(<span key={i}>{token}</span>);
-        i++;
-      }
-    }
-    return elements;
-  };
-
-  const renderHtmlDefinition = (html: string) => {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, "text/html");
-    // Remove style and script tags to prevent leakage or execution
-    const styles = doc.querySelectorAll("style, script");
-    styles.forEach(s => s.remove());
-
-    const convertNode = (node: Node, key: string): React.ReactNode => {
-      if (node.nodeType === Node.TEXT_NODE) return <React.Fragment key={key}>{renderTextWithClicks(node.textContent || "")}</React.Fragment>;
-      if (node.nodeType === Node.ELEMENT_NODE) {
-        const element = node as HTMLElement;
-        const tagName = element.tagName.toLowerCase();
-        const children = Array.from(element.childNodes).map((child, i) => convertNode(child, `${key}-${i}`));
-
-        // Final cleanup: remove color from style attribute if it exists
-        if (element.style && element.style.color) {
-          element.style.color = "";
-        }
-
-        switch (tagName) {
-          case "br":
-            return <br key={key} />;
-          case "hr":
-            return <hr key={key} className={element.className} />;
-          case "b":
-          case "strong":
-            return (
-              <strong key={key} className={element.className}>
-                {children}
-              </strong>
-            );
-          case "i":
-          case "em":
-            return (
-              <em key={key} className={element.className}>
-                {children}
-              </em>
-            );
-          case "u":
-            return (
-              <u key={key} className={element.className}>
-                {children}
-              </u>
-            );
-          case "p":
-            return (
-              <p key={key} className={element.className} style={{ color: "inherit" }}>
-                {children}
-              </p>
-            );
-          case "div":
-            return (
-              <div key={key} className={element.className} style={{ color: "inherit" }}>
-                {children}
-              </div>
-            );
-          case "span":
-            return (
-              <span key={key} className={element.className} style={{ color: "inherit" }}>
-                {children}
-              </span>
-            );
-          case "ul":
-            return (
-              <ul key={key} className={element.className}>
-                {children}
-              </ul>
-            );
-          case "li":
-            return (
-              <li key={key} className={element.className} style={{ color: "inherit" }}>
-                {children}
-              </li>
-            );
-          case "font": {
-            // User suggestion: strip colors clearly. Any specific mapping should be minimal.
-            // We will ignore the color attribute entirely.
-            return (
-              <span key={key} className={element.className} style={{ color: "inherit" }}>
-                {children}
-              </span>
-            );
-          }
-          default:
-            return <React.Fragment key={key}>{children}</React.Fragment>;
-        }
-      }
-      return null;
-    };
-    return Array.from(doc.body.childNodes).map((node, i) => convertNode(node, `node-${i}`));
   };
 
   return (
@@ -664,113 +458,15 @@ function App() {
             <div className="resize-divider" onMouseDown={startVerticalResizing}></div>
             <div className="definition-area custom-scroll dynamic-font">
               {definition ? (
-                <div className="definition-box">
-                  <h2 className="def-title" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <div style={{ display: "flex", flexDirection: "column" }}>
-                      <span>{selectedWord}</span>
-                      {transliterateHeadwords && /[\u0D80-\u0DFF]/.test(selectedWord || "") && (
-                        <span className="seld-transliteration" style={{ fontSize: "0.6em", fontWeight: "normal", opacity: 0.8, marginTop: "2px" }}>
-                          {transliterateSinhala(selectedWord!)}
-                        </span>
-                      )}
-                    </div>
-                    <div className="global-actions" style={{ display: "flex", gap: "8px" }}>
-                      <a
-                        href={`https://jotform.com/260678150051452?q2_textbox0=${encodeURIComponent(selectedWord || "")}&q4_textbox2=${encodeURIComponent(window.location.href)}&existingDefinition=${encodeURIComponent(getFullEntryCopyData(selectedWord!, definition!).plainText)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="report-button"
-                        title="Report an error"
-                      >
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                          <polyline points="22,6 12,13 2,6"></polyline>
-                        </svg>
-                      </a>
-                      <button
-                        className="copy-button"
-                        onClick={() => {
-                          const { plainText } = getFullEntryCopyData(selectedWord!, definition!);
-                          // We still need handleCopy for original functionality if needed, but getFullEntryCopyData does the heavy lifting
-                          // Actually handleCopy takes specific definitions, we can just call it with the aggregated ones
-                          let allDefsHtml: string[] = [];
-                          if (definition.length > 1) {
-                            allDefsHtml = definition.map(b => {
-                              const header = `<div style="font-weight: bold; font-size: 1.2em; margin-bottom: 8px; margin-top: 4px;">${b.headword}</div><br/>`;
-                              const homographs = b.homographDefinitions.join("<hr/>");
-                              return `${header}${homographs}`;
-                            });
-                          } else {
-                            allDefsHtml = definition[0].homographDefinitions;
-                          }
-                          handleCopy(selectedWord!, allDefsHtml);
-                        }}
-                        title="Copy full entry">
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-                          <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-                        </svg>
-                      </button>
-                      <button className="tts-button" onClick={() => selectedWord && handleSpeak(selectedWord)} title="Speak word">
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-                          <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-                        </svg>
-                      </button>
-                    </div>
-                  </h2>
-                  <div className="definition-content">
-                    {definition.map((block, bIdx) => (
-                      <div key={bIdx} className="synthesized-section" style={{ marginBottom: bIdx < definition.length - 1 ? "16px" : "0" }}>
-                        {/* Header for each component only if it's a compound structure */}
-                        {definition.length > 1 && (
-                          <div className="synthesized-header">
-                            <div style={{ display: "flex", flexDirection: "column" }}>
-                              <span
-                                className="synthesized-header-text"
-                                onClick={() => {
-                                  setQuery(block.headword);
-                                  handleSearch(block.headword);
-                                }}
-                                title="Search this word">
-                                {block.headword}
-                              </span>
-                              {transliterateHeadwords && /[\u0D80-\u0DFF]/.test(block.headword) && (
-                                <span className="seld-transliteration" style={{ fontSize: "0.8em", fontWeight: "normal", opacity: 0.8, marginTop: "2px" }}>
-                                  {transliterateSinhala(block.headword)}
-                                </span>
-                              )}
-                            </div>
-                            <div style={{ display: "flex", gap: "8px", opacity: 0.8, transform: "scale(0.85)" }}>
-                              <button className="copy-button" onClick={() => handleCopy(block.headword, block.homographDefinitions)} title="Copy entry">
-                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                  <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-                                  <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-                                </svg>
-                              </button>
-                              <button className="tts-button" onClick={() => handleSpeak(block.headword)} title="Speak word">
-                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-                                  <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-                                </svg>
-                              </button>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Homograph definitions */}
-                        {block.homographDefinitions.map((homograph, hIdx) => (
-                          <div key={hIdx}>
-                            {renderHtmlDefinition(homograph)}
-                            {hIdx < block.homographDefinitions.length - 1 && <hr className="homograph-separator" style={{ margin: "8px 0" }} />}
-                          </div>
-                        ))}
-
-                        {bIdx < definition.length - 1 && <hr style={{ margin: "16px 0", border: "none", borderTop: "2px dashed var(--border-color)" }} />}
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <DefinitionCard
+                  word={selectedWord!}
+                  definition={definition}
+                  transliterateHeadwords={transliterateHeadwords}
+                  transliterateDefinitions={transliterateDefinitions}
+                  onWordClick={(word) => { setQuery(word); handleSearch(word); }}
+                  onSpeakClick={handleSpeak}
+                  onCopyClick={handleCopy}
+                />
               ) : !query ? (
                 <div className="empty-state">Highlight text or double click to look up</div>
               ) : results.length > 0 ? (
