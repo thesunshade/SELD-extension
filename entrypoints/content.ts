@@ -41,7 +41,7 @@ export default defineContentScript({
 
             // Mount React App
             root = ReactDOM.createRoot(sidebar);
-            root.render(React.createElement(App));
+            root.render(React.createElement(App, { onClose: destroySidebar }));
 
             isSidebarOpen = true;
         };
