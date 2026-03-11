@@ -46,7 +46,7 @@ body {
 
 .textpad-btn {
 	padding: 8px 16px;
-	border: none;
+	border: 1px var(--border-color) solid;
 	border-radius: 6px;
 	font-size: 14px;
 	font-weight: 500;
@@ -55,21 +55,21 @@ body {
 }
 
 .textpad-btn.primary {
-	background-color: #3b82f6;
-	color: white;
+	background-color: var(--bg-color);
+	color: var(--text-primary);
 }
 
 .textpad-btn.primary:hover {
-	background-color: #2563eb;
+	background-color: #8ba6e1;
 }
 
 .textpad-btn.danger {
-	background-color: #ef4444;
-	color: white;
+	background-color: var(--bg-color);
+	color: var(--text-primary);
 }
 
 .textpad-btn.danger:hover {
-	background-color: #dc2828;
+	background-color: #bebebe;
 }
 
 .textpad-main {

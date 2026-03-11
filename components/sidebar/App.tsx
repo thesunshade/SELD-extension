@@ -88,26 +88,26 @@ function App() {
 
   useEffect(() => {
     const settingsConfig: Record<string, (val: any) => void> = {
-      theme: (v) => setTheme(v as Theme),
-      fontSize: (v) => setFontSize(v as number),
-      seldCtrlClickLookup: (v) => setCtrlClickLookup(v as boolean),
-      seldUnderlineWords: (v) => setUnderlineDictionaryWords(v as boolean),
-      seldAutoPlayTTS: (v) => {
+      theme: v => setTheme(v as Theme),
+      fontSize: v => setFontSize(v as number),
+      seldCtrlClickLookup: v => setCtrlClickLookup(v as boolean),
+      seldUnderlineWords: v => setUnderlineDictionaryWords(v as boolean),
+      seldAutoPlayTTS: v => {
         setAutoPlayTTS(v as boolean);
         autoPlayTTSRef.current = v as boolean;
       },
-      seldOverrideSinhalaFont: (v) => setOverrideSinhalaFont(v as boolean),
-      sidebarWidth: (v) => setSidebarWidth(v as number),
-      listHeight: (v) => setListHeight(v as number),
-      seldTransliterateHeadwords: (v) => setTransliterateHeadwords(v as boolean),
-      seldTransliterateResults: (v) => setTransliterateResults(v as boolean),
-      seldTransliterateDefinitions: (v) => setTransliterateDefinitions(v as boolean),
+      seldOverrideSinhalaFont: v => setOverrideSinhalaFont(v as boolean),
+      sidebarWidth: v => setSidebarWidth(v as number),
+      listHeight: v => setListHeight(v as number),
+      seldTransliterateHeadwords: v => setTransliterateHeadwords(v as boolean),
+      seldTransliterateResults: v => setTransliterateResults(v as boolean),
+      seldTransliterateDefinitions: v => setTransliterateDefinitions(v as boolean),
     };
 
     const keys = Object.keys(settingsConfig);
 
     // Initial load
-    browser.storage.local.get(keys).then((res) => {
+    browser.storage.local.get(keys).then(res => {
       Object.entries(res).forEach(([key, value]) => {
         if (value !== undefined && settingsConfig[key]) {
           settingsConfig[key](value);
@@ -372,11 +372,7 @@ function App() {
         </div>
         {!isResizingSidebar.current && sidebarWidth < 300 ? "" : "SELD"}
         <div className="header-actions">
-          <button
-            className={`header-action-btn ${sidebarWidth < 400 ? "icon-only" : ""} ${view === "search" ? "active" : ""}`}
-            onClick={() => setView("search")}
-            title="Search"
-          >
+          <button className={`header-action-btn ${sidebarWidth < 400 ? "icon-only" : ""} ${view === "search" ? "active" : ""}`} onClick={() => setView("search")} title="Search">
             {sidebarWidth < 400 ? (
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="11" cy="11" r="8"></circle>
@@ -386,11 +382,7 @@ function App() {
               "Search"
             )}
           </button>
-          <button
-            className={`header-action-btn ${sidebarWidth < 400 ? "icon-only" : ""} ${view === "settings" ? "active" : ""}`}
-            onClick={() => setView("settings")}
-            title="Settings"
-          >
+          <button className={`header-action-btn ${sidebarWidth < 400 ? "icon-only" : ""} ${view === "settings" ? "active" : ""}`} onClick={() => setView("settings")} title="Settings">
             {sidebarWidth < 400 ? (
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="3"></circle>
@@ -400,16 +392,16 @@ function App() {
               "Settings"
             )}
           </button>
-          <button
-            className={`header-action-btn ${sidebarWidth < 400 ? "icon-only" : ""} ${view === "info" ? "active" : ""}`}
-            onClick={() => setView("info")}
-            title="Info"
-          >
+          <button className={`header-action-btn ${sidebarWidth < 400 ? "icon-only" : ""} ${view === "info" ? "active" : ""}`} onClick={() => setView("info")} title="Info">
             {sidebarWidth < 400 ? (
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="12" y1="16" x2="12" y2="12"></line>
-                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11.5" cy="6" r="0.5" fill="currentColor"></circle>
+
+                <line x1="11.5" y1="11" x2="11.5" y2="19"></line>
+
+                <line x1="9.5" y1="11" x2="11.5" y2="11"></line>
+
+                <line x1="8.5" y1="19" x2="14.5" y2="19"></line>
               </svg>
             ) : (
               "Info"
@@ -444,12 +436,7 @@ function App() {
               ) : query.trim() ? (
                 <div className="no-results">
                   <div>No results found</div>
-                  <a
-                    href={`https://jotform.com/260678120991058?q2_textbox0=${encodeURIComponent(query)}&q4_textbox2=${encodeURIComponent(window.location.href)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="suggest-link-btn"
-                  >
+                  <a href={`https://jotform.com/260678120991058?q2_textbox0=${encodeURIComponent(query)}&q4_textbox2=${encodeURIComponent(window.location.href)}`} target="_blank" rel="noopener noreferrer" className="suggest-link-btn">
                     Suggest Definition
                   </a>
                 </div>
@@ -463,7 +450,10 @@ function App() {
                   definition={definition}
                   transliterateHeadwords={transliterateHeadwords}
                   transliterateDefinitions={transliterateDefinitions}
-                  onWordClick={(word) => { setQuery(word); handleSearch(word); }}
+                  onWordClick={word => {
+                    setQuery(word);
+                    handleSearch(word);
+                  }}
                   onSpeakClick={handleSpeak}
                   onCopyClick={handleCopy}
                 />
