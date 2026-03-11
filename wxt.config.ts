@@ -9,7 +9,7 @@ export default defineConfig({
     permissions: ["storage", "activeTab", "notifications"],
     host_permissions: ["https://translate.google.com/*"],
     content_security_policy: {
-      extension_pages: "script-src 'self'; object-src 'self'; media-src 'self' https://translate.google.com;",
+      extension_pages: "script-src 'self'; object-src 'self'; media-src 'self' data: https://translate.google.com;",
     },
     action: {
       default_title: "Click to open Dictionary side panel",

@@ -2,8 +2,9 @@
 
 # Change Log
 
-## 0.0.3
+## 0.0.3 (2026-03-11)
 * Add feedback forms
 * add install/update welcome page
 * improve html rendering
 * Add Text Pad so users can work with their own texts
+* Add dictionary viewer 
