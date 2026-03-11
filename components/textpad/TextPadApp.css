@@ -1,0 +1,118 @@
+@font-face {
+	font-family: 'SeldNotoSansSinhala';
+	src: url('../../assets/fonts/NotoSansSinhala-VariableFont_wdth,wght.ttf') format('truetype');
+	font-weight: normal;
+	font-style: normal;
+	font-display: swap;
+}
+
+body {
+	margin: 0;
+	padding: 0;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+	height: 100vh;
+	width: 100vw;
+	overflow: hidden;
+}
+
+.textpad-container {
+	display: flex;
+	flex-direction: column;
+	height: 100vh;
+	box-sizing: border-box;
+	background-color: var(--bg-color);
+}
+
+.textpad-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 16px 24px;
+	background-color: var(--bg-panel);
+	border-bottom: 1px solid var(--border-color);
+	box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.textpad-header h1 {
+	margin: 0;
+	font-size: 20px;
+	color: var(--text-primary);
+}
+
+.textpad-actions {
+	display: flex;
+	gap: 12px;
+}
+
+.textpad-btn {
+	padding: 8px 16px;
+	border: none;
+	border-radius: 6px;
+	font-size: 14px;
+	font-weight: 500;
+	cursor: pointer;
+	transition: background-color 0.2s;
+}
+
+.textpad-btn.primary {
+	background-color: #3b82f6;
+	color: white;
+}
+
+.textpad-btn.primary:hover {
+	background-color: #2563eb;
+}
+
+.textpad-btn.danger {
+	background-color: #ef4444;
+	color: white;
+}
+
+.textpad-btn.danger:hover {
+	background-color: #dc2828;
+}
+
+.textpad-main {
+	flex: 1;
+	display: flex;
+	padding: 24px;
+	height: 100%;
+	overflow: hidden;
+	box-sizing: border-box;
+}
+
+.textpad-input,
+.textpad-display {
+	width: 100%;
+	height: 100%;
+	box-sizing: border-box;
+	padding: 24px;
+	background-color: var(--input-bg);
+	color: var(--text-primary);
+	border: 1px solid var(--border-color);
+	border-radius: 8px;
+	font-size: 16px;
+	line-height: 1.6;
+	font-family: 'SeldNotoSansSinhala', sans-serif;
+	box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+.textpad-input {
+	resize: none;
+	outline: none;
+}
+
+.textpad-input:focus {
+	border-color: #3b82f6;
+	box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.textpad-display {
+	overflow-y: auto;
+	white-space: pre-wrap;
+}
+
+.textpad-display p {
+	margin-top: 0;
+	margin-bottom: 1em;
+}

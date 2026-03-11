@@ -40,3 +40,7 @@ SELD.zip
 public/SELD.dict
 public/SELD.idx
 public/SELD.ifo
+compile_errors.txt
+compile.txt
+errors-utf8.txt
+errors.txt

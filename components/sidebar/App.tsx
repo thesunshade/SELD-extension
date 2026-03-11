@@ -565,7 +565,7 @@ function App() {
   };
 
   return (
-    <div id="seld-sidebar-inner" className={`seld-sidebar-container ${themeClass}`} style={{ "--font-size-percent": `${fontSize}%` } as any}>
+    <div id="seld-sidebar-inner" className={`seld-sidebar-container seld-theme-vars ${themeClass}`} style={{ "--font-size-percent": `${fontSize}%` } as any}>
       <div className="sidebar-resize-handle" onMouseDown={startSidebarResizing}></div>
       <div className="header-row">
         <div className="history-nav">
