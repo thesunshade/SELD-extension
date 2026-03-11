@@ -9,7 +9,8 @@ import "./App.css";
 type ViewTab = "browse" | "search";
 type SearchScope = "headwords" | "fulltext";
 
-const BATCH_SIZE = 30;
+const ITEM_HEIGHT = 220; // Estimated height for virtualization
+const OVERSCAN = 5;
 
 export default function DictionaryApp() {
 	// --- State ---
@@ -31,7 +32,6 @@ export default function DictionaryApp() {
 	const [selectedPrefix, setSelectedPrefix] = useState<string | null>(() => {
 		return sessionStorage.getItem("dict-prefix");
 	});
-	const [filteredEntries, setFilteredEntries] = useState<IndexEntry[]>([]);
 
 	// Search state
 	const [searchQuery, setSearchQuery] = useState(() => {
@@ -42,16 +42,19 @@ export default function DictionaryApp() {
 	});
 	const [searchResults, setSearchResults] = useState<IndexEntry[]>([]);
 	const [isSearching, setIsSearching] = useState(false);
+	// Book view state (virtualization)
+	const [scrollTop, setScrollTop] = useState(0);
+	const [viewportHeight, setViewportHeight] = useState(800);
+	const ITEM_HEIGHT = 220; // Estimated height for virtualization
+	const OVERSCAN = 5;
 
-	// Book view state (infinite scroll)
-	const [displayedCount, setDisplayedCount] = useState(BATCH_SIZE);
 	const [definitionCache, setDefinitionCache] = useState<Map<string, StructuredDefinition[]>>(new Map());
 	const [showToast, setShowToast] = useState(false);
 	const [toastMessage, setToastMessage] = useState("");
 
 	const bookViewRef = useRef<HTMLDivElement>(null);
 	const debounceTimer = useRef<number | null>(null);
-	const searchResultRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+	const isManualJump = useRef(false);
 
 	// --- Load settings ---
 	useEffect(() => {
@@ -74,6 +77,16 @@ export default function DictionaryApp() {
 
 		browser.storage.onChanged.addListener(handleStorageChange);
 		return () => browser.storage.onChanged.removeListener(handleStorageChange);
+	}, []);
+
+	// Measure viewport on mount and resize
+	useEffect(() => {
+		const updateHeight = () => {
+			if (bookViewRef.current) setViewportHeight(bookViewRef.current.clientHeight);
+		};
+		updateHeight();
+		window.addEventListener("resize", updateHeight);
+		return () => window.removeEventListener("resize", updateHeight);
 	}, []);
 
 	// --- Load dictionary entries ---
@@ -102,6 +115,34 @@ export default function DictionaryApp() {
 		});
 	}, []);
 
+	const jumpToPrefix = useCallback((prefix: string, isFromScroll = false) => {
+		if (allEntries.length === 0) return;
+
+		const index = allEntries.findIndex(e => e.word.startsWith(prefix));
+		if (index === -1) return;
+
+		if (!isFromScroll) {
+			isManualJump.current = true;
+			if (bookViewRef.current) {
+				bookViewRef.current.scrollTop = index * ITEM_HEIGHT;
+				setScrollTop(index * ITEM_HEIGHT);
+			}
+			setTimeout(() => { isManualJump.current = false; }, 100);
+		}
+	}, [allEntries, ITEM_HEIGHT]);
+
+	// --- Initial Jump ---
+	const [hasInitialJumped, setHasInitialJumped] = useState(false);
+	useEffect(() => {
+		if (allEntries.length > 0 && !hasInitialJumped && view === "browse") {
+			const prefix = selectedPrefix || selectedLetter;
+			if (prefix) {
+				jumpToPrefix(prefix);
+			}
+			setHasInitialJumped(true);
+		}
+	}, [allEntries, view, jumpToPrefix, hasInitialJumped, selectedLetter, selectedPrefix]);
+
 	// --- Build secondary prefixes when primary letter selected ---
 	useEffect(() => {
 		if (!selectedLetter || allEntries.length === 0) {
@@ -120,11 +161,8 @@ export default function DictionaryApp() {
 			if (!char) return false;
 			const code = char.charCodeAt(0);
 			return (
-				code === 0x0D82 || // Anusvara
-				code === 0x0D83 || // Visarga
-				code === 0x0DCA || // Hal Kirima
-				(code >= 0x0DCF && code <= 0x0DDF) || // Vowel signs
-				(code >= 0x0DF2 && code <= 0x0DF3)    // Vowel signs
+				code === 0x0D82 || code === 0x0D83 || code === 0x0DCA ||
+				(code >= 0x0DCF && code <= 0x0DDF) || (code >= 0x0DF2 && code <= 0x0DF3)
 			);
 		};
 
@@ -153,24 +191,6 @@ export default function DictionaryApp() {
 		setSecondaryPrefixes(sortedPrefixes.filter(p => p !== selectedLetter));
 	}, [selectedLetter, allEntries]);
 
-	// --- Filter entries for browse ---
-	useEffect(() => {
-		if (view !== "browse") return;
-
-		const prefix = selectedPrefix || selectedLetter;
-		if (!prefix) {
-			setFilteredEntries([]);
-			setDisplayedCount(BATCH_SIZE);
-			return;
-		}
-
-		const filtered = allEntries.filter(e => e.word.startsWith(prefix));
-		setFilteredEntries(filtered);
-		setDisplayedCount(BATCH_SIZE);
-
-		// Reset scroll
-		if (bookViewRef.current) bookViewRef.current.scrollTop = 0;
-	}, [selectedLetter, selectedPrefix, allEntries, view]);
 
 	// --- Session storage persistence ---
 	useEffect(() => { sessionStorage.setItem("dict-view", view); }, [view]);
@@ -195,33 +215,53 @@ export default function DictionaryApp() {
 			results = await stardict.searchFullText(q, 200);
 		}
 		setSearchResults(results);
-		setDisplayedCount(BATCH_SIZE);
 		setIsSearching(false);
-		if (bookViewRef.current) bookViewRef.current.scrollTop = 0;
+		if (bookViewRef.current) {
+			bookViewRef.current.scrollTop = 0;
+			setScrollTop(0);
+		}
 	}, [searchScope]);
 
 	useEffect(() => {
-		if (view !== "search") return;
-		if (debounceTimer.current) clearTimeout(debounceTimer.current);
-		debounceTimer.current = window.setTimeout(() => {
-			performSearch(searchQuery);
-		}, 300);
-		return () => { if (debounceTimer.current) clearTimeout(debounceTimer.current); };
+		if (view === "search") {
+			if (debounceTimer.current) clearTimeout(debounceTimer.current);
+			debounceTimer.current = window.setTimeout(() => performSearch(searchQuery), 300);
+			return () => { if (debounceTimer.current) clearTimeout(debounceTimer.current); };
+		}
 	}, [searchQuery, searchScope, view, performSearch]);
 
-	// --- Infinite scroll ---
-	const handleScroll = useCallback(() => {
-		const el = bookViewRef.current;
-		if (!el) return;
-		if (el.scrollTop + el.clientHeight >= el.scrollHeight - 200) {
-			setDisplayedCount(prev => prev + BATCH_SIZE);
+	// --- Virtualization Scroll Sync ---
+	const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+		const top = e.currentTarget.scrollTop;
+		setScrollTop(top);
+
+		// Sync Sidebar (un-throttled but light since it's just index math)
+		if (view === "browse" && !isManualJump.current && allEntries.length > 0) {
+			const index = Math.floor(top / ITEM_HEIGHT);
+			const entry = allEntries[Math.min(index, allEntries.length - 1)];
+			if (entry) {
+				const firstChar = entry.word.charAt(0);
+				const prefix = entry.word.substring(0, 2);
+				if (selectedLetter !== firstChar) {
+					setSelectedLetter(firstChar);
+					setSelectedPrefix(null);
+				} else if (prefix.length === 2 && prefix !== selectedPrefix) {
+					setSelectedPrefix(prefix);
+				}
+			}
 		}
-	}, []);
+	};
+
+	// --- Data Windowing ---
+	const currentEntries = view === "browse" ? allEntries : searchResults;
+	const startIndex = Math.max(0, Math.floor(scrollTop / ITEM_HEIGHT) - OVERSCAN);
+	const endIndex = Math.min(currentEntries.length, Math.ceil((scrollTop + viewportHeight) / ITEM_HEIGHT) + OVERSCAN);
+	const visibleEntries = useMemo(() => currentEntries.slice(startIndex, endIndex), [currentEntries, startIndex, endIndex]);
+
+	const totalHeight = currentEntries.length * ITEM_HEIGHT;
+	const offsetY = startIndex * ITEM_HEIGHT;
 
 	// --- Fetch definitions for visible entries ---
-	const currentEntries = view === "browse" ? filteredEntries : searchResults;
-	const visibleEntries = useMemo(() => currentEntries.slice(0, displayedCount), [currentEntries, displayedCount]);
-
 	useEffect(() => {
 		const fetchDefs = async () => {
 			const newCache = new Map(definitionCache);
@@ -278,15 +318,29 @@ export default function DictionaryApp() {
 	};
 
 	const scrollToEntry = (word: string) => {
-		const el = searchResultRefs.current.get(word);
-		if (el) {
-			el.scrollIntoView({ behavior: "smooth", block: "start" });
+		const index = currentEntries.findIndex(e => e.word === word);
+		if (index !== -1 && bookViewRef.current) {
+			isManualJump.current = true;
+			const targetScroll = index * ITEM_HEIGHT;
+			bookViewRef.current.scrollTop = targetScroll;
+			setScrollTop(targetScroll);
+			setTimeout(() => { isManualJump.current = false; }, 100);
 		}
 	};
 
 	const handleLetterClick = (letter: string) => {
 		setSelectedLetter(letter);
 		setSelectedPrefix(null);
+		if (view === "browse") {
+			jumpToPrefix(letter);
+		}
+	};
+
+	const handlePrefixClick = (prefix: string | null) => {
+		setSelectedPrefix(prefix);
+		if (view === "browse") {
+			jumpToPrefix(prefix || selectedLetter || "");
+		}
 	};
 
 	const themeClass = theme === "system"
@@ -330,7 +384,7 @@ export default function DictionaryApp() {
 									<div className="secondary-grid">
 										<button
 											className={`secondary-btn ${selectedPrefix === null ? "active" : ""}`}
-											onClick={() => setSelectedPrefix(null)}
+											onClick={() => handlePrefixClick(null)}
 										>
 											All
 										</button>
@@ -338,7 +392,7 @@ export default function DictionaryApp() {
 											<button
 												key={prefix}
 												className={`secondary-btn ${selectedPrefix === prefix ? "active" : ""}`}
-												onClick={() => setSelectedPrefix(prefix)}
+												onClick={() => handlePrefixClick(prefix)}
 											>
 												{prefix}
 											</button>
@@ -349,7 +403,7 @@ export default function DictionaryApp() {
 
 							{selectedLetter && (
 								<div className="browse-count">
-									{filteredEntries.length} entries
+									{allEntries.length} entries total
 								</div>
 							)}
 						</div>
@@ -403,49 +457,59 @@ export default function DictionaryApp() {
 
 			{/* Main Content: Book View */}
 			<main className="dict-book-view custom-scroll dynamic-font" ref={bookViewRef} onScroll={handleScroll}>
-				<div className="book-view-inner">
-					{visibleEntries.length === 0 && !isSearching && (
-						<div className="dict-empty-state">
-							{view === "browse"
-								? "Select a letter from the alphabet to browse entries."
-								: searchQuery.trim()
-									? "No matching entries found."
-									: "Type a search query to find entries."}
-						</div>
-					)}
-
-					{visibleEntries.map((entry, idx) => {
-						const defs = definitionCache.get(entry.word);
-						return (
-							<div
-								key={`${entry.word}-${idx}`}
-								className="book-entry-card"
-								ref={el => { if (el) searchResultRefs.current.set(entry.word, el); }}
-							>
-								{defs ? (
-									<DefinitionCard
-										word={entry.word}
-										definition={defs}
-										transliterateHeadwords={transliterateHeadwords}
-										transliterateDefinitions={transliterateDefinitions}
-										onWordClick={handleWordClick}
-										onSpeakClick={handleSpeak}
-										onCopyClick={handleCopy}
-										searchQuery={view === "search" ? searchQuery : undefined}
-									/>
-								) : (
-									<div className="loading-card">
-										<div className="loading-word">{entry.word}</div>
-										<div className="loading-skeleton"></div>
-									</div>
-								)}
+				<div
+					className="book-view-virtual-container"
+					style={{ height: totalHeight, position: 'relative' }}
+				>
+					<div
+						className="book-view-inner"
+						style={{
+							transform: `translateY(${offsetY}px)`,
+							position: 'absolute',
+							top: 0,
+							left: 0,
+							right: 0
+						}}
+					>
+						{visibleEntries.length === 0 && !isSearching && (
+							<div className="dict-empty-state">
+								{view === "browse"
+									? "Select a letter from the alphabet to browse entries."
+									: searchQuery.trim()
+										? "No matching entries found."
+										: "Type a search query to find entries."}
 							</div>
-						);
-					})}
+						)}
 
-					{displayedCount < currentEntries.length && (
-						<div className="load-more-indicator">Loading more entries...</div>
-					)}
+						{visibleEntries.map((entry, idx) => {
+							const defs = definitionCache.get(entry.word);
+							return (
+								<div
+									key={`${entry.word}-${startIndex + idx}`}
+									className="book-entry-card"
+									style={{ minHeight: ITEM_HEIGHT }}
+								>
+									{defs ? (
+										<DefinitionCard
+											word={entry.word}
+											definition={defs}
+											transliterateHeadwords={transliterateHeadwords}
+											transliterateDefinitions={transliterateDefinitions}
+											onWordClick={handleWordClick}
+											onSpeakClick={handleSpeak}
+											onCopyClick={handleCopy}
+											searchQuery={view === "search" ? searchQuery : undefined}
+										/>
+									) : (
+										<div className="loading-card">
+											<div className="loading-word">{entry.word}</div>
+											<div className="loading-skeleton"></div>
+										</div>
+									)}
+								</div>
+							);
+						})}
+					</div>
 				</div>
 			</main>
 
