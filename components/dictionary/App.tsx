@@ -9,7 +9,7 @@ import "./App.css";
 type ViewTab = "browse" | "search";
 type SearchScope = "headwords" | "fulltext";
 
-const ITEM_HEIGHT = 220; // Estimated height for virtualization
+const ITEM_HEIGHT = 140; // Estimated avg height for virtualization
 const OVERSCAN = 5;
 
 export default function DictionaryApp() {
@@ -45,8 +45,6 @@ export default function DictionaryApp() {
 	// Book view state (virtualization)
 	const [scrollTop, setScrollTop] = useState(0);
 	const [viewportHeight, setViewportHeight] = useState(800);
-	const ITEM_HEIGHT = 220; // Estimated height for virtualization
-	const OVERSCAN = 5;
 
 	const [definitionCache, setDefinitionCache] = useState<Map<string, StructuredDefinition[]>>(new Map());
 	const [showToast, setShowToast] = useState(false);
@@ -124,8 +122,9 @@ export default function DictionaryApp() {
 		if (!isFromScroll) {
 			isManualJump.current = true;
 			if (bookViewRef.current) {
-				bookViewRef.current.scrollTop = index * ITEM_HEIGHT;
-				setScrollTop(index * ITEM_HEIGHT);
+				const targetScroll = index * ITEM_HEIGHT - 20; // Slight offset to show it "higher"
+				bookViewRef.current.scrollTop = targetScroll;
+				setScrollTop(targetScroll);
 			}
 			setTimeout(() => { isManualJump.current = false; }, 100);
 		}
@@ -321,7 +320,7 @@ export default function DictionaryApp() {
 		const index = currentEntries.findIndex(e => e.word === word);
 		if (index !== -1 && bookViewRef.current) {
 			isManualJump.current = true;
-			const targetScroll = index * ITEM_HEIGHT;
+			const targetScroll = index * ITEM_HEIGHT - 20; // Consistent offset
 			bookViewRef.current.scrollTop = targetScroll;
 			setScrollTop(targetScroll);
 			setTimeout(() => { isManualJump.current = false; }, 100);
