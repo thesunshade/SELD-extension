@@ -6,9 +6,9 @@
 
 ## Possible new features
 
-- [ ] Paste pad where user can put in their own text
 - [ ] export words to Anki
 - [ ] export history
+- [ ] favorites
 
 
 ## done
@@ -24,3 +24,4 @@
   - [x] additions when no results are found
   - [x] corrections to words found
   - [ ] general suggestions
+- [x] Paste pad where user can put in their own text
