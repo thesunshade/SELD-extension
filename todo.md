@@ -3,12 +3,15 @@
 - [ ] compound verbs in definitions need to be clickable as a unit. like වන්දනා කරනවා.
 - [ ] need some way to give key to abbreviations
 - [ ] particles should be treated like suffixes, e.g. ත්
+- [ ] TTS should play original word, not broken up version
 
 ## Possible new features
 
 - [ ] export words to Anki
 - [ ] export history
 - [ ] favorites
+- [ ] headword button to open dictionary browser
+- [ ] grammar explainations
 
 
 ## done
