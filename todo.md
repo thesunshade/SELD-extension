@@ -5,6 +5,8 @@
 - [ ] particles should be treated like suffixes, e.g. ත්
 - [ ] TTS should play original word, not broken up version
 - [ ] homograph numbers need to be styled.
+- [ ] add letter headers in diictionary browser
+- [ ] add settings panel to browser side bar
 
 ## Possible new features
 
