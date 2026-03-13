@@ -358,7 +358,21 @@ function App({ onClose }: AppProps) {
   };
 
   return (
-    <div id="seld-sidebar-inner" className={`seld-sidebar-container seld-theme-vars ${themeClass} ${sidebarPosition === 'left' ? 'left-position' : ''}`} style={{ "--font-size-percent": `${fontSize}%` } as any}>
+    <div
+      id="seld-sidebar-inner"
+      className={`seld-sidebar-container seld-theme-vars ${themeClass} ${sidebarPosition === 'left' ? 'left-position' : ''}`}
+      style={{
+        "--font-size-percent": `${fontSize}%`,
+        // Add these lines to handle the position dynamically
+        position: 'fixed',
+        top: 0,
+        [sidebarPosition]: 0, // This evaluates to either left: 0 or right: 0
+        [sidebarPosition === 'right' ? 'left' : 'right']: 'auto', // Resets the other side
+        width: `${sidebarWidth}px`,
+        height: '100vh',
+        zIndex: 2147483647
+      } as any}
+    >
       <div className="sidebar-resize-handle" onMouseDown={startSidebarResizing}></div>
       <div className="header-row">
         <div className="history-nav">
