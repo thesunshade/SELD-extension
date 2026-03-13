@@ -4,6 +4,7 @@
 - [ ] need some way to give key to abbreviations
 - [ ] particles should be treated like suffixes, e.g. ත්
 - [ ] TTS should play original word, not broken up version
+- [ ] homograph numbers need to be styled.
 
 ## Possible new features
 
@@ -12,7 +13,6 @@
 - [ ] favorites
 - [ ] headword button to open dictionary browser
 - [ ] grammar explainations
-
 
 ## done
 
