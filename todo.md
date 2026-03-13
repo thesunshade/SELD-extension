@@ -7,6 +7,8 @@
 - [ ] homograph numbers need to be styled.
 - [ ] add letter headers in diictionary browser
 - [ ] add settings panel to browser side bar
+- [ ] sidebar doesn't shift properly on text pad page
+
 
 ## Possible new features
 
