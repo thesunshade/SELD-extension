@@ -82,7 +82,7 @@ export default function TextPadApp() {
 						className="textpad-input"
 						value={text}
 						onChange={e => setText(e.target.value)}
-						placeholder="Type or paste your Sinhala text here..."
+						placeholder="Type or paste your Sinhala text here. Then save to start looking up words."
 						autoFocus
 					/>
 				) : (
