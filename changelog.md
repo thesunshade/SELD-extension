@@ -10,3 +10,6 @@
 * Add Text Pad so users can work with their own texts
 * Add dictionary viewer 
 * Swap sidebar position
+
+## 0.0.4
+* tweak dictionary browser button sort order

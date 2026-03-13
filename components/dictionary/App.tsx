@@ -156,35 +156,7 @@ export default function DictionaryApp() {
 			}
 		}
 
-		const isVowelSign = (char: string) => {
-			if (!char) return false;
-			const code = char.charCodeAt(0);
-			return (
-				code === 0x0D82 || code === 0x0D83 || code === 0x0DCA ||
-				(code >= 0x0DCF && code <= 0x0DDF) || (code >= 0x0DF2 && code <= 0x0DF3)
-			);
-		};
-
-		const sortedPrefixes = Array.from(prefixes).sort((a, b) => {
-			if (a === b) return 0;
-			if (a.charAt(0) !== b.charAt(0)) return a.localeCompare(b, "si");
-
-			const a2 = a.charAt(1);
-			const b2 = b.charAt(1);
-
-			// Length 1 (e.g. "න") should come before length 2 (e.g. "නා")
-			if (!a2) return -1;
-			if (!b2) return 1;
-
-			const aIsVowel = isVowelSign(a2);
-			const bIsVowel = isVowelSign(b2);
-
-			// Vowel signs (like 'ා') should come before consonants (like 'ග')
-			if (aIsVowel && !bIsVowel) return -1;
-			if (!aIsVowel && bIsVowel) return 1;
-
-			return a.localeCompare(b, "si");
-		});
+		const sortedPrefixes = Array.from(prefixes).sort((a, b) => a.localeCompare(b, "si"));
 
 		// Filter out the primary letter itself if it's in the list (already covered by "All")
 		setSecondaryPrefixes(sortedPrefixes.filter(p => p !== selectedLetter));
