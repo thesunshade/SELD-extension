@@ -505,13 +505,30 @@ function App({ onClose }: AppProps) {
                   viewBox="0 0 24 24"
                   style={{ transform: sidebarPosition === 'right' ? 'scaleX(-1)' : 'none' }}
                 >
-                  <path
+                  <rect
+                    x="2"
+                    y="2"
+                    width="20"
+                    height="20"
+                    rx="3"
                     stroke="currentColor"
+                    strokeWidth="1.5"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    strokeMiterlimit="10"
+                  />
+                  <path
+                    stroke="currentColor"
                     strokeWidth="1.5"
-                    d="m18 15 3-3m0 0-3-3m3 3H7m7 4v2.6a2.4 2.4 0 0 1-2.4 2.4H5.4A2.4 2.4 0 0 1 3 18.6V5.4A2.4 2.4 0 0 1 5.4 3h6.2A2.4 2.4 0 0 1 14 5.4V8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M8 2v20"
+                  />
+                  <path
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="m11 12 6 0m0 0-2-2m2 2-2 2"
                   />
                 </svg>
               </button>
