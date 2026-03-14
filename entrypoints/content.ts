@@ -46,7 +46,9 @@ export default defineContentScript({
 
             // Load position and apply class
             const res = await browser.storage.local.get(['seldSidebarPosition', 'seldOverrideSinhalaFont']);
-            updateSidebarPositionClass(res.seldSidebarPosition || 'right');
+            const rawPosition = res.seldSidebarPosition;
+            const position = (rawPosition === 'left' || rawPosition === 'right') ? rawPosition : 'right';
+            updateSidebarPositionClass(position);
 
             // Apply font override if enabled and sidebar is being opened
             if (res.seldOverrideSinhalaFont) {
@@ -159,7 +161,10 @@ export default defineContentScript({
                     }
                 }
                 if (changes.seldSidebarPosition && isSidebarOpen) {
-                    updateSidebarPositionClass(changes.seldSidebarPosition.newValue as 'left' | 'right');
+                    const nextPosition = changes.seldSidebarPosition.newValue;
+                    if (nextPosition === 'left' || nextPosition === 'right') {
+                        updateSidebarPositionClass(nextPosition);
+                    }
                 }
             }
         });
