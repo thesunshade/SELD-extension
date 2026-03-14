@@ -647,20 +647,20 @@
   color: var(--text-primary);
 }
 
-.partofspeech,
-.usages {
+#seld-sidebar-root .partofspeech,
+#seld-sidebar-root .usages {
   opacity: .6;
 }
 
-.variantformentrybackrefs,
-.complexformentryrefs,
-.lexsensereferences,
-.minimallexreferences {
+#seld-sidebar-root .variantformentrybackrefs,
+#seld-sidebar-root .complexformentryrefs,
+#seld-sidebar-root .lexsensereferences,
+#seld-sidebar-root .minimallexreferences {
   display: block !important;
   opacity: .6;
 }
 
-.etymologies {
+#seld-sidebar-root .etymologies {
   opacity: .6;
 }
 
@@ -668,14 +668,9 @@
   color: var(--text-primary);
 }
 
-.partofspeech,
-.usages {
-  opacity: .6;
-}
-
-.variantformentrybackrefs,
-.complexformentryrefs,
-.lexsensereferences {
+#seld-sidebar-root .variantformentrybackrefs,
+#seld-sidebar-root .complexformentryrefs,
+#seld-sidebar-root .lexsensereferences {
   display: block !important;
   opacity: .6;
 }
@@ -709,11 +704,11 @@
   }
 }
 
-.test-sites {
+#seld-sidebar-root .test-sites {
   list-style: disk;
 }
 
-.test-sites li a {
+#seld-sidebar-root .test-sites li a {
   color: var(--text-primary) !important;
   text-decoration: underline !important;
 }
