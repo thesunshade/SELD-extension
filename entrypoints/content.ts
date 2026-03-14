@@ -5,12 +5,11 @@ import App from '../components/sidebar/App';
 import { browser } from 'wxt/browser';
 import { setupSidebarEvents } from '../utils/selection-handler';
 
-// Import CSS as strings using Vite's ?raw or ?inline
-// Note: In WXT/Vite, ?inline usually works for CSS
-import themeCss from '../assets/theme.css?inline';
-import contentCss from '../assets/content.css?inline';
-import sidebarMainCss from '../assets/sidebar.css?inline';
-import appCss from '../components/sidebar/App.css?inline';
+// Import CSS normally - WXT will bundle these into a single content.css file
+import '../assets/theme.css';
+import '../assets/content.css';
+import '../assets/sidebar.css';
+import '../components/sidebar/App.css';
 
 export default defineContentScript({
     matches: ['<all_urls>'],
@@ -27,11 +26,11 @@ export default defineContentScript({
 
         const injectExtensionStyles = () => {
             if (document.getElementById(STYLE_ID)) return;
-            const style = document.createElement('style');
-            style.id = STYLE_ID;
-            // Concatenate all CSS
-            style.textContent = [themeCss, contentCss, sidebarMainCss, appCss].join('\n');
-            document.head.appendChild(style);
+            const link = document.createElement('link');
+            link.id = STYLE_ID;
+            link.rel = 'stylesheet';
+            link.href = browser.runtime.getURL('/content-scripts/content.css');
+            document.head.appendChild(link);
         };
 
         const removeExtensionStyles = () => {

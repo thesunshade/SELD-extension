@@ -22,7 +22,7 @@ export default defineConfig({
     },
     web_accessible_resources: [
       {
-        resources: ["SELD.idx", "SELD.dict", "assets/fonts/*.ttf"],
+        resources: ["SELD.idx", "SELD.dict", "assets/fonts/*.ttf", "content-scripts/content.css"],
         matches: ["<all_urls>"],
       },
     ],
@@ -36,6 +36,12 @@ export default defineConfig({
       },
     },
   },
+
+  vite: () => ({
+    build: {
+      assetsInlineLimit: 0,
+    },
+  }),
 
   srcDir: ".",
   outDir: ".output",
