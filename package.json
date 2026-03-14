@@ -1,6 +1,6 @@
 {
   "name": "seld-extension",
-  "version": "0.0.3",
+  "version": "0.1.1",
   "description": "Sinhala-English Learners Dictionary Lookup Extension",
   "scripts": {
     "dev": "wxt",

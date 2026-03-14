@@ -2,6 +2,10 @@
 
 # Change Log
 
+## 0.1.1
+* tweak dictionary browser button sort order
+* fix css universal injection
+
 ## 0.0.3 (2026-03-12)
 * SELD edition 2026-03-10
 * Add feedback forms
@@ -10,6 +14,3 @@
 * Add Text Pad so users can work with their own texts
 * Add dictionary viewer 
 * Swap sidebar position
-
-## 0.0.4
-* tweak dictionary browser button sort order
