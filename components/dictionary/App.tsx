@@ -4,9 +4,11 @@ import { transliterateSinhala } from "../../utils/transliterate";
 import { getCopyText } from "../../utils/clipboard";
 import { browser } from "wxt/browser";
 import { DefinitionCard } from "../shared/DefinitionCard";
+import { SettingsUI } from "../shared/SettingsUI";
+import { Theme } from "../shared/types";
 import "./App.css";
 
-type ViewTab = "browse" | "search";
+type ViewTab = "browse" | "search" | "settings";
 type SearchScope = "headwords" | "fulltext";
 
 const ITEM_HEIGHT = 140;
@@ -17,9 +19,14 @@ export default function DictionaryApp() {
 	const [view, setView] = useState<ViewTab>(() => {
 		return (sessionStorage.getItem("dict-view") as ViewTab) || "browse";
 	});
-	const [theme, setTheme] = useState<"light" | "dark" | "system">("system");
+	const [theme, setTheme] = useState<Theme>("system");
 	const [fontSize, setFontSize] = useState(100);
+	const [ctrlClickLookup, setCtrlClickLookup] = useState(true);
+	const [underlineDictionaryWords, setUnderlineDictionaryWords] = useState(true);
+	const [autoPlayTTS, setAutoPlayTTS] = useState(false);
+	const [overrideSinhalaFont, setOverrideSinhalaFont] = useState(false);
 	const [transliterateHeadwords, setTransliterateHeadwords] = useState(false);
+	const [transliterateResults, setTransliterateResults] = useState(false);
 	const [transliterateDefinitions, setTransliterateDefinitions] = useState(false);
 
 	// Browse state
@@ -51,6 +58,14 @@ export default function DictionaryApp() {
 	const bookViewRef = useRef<HTMLDivElement>(null);
 	const debounceTimer = useRef<number | null>(null);
 	const isManualJump = useRef(false);
+	const lastContentView = useRef<"browse" | "search">("browse");
+
+	// Update lastContentView whenever view changes to browse or search
+	useEffect(() => {
+		if (view === "browse" || view === "search") {
+			lastContentView.current = view;
+		}
+	}, [view]);
 
 	// --- Helpers ---
 	const getEffectiveWord = (word: string) => word.startsWith("-") ? word.slice(1) : word;
@@ -66,20 +81,34 @@ export default function DictionaryApp() {
 
 	// --- Load settings ---
 	useEffect(() => {
-		const keys = ["theme", "fontSize", "seldTransliterateHeadwords", "seldTransliterateDefinitions"];
+		const settingsConfig: Record<string, (val: any) => void> = {
+			theme: v => setTheme(v as Theme),
+			fontSize: v => setFontSize(v as number),
+			seldCtrlClickLookup: v => setCtrlClickLookup(v as boolean),
+			seldUnderlineWords: v => setUnderlineDictionaryWords(v as boolean),
+			seldAutoPlayTTS: v => setAutoPlayTTS(v as boolean),
+			seldOverrideSinhalaFont: v => setOverrideSinhalaFont(v as boolean),
+			seldTransliterateHeadwords: v => setTransliterateHeadwords(v as boolean),
+			seldTransliterateResults: v => setTransliterateResults(v as boolean),
+			seldTransliterateDefinitions: v => setTransliterateDefinitions(v as boolean),
+		};
+
+		const keys = Object.keys(settingsConfig);
 		browser.storage.local.get(keys).then((res) => {
-			if (res.theme) setTheme(res.theme as any);
-			if (res.fontSize) setFontSize(res.fontSize as number);
-			if (res.seldTransliterateHeadwords !== undefined) setTransliterateHeadwords(res.seldTransliterateHeadwords as boolean);
-			if (res.seldTransliterateDefinitions !== undefined) setTransliterateDefinitions(res.seldTransliterateDefinitions as boolean);
+			Object.entries(res).forEach(([key, value]) => {
+				if (value !== undefined && settingsConfig[key]) {
+					settingsConfig[key](value);
+				}
+			});
 		});
 
 		const handleStorageChange = (changes: Record<string, any>, namespace: string) => {
 			if (namespace === "local") {
-				if (changes.theme) setTheme(changes.theme.newValue);
-				if (changes.fontSize) setFontSize(changes.fontSize.newValue);
-				if (changes.seldTransliterateHeadwords) setTransliterateHeadwords(changes.seldTransliterateHeadwords.newValue);
-				if (changes.seldTransliterateDefinitions) setTransliterateDefinitions(changes.seldTransliterateDefinitions.newValue);
+				Object.entries(changes).forEach(([key, change]) => {
+					if (settingsConfig[key] && change.newValue !== undefined) {
+						settingsConfig[key](change.newValue);
+					}
+				});
 			}
 		};
 		browser.storage.onChanged.addListener(handleStorageChange);
@@ -274,7 +303,7 @@ export default function DictionaryApp() {
 		}
 	};
 
-	const currentEntries = view === "browse" ? allEntries : searchResults;
+	const currentEntries = (view === "settings" ? lastContentView.current : view) === "browse" ? allEntries : searchResults;
 	const startIndex = Math.max(0, Math.floor(scrollTop / ITEM_HEIGHT) - OVERSCAN);
 	const endIndex = Math.min(currentEntries.length, Math.ceil((scrollTop + viewportHeight) / ITEM_HEIGHT) + OVERSCAN);
 	const visibleEntries = useMemo(() => currentEntries.slice(startIndex, endIndex), [currentEntries, startIndex, endIndex]);
@@ -314,6 +343,10 @@ export default function DictionaryApp() {
 		setToastMessage("Copied!"); setShowToast(true); setTimeout(() => setShowToast(false), 2000);
 	};
 
+	const saveSetting = (key: string, value: any) => {
+		browser.storage.local.set({ [key]: value });
+	};
+
 	const themeClass = theme === "system"
 		? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark-theme" : "light-theme")
 		: (theme === "dark" ? "dark-theme" : "light-theme");
@@ -324,6 +357,7 @@ export default function DictionaryApp() {
 				<div className="dict-tabs">
 					<button className={`dict-tab ${view === "browse" ? "active" : ""}`} onClick={() => setView("browse")}>Browse</button>
 					<button className={`dict-tab ${view === "search" ? "active" : ""}`} onClick={() => setView("search")}>Search</button>
+					<button className={`dict-tab ${view === "settings" ? "active" : ""}`} onClick={() => setView("settings")}>Settings</button>
 				</div>
 
 				<div className="dict-sidebar-body custom-scroll">
@@ -378,6 +412,30 @@ export default function DictionaryApp() {
 								))}
 							</div>
 						</div>
+					)}
+
+					{view === "settings" && (
+						<SettingsUI
+							theme={theme}
+							setTheme={setTheme}
+							fontSize={fontSize}
+							setFontSize={setFontSize}
+							ctrlClickLookup={ctrlClickLookup}
+							setCtrlClickLookup={setCtrlClickLookup}
+							underlineDictionaryWords={underlineDictionaryWords}
+							setUnderlineDictionaryWords={setUnderlineDictionaryWords}
+							autoPlayTTS={autoPlayTTS}
+							setAutoPlayTTS={setAutoPlayTTS}
+							overrideSinhalaFont={overrideSinhalaFont}
+							setOverrideSinhalaFont={setOverrideSinhalaFont}
+							transliterateHeadwords={transliterateHeadwords}
+							setTransliterateHeadwords={setTransliterateHeadwords}
+							transliterateResults={transliterateResults}
+							setTransliterateResults={setTransliterateResults}
+							transliterateDefinitions={transliterateDefinitions}
+							setTransliterateDefinitions={setTransliterateDefinitions}
+							saveSetting={saveSetting}
+						/>
 					)}
 				</div>
 			</aside>
