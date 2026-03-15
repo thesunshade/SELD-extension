@@ -587,3 +587,36 @@ body {
 		padding: 16px;
 	}
 }
+
+
+/* Add these styles to the bottom of your existing App.css */
+
+.tertiary-filter {
+	margin-top: -12px;
+	/* Pull it closer to the secondary filter */
+	/* border-top: none;
+	border-top-left-radius: 0;
+	border-top-right-radius: 0; */
+	background: var(--bg-color);
+	/* Lighter background for the sub-level */
+	opacity: 0.95;
+	padding-top: 4px;
+	/* border-left: 2px solid var(--accent); */
+	/* Visual cue that it's nested */
+}
+
+.tertiary-filter .secondary-grid {
+	grid-template-columns: repeat(auto-fill, minmax(36px, 1fr));
+	/* Slightly tighter grid */
+}
+
+.tertiary-filter .secondary-btn {
+	font-size: 1.1em;
+	padding: 2px 0;
+	border-color: transparent;
+}
+
+/* Ensure the sidebar scroll doesn't hide the filters */
+.dict-sidebar-body {
+	padding-bottom: 40px;
+}

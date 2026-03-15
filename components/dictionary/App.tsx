@@ -9,7 +9,7 @@ import "./App.css";
 type ViewTab = "browse" | "search";
 type SearchScope = "headwords" | "fulltext";
 
-const ITEM_HEIGHT = 140; // Estimated avg height for virtualization
+const ITEM_HEIGHT = 140;
 const OVERSCAN = 5;
 
 export default function DictionaryApp() {
@@ -25,27 +25,25 @@ export default function DictionaryApp() {
 	// Browse state
 	const [allEntries, setAllEntries] = useState<IndexEntry[]>([]);
 	const [primaryLetters, setPrimaryLetters] = useState<string[]>([]);
-	const [selectedLetter, setSelectedLetter] = useState<string | null>(() => {
-		return sessionStorage.getItem("dict-letter");
-	});
+	const [selectedLetter, setSelectedLetter] = useState<string | null>(() => sessionStorage.getItem("dict-letter") || null);
+
 	const [secondaryPrefixes, setSecondaryPrefixes] = useState<string[]>([]);
-	const [selectedPrefix, setSelectedPrefix] = useState<string | null>(() => {
-		return sessionStorage.getItem("dict-prefix");
-	});
+	const [selectedPrefix, setSelectedPrefix] = useState<string | null>(() => sessionStorage.getItem("dict-prefix") || null);
+
+	const [tertiaryPrefixes, setTertiaryPrefixes] = useState<string[]>([]);
+	const [selectedTertiaryPrefix, setSelectedTertiaryPrefix] = useState<string | null>(() => sessionStorage.getItem("dict-tertiary") || null);
 
 	// Search state
-	const [searchQuery, setSearchQuery] = useState(() => {
-		return sessionStorage.getItem("dict-search") || "";
-	});
+	const [searchQuery, setSearchQuery] = useState(() => sessionStorage.getItem("dict-search") || "");
 	const [searchScope, setSearchScope] = useState<SearchScope>(() => {
 		return (sessionStorage.getItem("dict-scope") as SearchScope) || "headwords";
 	});
 	const [searchResults, setSearchResults] = useState<IndexEntry[]>([]);
 	const [isSearching, setIsSearching] = useState(false);
-	// Book view state (virtualization)
+
+	// Viewport/Scroll state
 	const [scrollTop, setScrollTop] = useState(0);
 	const [viewportHeight, setViewportHeight] = useState(800);
-
 	const [definitionCache, setDefinitionCache] = useState<Map<string, StructuredDefinition[]>>(new Map());
 	const [showToast, setShowToast] = useState(false);
 	const [toastMessage, setToastMessage] = useState("");
@@ -72,25 +70,21 @@ export default function DictionaryApp() {
 				if (changes.seldTransliterateDefinitions) setTransliterateDefinitions(changes.seldTransliterateDefinitions.newValue);
 			}
 		};
-
 		browser.storage.onChanged.addListener(handleStorageChange);
 		return () => browser.storage.onChanged.removeListener(handleStorageChange);
 	}, []);
 
-	// Measure viewport on mount and resize
 	useEffect(() => {
-		const updateHeight = () => {
-			if (bookViewRef.current) setViewportHeight(bookViewRef.current.clientHeight);
-		};
+		const updateHeight = () => { if (bookViewRef.current) setViewportHeight(bookViewRef.current.clientHeight); };
 		updateHeight();
 		window.addEventListener("resize", updateHeight);
+		// Corrected: use removeEventListener, not removeListener
 		return () => window.removeEventListener("resize", updateHeight);
 	}, []);
 
-	// --- Load dictionary entries ---
+	// --- Initial Load ---
 	useEffect(() => {
 		stardict.getAllEntries().then(entries => {
-			// Deduplicate by word
 			const seen = new Set<string>();
 			const unique: IndexEntry[] = [];
 			for (const e of entries) {
@@ -100,97 +94,133 @@ export default function DictionaryApp() {
 				}
 			}
 			setAllEntries(unique);
-
-			// Build primary letter set from actual entries
 			const letters = new Set<string>();
 			for (const e of unique) {
-				if (e.word.length > 0) {
-					letters.add(e.word.charAt(0));
-				}
+				if (e.word.length > 0) letters.add(e.word.charAt(0));
 			}
-			// Sort Sinhala letters by Unicode code point
 			setPrimaryLetters(Array.from(letters).sort((a, b) => a.localeCompare(b, "si")));
 		});
 	}, []);
 
-	const jumpToPrefix = useCallback((prefix: string, isFromScroll = false) => {
-		if (allEntries.length === 0) return;
+	// --- Session Persistence ---
+	useEffect(() => { sessionStorage.setItem("dict-view", view); }, [view]);
+	useEffect(() => { sessionStorage.setItem("dict-letter", selectedLetter || ""); }, [selectedLetter]);
+	useEffect(() => { sessionStorage.setItem("dict-prefix", selectedPrefix || ""); }, [selectedPrefix]);
+	useEffect(() => { sessionStorage.setItem("dict-tertiary", selectedTertiaryPrefix || ""); }, [selectedTertiaryPrefix]);
+	useEffect(() => { sessionStorage.setItem("dict-search", searchQuery); }, [searchQuery]);
+	useEffect(() => { sessionStorage.setItem("dict-scope", searchScope); }, [searchScope]);
 
+	// --- Refined 3-Level Prefix Logic ---
+	// --- Refined 3-Level Prefix Logic with Auto-Selection ---
+	useEffect(() => {
+		if (!selectedLetter || allEntries.length === 0) {
+			setSecondaryPrefixes([]);
+			setTertiaryPrefixes([]);
+			return;
+		}
+
+		const clusterRegex = /^([\u0D80-\u0DFF][\u0DCA-\u0DF3]?)/;
+		const isCombiningMark = (char: string) => {
+			const code = char.charCodeAt(0);
+			return code >= 0x0DCA && code <= 0x0DF3;
+		};
+
+		const secondaries = new Set<string>();
+		const entriesForLetter = allEntries.filter(e => e.word.startsWith(selectedLetter));
+
+		for (const e of entriesForLetter) {
+			const match = e.word.match(clusterRegex);
+			if (match) secondaries.add(match[1]);
+		}
+
+		const sortedSecondaries = Array.from(secondaries).sort((a, b) => a.localeCompare(b, "si"));
+		setSecondaryPrefixes(sortedSecondaries);
+
+		// If a primary letter is selected but no secondary prefix is active, 
+		// default to the first one (the base letter).
+		let effectivePrefix = selectedPrefix;
+		if (!selectedPrefix && sortedSecondaries.length > 0) {
+			effectivePrefix = sortedSecondaries[0];
+			setSelectedPrefix(effectivePrefix);
+		}
+
+		// Calculate tertiaries based on that effective prefix
+		const tertiaries = new Set<string>();
+		if (effectivePrefix) {
+			for (const e of entriesForLetter) {
+				if (e.word.startsWith(effectivePrefix)) {
+					const remaining = e.word.slice(effectivePrefix.length);
+					if (remaining.length > 0) {
+						const nextChar = remaining.charAt(0);
+						// Ignore vowel marks in tertiary; they belong in secondary
+						if (!isCombiningMark(nextChar)) {
+							tertiaries.add(nextChar);
+						}
+					}
+				}
+			}
+		}
+
+		setTertiaryPrefixes(Array.from(tertiaries).sort((a, b) => a.localeCompare(b, "si")));
+	}, [selectedLetter, selectedPrefix, allEntries]);
+
+	const jumpToPrefix = useCallback((prefix: string, isFromScroll = false) => {
+		if (allEntries.length === 0 || !prefix) return;
 		const index = allEntries.findIndex(e => e.word.startsWith(prefix));
 		if (index === -1) return;
 
 		if (!isFromScroll) {
 			isManualJump.current = true;
 			if (bookViewRef.current) {
-				const targetScroll = index * ITEM_HEIGHT - 20; // Slight offset to show it "higher"
+				const targetScroll = index * ITEM_HEIGHT;
 				bookViewRef.current.scrollTop = targetScroll;
 				setScrollTop(targetScroll);
 			}
 			setTimeout(() => { isManualJump.current = false; }, 100);
 		}
-	}, [allEntries, ITEM_HEIGHT]);
+	}, [allEntries]);
 
-	// --- Initial Jump ---
-	const [hasInitialJumped, setHasInitialJumped] = useState(false);
-	useEffect(() => {
-		if (allEntries.length > 0 && !hasInitialJumped && view === "browse") {
-			const prefix = selectedPrefix || selectedLetter;
-			if (prefix) {
-				jumpToPrefix(prefix);
-			}
-			setHasInitialJumped(true);
-		}
-	}, [allEntries, view, jumpToPrefix, hasInitialJumped, selectedLetter, selectedPrefix]);
+	// --- Handlers ---
+	const handleLetterClick = (letter: string) => {
+		setSelectedLetter(letter);
 
-	// --- Build secondary prefixes when primary letter selected ---
-	useEffect(() => {
-		if (!selectedLetter || allEntries.length === 0) {
-			setSecondaryPrefixes([]);
-			return;
-		}
+		// 1. Find the base form (the first secondary prefix)
+		// We use a small timeout or wait for the effect, but better to calculate it 
+		// here or let the useEffect handle the "auto-select" logic.
+		// For the best UX, let's let the useEffect handle it so it stays in sync with data.
+		setSelectedPrefix(null);
+		setSelectedTertiaryPrefix(null);
+		jumpToPrefix(letter);
+	};
 
-		const prefixes = new Set<string>();
-		for (const e of allEntries) {
-			if (e.word.startsWith(selectedLetter)) {
-				prefixes.add(e.word.substring(0, 2));
-			}
-		}
+	const handlePrefixClick = (prefix: string | null) => {
+		setSelectedPrefix(prefix);
+		setSelectedTertiaryPrefix(null);
+		// Corrected: ensure prefix is string for jumpToPrefix
+		jumpToPrefix(prefix || selectedLetter || "");
+	};
 
-		const sortedPrefixes = Array.from(prefixes).sort((a, b) => a.localeCompare(b, "si"));
+	const handleTertiaryClick = (tPrefix: string | null) => {
+		setSelectedTertiaryPrefix(tPrefix);
+		const fullPrefix = tPrefix ? (selectedPrefix || selectedLetter || "") + tPrefix : (selectedPrefix || selectedLetter || "");
+		jumpToPrefix(fullPrefix);
+	};
 
-		// Filter out the primary letter itself if it's in the list (already covered by "All")
-		setSecondaryPrefixes(sortedPrefixes.filter(p => p !== selectedLetter));
-	}, [selectedLetter, allEntries]);
+	const handleWordClick = (w: string) => {
+		setView("search");
+		setSearchQuery(w);
+	};
 
-
-	// --- Session storage persistence ---
-	useEffect(() => { sessionStorage.setItem("dict-view", view); }, [view]);
-	useEffect(() => { sessionStorage.setItem("dict-letter", selectedLetter || ""); }, [selectedLetter]);
-	useEffect(() => { sessionStorage.setItem("dict-prefix", selectedPrefix || ""); }, [selectedPrefix]);
-	useEffect(() => { sessionStorage.setItem("dict-search", searchQuery); }, [searchQuery]);
-	useEffect(() => { sessionStorage.setItem("dict-scope", searchScope); }, [searchScope]);
-
-	// --- Search with debounce ---
+	// --- Virtualization & Search Sync ---
 	const performSearch = useCallback(async (q: string) => {
-		if (!q.trim()) {
-			setSearchResults([]);
-			setIsSearching(false);
-			return;
-		}
+		if (!q.trim()) { setSearchResults([]); setIsSearching(false); return; }
 		setIsSearching(true);
-
-		let results: IndexEntry[];
-		if (searchScope === "headwords") {
-			results = await stardict.searchWords(q, 200);
-		} else {
-			results = await stardict.searchFullText(q, 200);
-		}
+		let results = searchScope === "headwords"
+			? await stardict.searchWords(q, 200)
+			: await stardict.searchFullText(q, 200);
 		setSearchResults(results);
 		setIsSearching(false);
-		if (bookViewRef.current) {
-			bookViewRef.current.scrollTop = 0;
-			setScrollTop(0);
-		}
+		if (bookViewRef.current) { bookViewRef.current.scrollTop = 0; setScrollTop(0); }
 	}, [searchScope]);
 
 	useEffect(() => {
@@ -206,24 +236,48 @@ export default function DictionaryApp() {
 		const top = e.currentTarget.scrollTop;
 		setScrollTop(top);
 
-		// Sync Sidebar (un-throttled but light since it's just index math)
+		// Sync Sidebar highlighting based on scroll position
 		if (view === "browse" && !isManualJump.current && allEntries.length > 0) {
 			const index = Math.floor(top / ITEM_HEIGHT);
 			const entry = allEntries[Math.min(index, allEntries.length - 1)];
+
 			if (entry) {
 				const firstChar = entry.word.charAt(0);
-				const prefix = entry.word.substring(0, 2);
+
+				// 1. Identify Secondary Cluster (Base + Optional Vowel Sign)
+				const clusterRegex = /^([\u0D80-\u0DFF][\u0DCA-\u0DF3]?)/;
+				const match = entry.word.match(clusterRegex);
+				const currentSecondary = match ? match[1] : firstChar;
+
+				// 2. Identify Tertiary (Next Base Consonant)
+				const remaining = entry.word.slice(currentSecondary.length);
+				let currentTertiary = null;
+				if (remaining.length > 0) {
+					const nextChar = remaining.charAt(0);
+					const isCombiningMark = nextChar.charCodeAt(0) >= 0x0DCA && nextChar.charCodeAt(0) <= 0x0DF3;
+					// Only highlight if the next char is a new consonant, not a modifier
+					if (!isCombiningMark) {
+						currentTertiary = nextChar;
+					}
+				}
+
+				// Update States only if they changed to prevent re-render loops
 				if (selectedLetter !== firstChar) {
 					setSelectedLetter(firstChar);
-					setSelectedPrefix(null);
-				} else if (prefix.length === 2 && prefix !== selectedPrefix) {
-					setSelectedPrefix(prefix);
+					setSelectedPrefix(currentSecondary);
+					setSelectedTertiaryPrefix(currentTertiary);
+				} else {
+					if (selectedPrefix !== currentSecondary) {
+						setSelectedPrefix(currentSecondary);
+						setSelectedTertiaryPrefix(currentTertiary);
+					} else if (selectedTertiaryPrefix !== currentTertiary) {
+						setSelectedTertiaryPrefix(currentTertiary);
+					}
 				}
 			}
 		}
 	};
 
-	// --- Data Windowing ---
 	const currentEntries = view === "browse" ? allEntries : searchResults;
 	const startIndex = Math.max(0, Math.floor(scrollTop / ITEM_HEIGHT) - OVERSCAN);
 	const endIndex = Math.min(currentEntries.length, Math.ceil((scrollTop + viewportHeight) / ITEM_HEIGHT) + OVERSCAN);
@@ -232,7 +286,6 @@ export default function DictionaryApp() {
 	const totalHeight = currentEntries.length * ITEM_HEIGHT;
 	const offsetY = startIndex * ITEM_HEIGHT;
 
-	// --- Fetch definitions for visible entries ---
 	useEffect(() => {
 		const fetchDefs = async () => {
 			const newCache = new Map(definitionCache);
@@ -240,10 +293,7 @@ export default function DictionaryApp() {
 			for (const entry of visibleEntries) {
 				if (!newCache.has(entry.word)) {
 					const def = await stardict.getDefinition(entry.word);
-					if (def) {
-						newCache.set(entry.word, def);
-						changed = true;
-					}
+					if (def) { newCache.set(entry.word, def); changed = true; }
 				}
 			}
 			if (changed) setDefinitionCache(new Map(newCache));
@@ -251,67 +301,21 @@ export default function DictionaryApp() {
 		fetchDefs();
 	}, [visibleEntries]);
 
-	// --- Handlers ---
 	const handleSpeak = (text: string) => {
-		if (!text) return;
-		browser.runtime
-			.sendMessage({ action: "GET_TTS_AUDIO", text, tl: "si" })
-			.then((response: any) => {
-				if (response.audioData) {
-					const audio = new Audio(`data:audio/mpeg;base64,${response.audioData}`);
-					audio.play().catch(e => console.error("TTS Playback error:", e));
-				}
+		browser.runtime.sendMessage({ action: "GET_TTS_AUDIO", text, tl: "si" }).then((res: any) => {
+			if (res.audioData) new Audio(`data:audio/mpeg;base64,${res.audioData}`).play();
+		});
+	};
+
+	const handleCopy = async (word: string, def: any) => {
+		const { htmlContent, plainText } = getCopyText(word, def);
+		await navigator.clipboard.write([
+			new ClipboardItem({
+				"text/html": new Blob([htmlContent], { type: "text/html" }),
+				"text/plain": new Blob([plainText], { type: "text/plain" })
 			})
-			.catch(e => console.error("Error communicating with background for TTS:", e));
-	};
-
-	const handleCopy = async (targetWord: string, specificDefBlock?: string | string[]) => {
-		if (!targetWord || !specificDefBlock) return;
-		try {
-			const { htmlContent, plainText } = getCopyText(targetWord, specificDefBlock);
-			const blobHtml = new Blob([htmlContent], { type: "text/html" });
-			const blobText = new Blob([plainText], { type: "text/plain" });
-			await navigator.clipboard.write([new ClipboardItem({ "text/html": blobHtml, "text/plain": blobText })]);
-			setToastMessage("Entry copied!");
-			setShowToast(true);
-			setTimeout(() => setShowToast(false), 2000);
-		} catch (err) {
-			console.error("Failed to copy:", err);
-			setToastMessage("Failed to copy");
-			setShowToast(true);
-			setTimeout(() => setShowToast(false), 2000);
-		}
-	};
-
-	const handleWordClick = (word: string) => {
-		setView("search");
-		setSearchQuery(word);
-	};
-
-	const scrollToEntry = (word: string) => {
-		const index = currentEntries.findIndex(e => e.word === word);
-		if (index !== -1 && bookViewRef.current) {
-			isManualJump.current = true;
-			const targetScroll = index * ITEM_HEIGHT - 20; // Consistent offset
-			bookViewRef.current.scrollTop = targetScroll;
-			setScrollTop(targetScroll);
-			setTimeout(() => { isManualJump.current = false; }, 100);
-		}
-	};
-
-	const handleLetterClick = (letter: string) => {
-		setSelectedLetter(letter);
-		setSelectedPrefix(null);
-		if (view === "browse") {
-			jumpToPrefix(letter);
-		}
-	};
-
-	const handlePrefixClick = (prefix: string | null) => {
-		setSelectedPrefix(prefix);
-		if (view === "browse") {
-			jumpToPrefix(prefix || selectedLetter || "");
-		}
+		]);
+		setToastMessage("Copied!"); setShowToast(true); setTimeout(() => setShowToast(false), 2000);
 	};
 
 	const themeClass = theme === "system"
@@ -320,18 +324,10 @@ export default function DictionaryApp() {
 
 	return (
 		<div className={`dict-explorer seld-theme-vars ${themeClass}`} style={{ "--font-size-percent": `${fontSize}%` } as any}>
-			{/* Left Sidebar */}
 			<aside className="dict-sidebar">
-				{/* <div className="dict-sidebar-header">
-					<h2>SELD Explorer</h2>
-				</div> */}
 				<div className="dict-tabs">
-					<button className={`dict-tab ${view === "browse" ? "active" : ""}`} onClick={() => setView("browse")}>
-						Browse
-					</button>
-					<button className={`dict-tab ${view === "search" ? "active" : ""}`} onClick={() => setView("search")}>
-						Search
-					</button>
+					<button className={`dict-tab ${view === "browse" ? "active" : ""}`} onClick={() => setView("browse")}>Browse</button>
+					<button className={`dict-tab ${view === "search" ? "active" : ""}`} onClick={() => setView("search")}>Search</button>
 				</div>
 
 				<div className="dict-sidebar-body custom-scroll">
@@ -339,42 +335,37 @@ export default function DictionaryApp() {
 						<div className="browse-panel">
 							<div className="alphabet-grid">
 								{primaryLetters.map(letter => (
-									<button
-										key={letter}
-										className={`alphabet-btn ${selectedLetter === letter ? "active" : ""}`}
-										onClick={() => handleLetterClick(letter)}
-									>
-										{letter}
-									</button>
+									<button key={letter} className={`alphabet-btn ${selectedLetter === letter ? "active" : ""}`} onClick={() => handleLetterClick(letter)}>{letter}</button>
 								))}
 							</div>
 
 							{selectedLetter && secondaryPrefixes.length > 0 && (
 								<div className="secondary-filter">
-									<div className="secondary-label">Refine: {selectedLetter}…</div>
+									<div className="secondary-label">Form: {selectedLetter}…</div>
 									<div className="secondary-grid">
-										<button
-											className={`secondary-btn ${selectedPrefix === null ? "active" : ""}`}
-											onClick={() => handlePrefixClick(null)}
-										>
-											All
-										</button>
 										{secondaryPrefixes.map(prefix => (
-											<button
-												key={prefix}
-												className={`secondary-btn ${selectedPrefix === prefix ? "active" : ""}`}
-												onClick={() => handlePrefixClick(prefix)}
-											>
-												{prefix}
-											</button>
+											<button key={prefix} className={`secondary-btn ${selectedPrefix === prefix ? "active" : ""}`} onClick={() => handlePrefixClick(prefix)}>{prefix}</button>
 										))}
 									</div>
 								</div>
 							)}
 
-							{selectedLetter && (
-								<div className="browse-count">
-									{allEntries.length} entries total
+							{/* Tertiary Filter */}
+							{selectedPrefix && tertiaryPrefixes.length > 0 && (
+								<div className="secondary-filter tertiary-filter">
+									<div className="secondary-label">Next: {selectedPrefix} + ...</div>
+									<div className="secondary-grid">
+										{/* "All" button removed from here */}
+										{tertiaryPrefixes.map(t => (
+											<button
+												key={t}
+												className={`secondary-btn ${selectedTertiaryPrefix === t ? "active" : ""}`}
+												onClick={() => handleTertiaryClick(t)}
+											>
+												{t}
+											</button>
+										))}
+									</div>
 								</div>
 							)}
 						</div>
@@ -382,66 +373,24 @@ export default function DictionaryApp() {
 
 					{view === "search" && (
 						<div className="search-panel">
-							<input
-								type="text"
-								className="dict-search-input"
-								placeholder="Search dictionary..."
-								value={searchQuery}
-								onChange={e => setSearchQuery(e.target.value)}
-								autoFocus
-							/>
+							<input type="text" className="dict-search-input" placeholder="Search..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} autoFocus />
 							<div className="search-scope-toggle">
-								<button
-									className={`scope-btn ${searchScope === "headwords" ? "active" : ""}`}
-									onClick={() => setSearchScope("headwords")}
-								>
-									Headwords
-								</button>
-								<button
-									className={`scope-btn ${searchScope === "fulltext" ? "active" : ""}`}
-									onClick={() => setSearchScope("fulltext")}
-								>
-									Full Text
-								</button>
+								<button className={`scope-btn ${searchScope === "headwords" ? "active" : ""}`} onClick={() => setSearchScope("headwords")}>Headwords</button>
+								<button className={`scope-btn ${searchScope === "fulltext" ? "active" : ""}`} onClick={() => setSearchScope("fulltext")}>Full Text</button>
 							</div>
-
-							{isSearching && <div className="search-status">Searching...</div>}
-
 							<div className="search-results-list custom-scroll">
 								{searchResults.map((entry, idx) => (
-									<div
-										key={idx}
-										className="headword-item"
-										onClick={() => scrollToEntry(entry.word)}
-									>
-										{entry.word}
-									</div>
+									<div key={idx} className="headword-item" onClick={() => jumpToPrefix(entry.word)}>{entry.word}</div>
 								))}
-								{!isSearching && searchQuery.trim() && searchResults.length === 0 && (
-									<div className="no-results">No results found</div>
-								)}
 							</div>
 						</div>
 					)}
 				</div>
 			</aside>
 
-			{/* Main Content: Book View */}
 			<main className="dict-book-view custom-scroll dynamic-font" ref={bookViewRef} onScroll={handleScroll}>
-				<div
-					className="book-view-virtual-container"
-					style={{ height: totalHeight, position: 'relative' }}
-				>
-					<div
-						className="book-view-inner"
-						style={{
-							transform: `translateY(${offsetY}px)`,
-							position: 'absolute',
-							top: 0,
-							left: 0,
-							right: 0
-						}}
-					>
+				<div style={{ height: totalHeight, position: 'relative' }}>
+					<div style={{ transform: `translateY(${offsetY}px)`, position: 'absolute', top: 0, left: 0, right: 0 }} className="book-view-inner">
 						{visibleEntries.length === 0 && !isSearching && (
 							<div className="dict-empty-state">
 								{view === "browse"
@@ -451,15 +400,10 @@ export default function DictionaryApp() {
 										: "Type a search query to find entries."}
 							</div>
 						)}
-
 						{visibleEntries.map((entry, idx) => {
 							const defs = definitionCache.get(entry.word);
 							return (
-								<div
-									key={`${entry.word}-${startIndex + idx}`}
-									className="book-entry-card"
-									style={{ minHeight: ITEM_HEIGHT }}
-								>
+								<div key={`${entry.word}-${startIndex + idx}`} className="book-entry-card" style={{ minHeight: ITEM_HEIGHT }}>
 									{defs ? (
 										<DefinitionCard
 											word={entry.word}
@@ -483,8 +427,6 @@ export default function DictionaryApp() {
 					</div>
 				</div>
 			</main>
-
-			{/* Toast */}
 			{showToast && <div className="dict-toast">{toastMessage}</div>}
 		</div>
 	);
