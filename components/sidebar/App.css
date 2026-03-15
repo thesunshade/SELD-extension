@@ -1,3 +1,5 @@
+@import "../shared/SettingsUI.css";
+
 @font-face {
   font-family: 'Noto Sans Sinhala';
   src: url('~/assets/fonts/NotoSansSinhala-VariableFont_wdth,wght.ttf') format('truetype');
@@ -32,9 +34,10 @@
   z-index: 2147483647;
 }
 
-#seld-sidebar-root *,
+/* Restore basic display properties for common elements within sidebar */
+:where(#seld-sidebar-root *,
 #seld-sidebar-root *::before,
-#seld-sidebar-root *::after {
+#seld-sidebar-root *::after) {
   box-sizing: border-box;
   font-family: 'Noto Sans', 'Noto Sans Sinhala', sans-serif;
   margin: 0;
@@ -47,7 +50,8 @@
 
 /* Restore basic display properties for common elements within sidebar */
 /* Restore basic display properties for common elements within sidebar */
-#seld-sidebar-root div,
+/* Restore basic display properties for common elements within sidebar */
+:where(#seld-sidebar-root div,
 #seld-sidebar-root section,
 #seld-sidebar-root p,
 #seld-sidebar-root ul,
@@ -57,22 +61,22 @@
 #seld-sidebar-root h3,
 #seld-sidebar-root h4,
 #seld-sidebar-root h5,
-#seld-sidebar-root h6 {
+#seld-sidebar-root h6) {
   display: block;
   color: inherit;
 }
 
-#seld-sidebar-root span,
+:where(#seld-sidebar-root span,
 #seld-sidebar-root strong,
 #seld-sidebar-root em,
 #seld-sidebar-root b,
 #seld-sidebar-root i,
-#seld-sidebar-root u {
+#seld-sidebar-root u) {
   display: inline;
 }
 
-#seld-sidebar-root button,
-#seld-sidebar-root input {
+:where(#seld-sidebar-root button,
+#seld-sidebar-root input) {
   display: inline-block;
   appearance: none;
   -webkit-appearance: none;
