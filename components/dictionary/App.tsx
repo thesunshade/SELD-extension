@@ -52,6 +52,18 @@ export default function DictionaryApp() {
 	const debounceTimer = useRef<number | null>(null);
 	const isManualJump = useRef(false);
 
+	// --- Helpers ---
+	const getEffectiveWord = (word: string) => word.startsWith("-") ? word.slice(1) : word;
+
+	const isCombiningMark = (char: string) => {
+		const code = char.charCodeAt(0);
+		// Sinhala vowel signs + ZWJ (200D) + ZWNJ (200C) + Spaces
+		return (code >= 0x0DCA && code <= 0x0DF3) ||
+			code === 0x200D ||
+			code === 0x200C ||
+			char.trim() === "";
+	};
+
 	// --- Load settings ---
 	useEffect(() => {
 		const keys = ["theme", "fontSize", "seldTransliterateHeadwords", "seldTransliterateDefinitions"];
@@ -78,7 +90,6 @@ export default function DictionaryApp() {
 		const updateHeight = () => { if (bookViewRef.current) setViewportHeight(bookViewRef.current.clientHeight); };
 		updateHeight();
 		window.addEventListener("resize", updateHeight);
-		// Corrected: use removeEventListener, not removeListener
 		return () => window.removeEventListener("resize", updateHeight);
 	}, []);
 
@@ -88,15 +99,19 @@ export default function DictionaryApp() {
 			const seen = new Set<string>();
 			const unique: IndexEntry[] = [];
 			for (const e of entries) {
-				if (!seen.has(e.word) && !e.word.startsWith("-")) {
+				if (!seen.has(e.word)) {
 					seen.add(e.word);
 					unique.push(e);
 				}
 			}
+
+			unique.sort((a, b) => getEffectiveWord(a.word).localeCompare(getEffectiveWord(b.word), "si"));
+
 			setAllEntries(unique);
 			const letters = new Set<string>();
 			for (const e of unique) {
-				if (e.word.length > 0) letters.add(e.word.charAt(0));
+				const eff = getEffectiveWord(e.word);
+				if (eff.length > 0) letters.add(eff.charAt(0));
 			}
 			setPrimaryLetters(Array.from(letters).sort((a, b) => a.localeCompare(b, "si")));
 		});
@@ -111,7 +126,6 @@ export default function DictionaryApp() {
 	useEffect(() => { sessionStorage.setItem("dict-scope", searchScope); }, [searchScope]);
 
 	// --- Refined 3-Level Prefix Logic ---
-	// --- Refined 3-Level Prefix Logic with Auto-Selection ---
 	useEffect(() => {
 		if (!selectedLetter || allEntries.length === 0) {
 			setSecondaryPrefixes([]);
@@ -120,39 +134,32 @@ export default function DictionaryApp() {
 		}
 
 		const clusterRegex = /^([\u0D80-\u0DFF][\u0DCA-\u0DF3]?)/;
-		const isCombiningMark = (char: string) => {
-			const code = char.charCodeAt(0);
-			return code >= 0x0DCA && code <= 0x0DF3;
-		};
 
 		const secondaries = new Set<string>();
-		const entriesForLetter = allEntries.filter(e => e.word.startsWith(selectedLetter));
+		const entriesForLetter = allEntries.filter(e => getEffectiveWord(e.word).startsWith(selectedLetter));
 
 		for (const e of entriesForLetter) {
-			const match = e.word.match(clusterRegex);
+			const match = getEffectiveWord(e.word).match(clusterRegex);
 			if (match) secondaries.add(match[1]);
 		}
 
 		const sortedSecondaries = Array.from(secondaries).sort((a, b) => a.localeCompare(b, "si"));
 		setSecondaryPrefixes(sortedSecondaries);
 
-		// If a primary letter is selected but no secondary prefix is active, 
-		// default to the first one (the base letter).
 		let effectivePrefix = selectedPrefix;
 		if (!selectedPrefix && sortedSecondaries.length > 0) {
 			effectivePrefix = sortedSecondaries[0];
 			setSelectedPrefix(effectivePrefix);
 		}
 
-		// Calculate tertiaries based on that effective prefix
 		const tertiaries = new Set<string>();
 		if (effectivePrefix) {
 			for (const e of entriesForLetter) {
-				if (e.word.startsWith(effectivePrefix)) {
-					const remaining = e.word.slice(effectivePrefix.length);
+				const eff = getEffectiveWord(e.word);
+				if (eff.startsWith(effectivePrefix)) {
+					const remaining = eff.slice(effectivePrefix.length);
 					if (remaining.length > 0) {
 						const nextChar = remaining.charAt(0);
-						// Ignore vowel marks in tertiary; they belong in secondary
 						if (!isCombiningMark(nextChar)) {
 							tertiaries.add(nextChar);
 						}
@@ -166,7 +173,7 @@ export default function DictionaryApp() {
 
 	const jumpToPrefix = useCallback((prefix: string, isFromScroll = false) => {
 		if (allEntries.length === 0 || !prefix) return;
-		const index = allEntries.findIndex(e => e.word.startsWith(prefix));
+		const index = allEntries.findIndex(e => getEffectiveWord(e.word).startsWith(prefix));
 		if (index === -1) return;
 
 		if (!isFromScroll) {
@@ -183,11 +190,6 @@ export default function DictionaryApp() {
 	// --- Handlers ---
 	const handleLetterClick = (letter: string) => {
 		setSelectedLetter(letter);
-
-		// 1. Find the base form (the first secondary prefix)
-		// We use a small timeout or wait for the effect, but better to calculate it 
-		// here or let the useEffect handle the "auto-select" logic.
-		// For the best UX, let's let the useEffect handle it so it stays in sync with data.
 		setSelectedPrefix(null);
 		setSelectedTertiaryPrefix(null);
 		jumpToPrefix(letter);
@@ -196,7 +198,6 @@ export default function DictionaryApp() {
 	const handlePrefixClick = (prefix: string | null) => {
 		setSelectedPrefix(prefix);
 		setSelectedTertiaryPrefix(null);
-		// Corrected: ensure prefix is string for jumpToPrefix
 		jumpToPrefix(prefix || selectedLetter || "");
 	};
 
@@ -236,32 +237,27 @@ export default function DictionaryApp() {
 		const top = e.currentTarget.scrollTop;
 		setScrollTop(top);
 
-		// Sync Sidebar highlighting based on scroll position
 		if (view === "browse" && !isManualJump.current && allEntries.length > 0) {
 			const index = Math.floor(top / ITEM_HEIGHT);
 			const entry = allEntries[Math.min(index, allEntries.length - 1)];
 
 			if (entry) {
-				const firstChar = entry.word.charAt(0);
+				const eff = getEffectiveWord(entry.word);
+				const firstChar = eff.charAt(0);
 
-				// 1. Identify Secondary Cluster (Base + Optional Vowel Sign)
 				const clusterRegex = /^([\u0D80-\u0DFF][\u0DCA-\u0DF3]?)/;
-				const match = entry.word.match(clusterRegex);
+				const match = eff.match(clusterRegex);
 				const currentSecondary = match ? match[1] : firstChar;
 
-				// 2. Identify Tertiary (Next Base Consonant)
-				const remaining = entry.word.slice(currentSecondary.length);
+				const remaining = eff.slice(currentSecondary.length);
 				let currentTertiary = null;
 				if (remaining.length > 0) {
 					const nextChar = remaining.charAt(0);
-					const isCombiningMark = nextChar.charCodeAt(0) >= 0x0DCA && nextChar.charCodeAt(0) <= 0x0DF3;
-					// Only highlight if the next char is a new consonant, not a modifier
-					if (!isCombiningMark) {
+					if (!isCombiningMark(nextChar)) {
 						currentTertiary = nextChar;
 					}
 				}
 
-				// Update States only if they changed to prevent re-render loops
 				if (selectedLetter !== firstChar) {
 					setSelectedLetter(firstChar);
 					setSelectedPrefix(currentSecondary);
@@ -350,12 +346,10 @@ export default function DictionaryApp() {
 								</div>
 							)}
 
-							{/* Tertiary Filter */}
 							{selectedPrefix && tertiaryPrefixes.length > 0 && (
 								<div className="secondary-filter tertiary-filter">
 									<div className="secondary-label">Next: {selectedPrefix} + ...</div>
 									<div className="secondary-grid">
-										{/* "All" button removed from here */}
 										{tertiaryPrefixes.map(t => (
 											<button
 												key={t}
@@ -380,7 +374,7 @@ export default function DictionaryApp() {
 							</div>
 							<div className="search-results-list custom-scroll">
 								{searchResults.map((entry, idx) => (
-									<div key={idx} className="headword-item" onClick={() => jumpToPrefix(entry.word)}>{entry.word}</div>
+									<div key={idx} className="headword-item" onClick={() => jumpToPrefix(getEffectiveWord(entry.word))}>{entry.word}</div>
 								))}
 							</div>
 						</div>
