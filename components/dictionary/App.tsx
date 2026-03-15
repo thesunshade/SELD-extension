@@ -200,21 +200,27 @@ export default function DictionaryApp() {
 		setTertiaryPrefixes(Array.from(tertiaries).sort((a, b) => a.localeCompare(b, "si")));
 	}, [selectedLetter, selectedPrefix, allEntries]);
 
-	const jumpToPrefix = useCallback((prefix: string, isFromScroll = false) => {
-		if (allEntries.length === 0 || !prefix) return;
-		const index = allEntries.findIndex(e => getEffectiveWord(e.word).startsWith(prefix));
-		if (index === -1) return;
+	const jumpToPrefix = useCallback((prefix: string, isFromScroll = false, index?: number) => {
+		const entries = (view === "settings" ? lastContentView.current : view) === "browse" ? allEntries : searchResults;
+		if (entries.length === 0) return;
+
+		let targetIndex = index;
+		if (targetIndex === undefined) {
+			targetIndex = entries.findIndex(e => getEffectiveWord(e.word).startsWith(prefix));
+		}
+
+		if (targetIndex === -1 || targetIndex === undefined) return;
 
 		if (!isFromScroll) {
 			isManualJump.current = true;
 			if (bookViewRef.current) {
-				const targetScroll = index * ITEM_HEIGHT;
+				const targetScroll = targetIndex * ITEM_HEIGHT;
 				bookViewRef.current.scrollTop = targetScroll;
 				setScrollTop(targetScroll);
 			}
 			setTimeout(() => { isManualJump.current = false; }, 100);
 		}
-	}, [allEntries]);
+	}, [allEntries, searchResults, view]);
 
 	// --- Handlers ---
 	const handleLetterClick = (letter: string) => {
@@ -408,7 +414,7 @@ export default function DictionaryApp() {
 							</div>
 							<div className="search-results-list custom-scroll">
 								{searchResults.map((entry, idx) => (
-									<div key={idx} className="headword-item" onClick={() => jumpToPrefix(getEffectiveWord(entry.word))}>{entry.word}</div>
+									<div key={idx} className="headword-item" onClick={() => jumpToPrefix(getEffectiveWord(entry.word), false, idx)}>{entry.word}</div>
 								))}
 							</div>
 						</div>
