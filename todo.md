@@ -6,7 +6,6 @@
 - [ ] TTS should play original word, not broken up version
 - [ ] homograph numbers need to be styled.
 - [ ] add letter headers in diictionary browser
-- [ ] add settings panel to browser side bar
 - [ ] sidebar doesn't shift properly on text pad page
 
 
@@ -32,3 +31,5 @@
   - [x] corrections to words found
   - [ ] general suggestions
 - [x] Paste pad where user can put in their own text
+
+- [x] add settings panel to browser side bar
