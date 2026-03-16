@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { stardict, IndexEntry, StructuredDefinition } from "../../utils/stardict";
+import { DEFAULT_SEARCH_LIMIT, DEFAULT_SEARCH_DEBOUNCE_MS } from "../../utils/constants";
 import { extractUniqueSinhalaWords, applyHighlights } from "../../utils/dom-highlights";
 import { transliterateSinhala } from "../../utils/transliterate";
 import { browser } from "wxt/browser";
@@ -235,6 +236,16 @@ function App({ onClose }: AppProps) {
     return q.replace(/^[\u002E\u002C\u003B\u003A\u0027\u0022\u2018\u2019\u201C\u201D\u002D\u2013\u2014\s]+|[\u002E\u002C\u003B\u003A\u0027\u0022\u2018\u2019\u201C\u201D\u002D\u2013\u2014\s]+$/g, "");
   };
 
+  useEffect(() => {
+    if (view !== "search") return;
+
+    const timer = setTimeout(() => {
+      handleSearch(query);
+    }, DEFAULT_SEARCH_DEBOUNCE_MS);
+
+    return () => clearTimeout(timer);
+  }, [query, view]);
+
   const handleSearch = async (q: string) => {
     const sanitized = sanitizeSearchQuery(q);
     if (!sanitized) {
@@ -244,7 +255,7 @@ function App({ onClose }: AppProps) {
       setSelectedOriginalQuery(null);
       return;
     }
-    const matches = await stardict.searchWords(sanitized, 200);
+    const matches = await stardict.searchWords(sanitized, DEFAULT_SEARCH_LIMIT);
     setResults(matches);
     const exact = matches.find(m => m.word.toLowerCase() === sanitized.toLowerCase()) || matches.find(m => m.isSynthesizedMatch);
     if (exact) {
@@ -449,7 +460,6 @@ function App({ onClose }: AppProps) {
               value={query}
               onChange={e => {
                 setQuery(e.target.value);
-                handleSearch(e.target.value);
               }}
               placeholder="Search..."
               className="search-input"

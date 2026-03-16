@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { stardict, IndexEntry, StructuredDefinition } from "../../utils/stardict";
+import { DEFAULT_SEARCH_LIMIT, DEFAULT_SEARCH_DEBOUNCE_MS } from "../../utils/constants";
 import { transliterateSinhala } from "../../utils/transliterate";
 import { getCopyText } from "../../utils/clipboard";
 import { browser } from "wxt/browser";
@@ -252,8 +253,8 @@ export default function DictionaryApp() {
 		if (!q.trim()) { setSearchResults([]); setIsSearching(false); return; }
 		setIsSearching(true);
 		let results = searchScope === "headwords"
-			? await stardict.searchWords(q, 200)
-			: await stardict.searchFullText(q, 200);
+			? await stardict.searchWords(q, DEFAULT_SEARCH_LIMIT)
+			: await stardict.searchFullText(q, DEFAULT_SEARCH_LIMIT);
 		setSearchResults(results);
 		setIsSearching(false);
 		if (bookViewRef.current) { bookViewRef.current.scrollTop = 0; setScrollTop(0); }
@@ -262,7 +263,7 @@ export default function DictionaryApp() {
 	useEffect(() => {
 		if (view === "search") {
 			if (debounceTimer.current) clearTimeout(debounceTimer.current);
-			debounceTimer.current = window.setTimeout(() => performSearch(searchQuery), 300);
+			debounceTimer.current = window.setTimeout(() => performSearch(searchQuery), DEFAULT_SEARCH_DEBOUNCE_MS);
 			return () => { if (debounceTimer.current) clearTimeout(debounceTimer.current); };
 		}
 	}, [searchQuery, searchScope, view, performSearch]);

@@ -1,4 +1,4 @@
-// utils/stardict.ts
+import { DEFAULT_SEARCH_LIMIT } from './constants';
 
 export interface DictEntry {
     word: string;
@@ -151,7 +151,7 @@ class StarDictParser {
     }
 
     // Prefix/partial match search
-    public async searchWords(query: string, limit: number = 2000): Promise<IndexEntry[]> {
+    public async searchWords(query: string, limit: number = DEFAULT_SEARCH_LIMIT): Promise<IndexEntry[]> {
         await this.load();
         if (!query) return [];
 
