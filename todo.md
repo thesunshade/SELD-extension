@@ -1,4 +1,3 @@
-- [ ] underline should be one of three options: off, bold, subtle
 - [ ] single click or double click option
 - [ ] compound verbs in definitions need to be clickable as a unit. like වන්දනා කරනවා.
 - [ ] need some way to give key to abbreviations
@@ -6,11 +5,12 @@
 - [ ] TTS should play original word, not broken up version
 - [ ] homograph numbers need to be styled.
 - [ ] add letter headers in diictionary browser
-- [ ] sidebar doesn't shift properly on text pad page
+- [x] sidebar doesn't shift properly on text pad page
 
 
 ## Possible new features
 
+- [ ] underline should be one of three options: off, bold, subtle
 - [ ] export words to Anki
 - [ ] export history
 - [ ] favorites
