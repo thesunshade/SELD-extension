@@ -36,8 +36,8 @@
 
 /* Restore basic display properties for common elements within sidebar */
 :where(#seld-sidebar-root *,
-#seld-sidebar-root *::before,
-#seld-sidebar-root *::after) {
+  #seld-sidebar-root *::before,
+  #seld-sidebar-root *::after) {
   box-sizing: border-box;
   font-family: 'Noto Sans', 'Noto Sans Sinhala', sans-serif;
   margin: 0;
@@ -52,31 +52,31 @@
 /* Restore basic display properties for common elements within sidebar */
 /* Restore basic display properties for common elements within sidebar */
 :where(#seld-sidebar-root div,
-#seld-sidebar-root section,
-#seld-sidebar-root p,
-#seld-sidebar-root ul,
-#seld-sidebar-root li,
-#seld-sidebar-root h1,
-#seld-sidebar-root h2,
-#seld-sidebar-root h3,
-#seld-sidebar-root h4,
-#seld-sidebar-root h5,
-#seld-sidebar-root h6) {
+  #seld-sidebar-root section,
+  #seld-sidebar-root p,
+  #seld-sidebar-root ul,
+  #seld-sidebar-root li,
+  #seld-sidebar-root h1,
+  #seld-sidebar-root h2,
+  #seld-sidebar-root h3,
+  #seld-sidebar-root h4,
+  #seld-sidebar-root h5,
+  #seld-sidebar-root h6) {
   display: block;
   color: inherit;
 }
 
 :where(#seld-sidebar-root span,
-#seld-sidebar-root strong,
-#seld-sidebar-root em,
-#seld-sidebar-root b,
-#seld-sidebar-root i,
-#seld-sidebar-root u) {
+  #seld-sidebar-root strong,
+  #seld-sidebar-root em,
+  #seld-sidebar-root b,
+  #seld-sidebar-root i,
+  #seld-sidebar-root u) {
   display: inline;
 }
 
 :where(#seld-sidebar-root button,
-#seld-sidebar-root input) {
+  #seld-sidebar-root input) {
   display: inline-block;
   appearance: none;
   -webkit-appearance: none;
@@ -384,11 +384,6 @@
 
 }
 
-#seld-sidebar-root .examplescontent {
-  margin-bottom: 0.6em;
-  font-style: italic;
-}
-
 #seld-sidebar-root .examplescontents {
   list-style-type: none;
   padding-left: 0.0em;
@@ -403,7 +398,10 @@
 
 #seld-sidebar-root .examplescontent {
   margin-bottom: 0.6em;
-  font-style: italic;
+}
+
+#seld-sidebar-root .examplescontent em.example * {
+  font-style: normal !important;
 }
 
 #seld-sidebar-root .clickable-word {
