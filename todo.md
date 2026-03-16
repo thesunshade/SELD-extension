@@ -2,11 +2,8 @@
 - [ ] compound verbs in definitions need to be clickable as a unit. like වන්දනා කරනවා.
 - [ ] need some way to give key to abbreviations
 - [ ] particles should be treated like suffixes, e.g. ත්
-- [ ] TTS should play original word, not broken up version
 - [ ] homograph numbers need to be styled.
 - [ ] add letter headers in diictionary browser
-- [x] sidebar doesn't shift properly on text pad page
-
 
 ## Possible new features
 
@@ -16,6 +13,10 @@
 - [ ] favorites
 - [ ] headword button to open dictionary browser
 - [ ] grammar explainations
+
+
+## On hold
+
 
 ## done
 
@@ -29,7 +30,7 @@
 - [x] way to suggest additions
   - [x] additions when no results are found
   - [x] corrections to words found
-  - [ ] general suggestions
 - [x] Paste pad where user can put in their own text
-
 - [x] add settings panel to browser side bar
+- [x] TTS should play original word, not broken up version
+- [x] sidebar doesn't shift properly on text pad page
