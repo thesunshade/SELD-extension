@@ -19,6 +19,29 @@ if (textPadRoot) {
 }
 
 // 2. Mount Sidebar App
+const updateSidebarPositionClass = (position: 'left' | 'right') => {
+	document.documentElement.classList.remove('seld-pos-left', 'seld-pos-right');
+	document.documentElement.classList.add(`seld-pos-${position}`);
+};
+
+// Initial load of position
+browser.storage.local.get(['seldSidebarPosition']).then(res => {
+	const pos = (res.seldSidebarPosition === 'left' || res.seldSidebarPosition === 'right') 
+		? res.seldSidebarPosition 
+		: 'right';
+	updateSidebarPositionClass(pos);
+});
+
+// React to position changes
+browser.storage.onChanged.addListener((changes, namespace) => {
+	if (namespace === 'local' && changes.seldSidebarPosition) {
+		const nextPos = changes.seldSidebarPosition.newValue;
+		if (nextPos === 'left' || nextPos === 'right') {
+			updateSidebarPositionClass(nextPos);
+		}
+	}
+});
+
 document.documentElement.classList.add('seld-active');
 document.body.classList.add('seld-active');
 
