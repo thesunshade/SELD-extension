@@ -20,6 +20,7 @@ function App({ onClose }: AppProps) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<IndexEntry[]>([]);
   const [selectedWord, setSelectedWord] = useState<string | null>(null);
+  const [selectedOriginalQuery, setSelectedOriginalQuery] = useState<string | null>(null);
   const [definition, setDefinition] = useState<StructuredDefinition[] | null>(null);
 
   // Settings state
@@ -240,24 +241,27 @@ function App({ onClose }: AppProps) {
       setResults([]);
       setDefinition(null);
       setSelectedWord(null);
+      setSelectedOriginalQuery(null);
       return;
     }
     const matches = await stardict.searchWords(sanitized, 30);
     setResults(matches);
-    const exact = matches.find(m => m.word === sanitized) || matches.find(m => m.isSynthesizedMatch);
+    const exact = matches.find(m => m.word.toLowerCase() === sanitized.toLowerCase()) || matches.find(m => m.isSynthesizedMatch);
     if (exact) {
-      handleSelectWord(exact.word);
+      handleSelectWord(exact.word, exact.originalQuery);
     } else {
       setDefinition(null);
       setSelectedWord(null);
+      setSelectedOriginalQuery(null);
     }
   };
 
-  const handleSelectWord = async (word: string) => {
+  const handleSelectWord = async (word: string, originalQuery?: string) => {
     setSelectedWord(word);
+    setSelectedOriginalQuery(originalQuery || null);
     const def = await stardict.getDefinition(word);
     setDefinition(def);
-    if (autoPlayTTSRef.current) handleSpeak(word);
+    if (autoPlayTTSRef.current) handleSpeak(originalQuery || word);
 
     // Push to history unless we're navigating via back/forward
     if (!isNavigatingHistory.current) {
@@ -281,10 +285,14 @@ function App({ onClose }: AppProps) {
     const word = history[historyIndex.current];
     isNavigatingHistory.current = true;
     setQuery(word);
+    const sanitized = sanitizeSearchQuery(word);
+    const matches = await stardict.searchWords(sanitized, 30);
+    const entry = matches.find(m => m.word === word) || matches.find(m => m.word === sanitized);
     await handleSearch(word);
-    await handleSelectWord(word);
+    await handleSelectWord(word, entry?.originalQuery);
     isNavigatingHistory.current = false;
   };
+
 
   const goForward = async () => {
     if (historyIndex.current >= history.length - 1) return;
@@ -292,8 +300,11 @@ function App({ onClose }: AppProps) {
     const word = history[historyIndex.current];
     isNavigatingHistory.current = true;
     setQuery(word);
+    const sanitized = sanitizeSearchQuery(word);
+    const matches = await stardict.searchWords(sanitized, 30);
+    const entry = matches.find(m => m.word === word) || matches.find(m => m.word === sanitized);
     await handleSearch(word);
-    await handleSelectWord(word);
+    await handleSelectWord(word, entry?.originalQuery);
     isNavigatingHistory.current = false;
   };
 
@@ -448,7 +459,7 @@ function App({ onClose }: AppProps) {
             <div className="headword-list custom-scroll dynamic-font" style={{ height: `${listHeight}%`, flex: "none" }}>
               {results.length > 0 ? (
                 results.map((entry, idx) => (
-                  <div key={idx} ref={selectedWord === entry.word ? selectedRef : null} className={`headword-item ${selectedWord === entry.word ? "selected" : ""}`} onClick={() => handleSelectWord(entry.word)}>
+                  <div key={idx} ref={selectedWord === entry.word ? selectedRef : null} className={`headword-item ${selectedWord === entry.word ? "selected" : ""}`} onClick={() => handleSelectWord(entry.word, entry.originalQuery)}>
                     {entry.word}
                     {transliterateResults && /[\u0D80-\u0DFF]/.test(entry.word) && <span className="seld-transliteration"> {transliterateSinhala(entry.word)}</span>}
                   </div>
@@ -476,6 +487,7 @@ function App({ onClose }: AppProps) {
                   }}
                   onSpeakClick={handleSpeak}
                   onCopyClick={handleCopy}
+                  ttsWord={selectedOriginalQuery || undefined}
                 />
               ) : !query ? (
                 <div className="empty-state">Highlight text or double click to look up</div>

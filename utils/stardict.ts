@@ -16,6 +16,7 @@ export interface IndexEntry {
     size: number;
     isSynthesizedMatch?: boolean;
     suffixCount?: number;
+    originalQuery?: string;
 }
 
 class StarDictParser {
@@ -192,7 +193,7 @@ class StarDictParser {
 
         // Suffix combination matches (recursive)
         if (uniqueMatches.size < limit && !lowerQuery.includes(' ')) {
-            this.findSuffixCombinations(lowerQuery, [], uniqueMatches, limit);
+            this.findSuffixCombinations(lowerQuery, [], uniqueMatches, limit, 0, query);
         }
 
         // Convert exactly matched base items to an array to sort alongside synthesized ones safely
@@ -213,7 +214,8 @@ class StarDictParser {
         foundSuffixes: string[],
         uniqueMatches: Map<string, IndexEntry>,
         limit: number,
-        depth: number = 0
+        depth: number = 0,
+        originalQuery?: string
     ) {
         if (uniqueMatches.size >= limit || depth >= 3) return;
 
@@ -237,7 +239,8 @@ class StarDictParser {
                         offset: 0,
                         size: 0,
                         isSynthesizedMatch: true,
-                        suffixCount: foundSuffixes.length
+                        suffixCount: foundSuffixes.length,
+                        originalQuery: originalQuery
                     });
                 }
             }
@@ -247,7 +250,7 @@ class StarDictParser {
         for (const suffix of this.suffixes) {
             if (currentWord.endsWith(suffix) && currentWord.length > suffix.length) {
                 const remainingRoot = currentWord.slice(0, -suffix.length);
-                this.findSuffixCombinations(remainingRoot, [...foundSuffixes, suffix], uniqueMatches, limit, depth + 1);
+                this.findSuffixCombinations(remainingRoot, [...foundSuffixes, suffix], uniqueMatches, limit, depth + 1, originalQuery);
             }
         }
     }

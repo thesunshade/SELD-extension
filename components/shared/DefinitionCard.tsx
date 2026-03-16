@@ -12,6 +12,7 @@ interface DefinitionCardProps {
 	onSpeakClick: (word: string) => void;
 	onCopyClick: (targetWord: string, specificDefBlock?: string | string[]) => void;
 	searchQuery?: string; // Optional search query for highlighting
+	ttsWord?: string;     // Original query for synthesized matches
 }
 
 export const DefinitionCard: React.FC<DefinitionCardProps> = ({
@@ -22,7 +23,8 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 	onWordClick,
 	onSpeakClick,
 	onCopyClick,
-	searchQuery
+	searchQuery,
+	ttsWord
 }) => {
 
 	const renderTextWithClicks = (text: string) => {
@@ -199,7 +201,7 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 							<rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
 						</svg>
 					</button>
-					<button className="tts-button" onClick={() => word && onSpeakClick(word)} title="Speak word">
+					<button className="tts-button" onClick={() => onSpeakClick(ttsWord || word)} title="Speak word">
 						<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
 							<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
 							<path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
