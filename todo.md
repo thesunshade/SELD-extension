@@ -2,11 +2,14 @@
 - [ ] compound verbs in definitions need to be clickable as a unit. like වන්දනා කරනවා.
 - [ ] need some way to give key to abbreviations
 - [ ] particles should be treated like suffixes, e.g. ත්
-- [ ] homograph numbers need to be styled.
+- [ ] homograph numbers need to be styled in synonym section.
 - [ ] add letter headers in diictionary browser
+- [ ] add save shortcut on text pad
+- [ ] font size of definition is too big relative to the rest of the sidebar. See sccreenshots
 
 ## Possible new features
 
+- [ ] Add independent font resizer/selector for Text Pad.
 - [ ] underline should be one of three options: off, bold, subtle
 - [ ] export words to Anki
 - [ ] export history
