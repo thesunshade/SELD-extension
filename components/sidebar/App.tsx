@@ -244,7 +244,7 @@ function App({ onClose }: AppProps) {
       setSelectedOriginalQuery(null);
       return;
     }
-    const matches = await stardict.searchWords(sanitized, 30);
+    const matches = await stardict.searchWords(sanitized, 200);
     setResults(matches);
     const exact = matches.find(m => m.word.toLowerCase() === sanitized.toLowerCase()) || matches.find(m => m.isSynthesizedMatch);
     if (exact) {

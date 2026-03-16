@@ -1,0 +1,86 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SLED Binary Search Verification</title>
+</head>
+<body>
+    <h1>Binary Search Verification</h1>
+    <div id="output" style="white-space: pre-wrap; font-family: monospace; background: #f0f0f0; padding: 20px;">
+        Loading dictionary and running tests...
+    </div>
+
+    <script type="module">
+        import { stardict } from './utils/stardict.ts';
+
+        // Mock chrome.runtime.getURL for local testing
+        if (typeof chrome === 'undefined') {
+            window.chrome = {
+                runtime: {
+                    getURL: (path) => `./public${path}`
+                }
+            };
+        }
+
+        const log = (msg) => {
+            const out = document.getElementById('output');
+            out.textContent += msg + '\n';
+            console.log(msg);
+        };
+
+        async function runTests() {
+            try {
+                log('--- Starting Tests ---');
+                await stardict.load();
+                const all = await stardict.getAllEntries();
+                log('Total entries loaded: ' + all.length);
+
+                if (all.length === 0) {
+                    log('Error: No entries found!');
+                    return;
+                }
+
+                // 1. Test Exact Match
+                const sampleIdx = Math.floor(all.length / 2);
+                const testWord = all[sampleIdx].word;
+                log('\n1. Testing Exact Match: "' + testWord + '"');
+                const hasMatch = await stardict.hasExactMatch(testWord);
+                log('Result: ' + (hasMatch ? 'PASS' : 'FAIL'));
+
+                // 2. Test getDefinition
+                log('\n2. Testing getDefinition: "' + testWord + '"');
+                const def = await stardict.getDefinition(testWord);
+                if (def && def[0].headword === testWord) {
+                    log('Result: PASS (' + def[0].homographDefinitions.length + ' definitions)');
+                } else {
+                    log('Result: FAIL');
+                }
+
+                // 3. Test Prefix Search
+                const prefix = testWord.substring(0, Math.min(testWord.length, 3)).toLowerCase();
+                log('\n3. Testing Prefix Search: "' + prefix + '"');
+                const searchResults = await stardict.searchWords(prefix, 10);
+                const prefixPassed = searchResults.some(r => r.word.toLowerCase().startsWith(prefix));
+                log('Result: ' + (prefixPassed ? 'PASS' : 'FAIL') + ' (' + searchResults.length + ' matches)');
+
+                // 4. Test Case Insensitivity
+                log('\n4. Testing Case Insensitivity: "' + testWord.toUpperCase() + '"');
+                const upperMatch = await stardict.hasExactMatch(testWord.toUpperCase());
+                log('Result: ' + (upperMatch ? 'PASS' : 'FAIL'));
+
+                // 5. Test Non-existent word
+                const fake = 'xyz999fake';
+                log('\n5. Testing Missing Word: "' + fake + '"');
+                const fakeMatch = await stardict.hasExactMatch(fake);
+                log('Result: ' + (!fakeMatch ? 'PASS' : 'FAIL'));
+
+                log('\n--- VERIFICATION COMPLETE ---');
+            } catch (err) {
+                log('\nFATAL ERROR: ' + err.stack);
+            }
+        }
+
+        runTests();
+    </script>
+</body>
+</html>

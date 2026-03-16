@@ -104,12 +104,13 @@ class StarDictParser {
             const allWordsToFetch = [baseWord, ...suffixWords];
 
             for (const w of allWordsToFetch) {
-                const entries = this.indexList.filter(e => e.word === w);
+                const indices = this.findAllIndices(w);
                 const block: StructuredDefinition = {
                     headword: w,
                     homographDefinitions: []
                 };
-                for (const e of entries) {
+                for (const idx of indices) {
+                    const e = this.indexList[idx];
                     block.homographDefinitions.push(this.readDictData(e.offset, e.size));
                 }
                 if (block.homographDefinitions.length > 0) {
@@ -123,12 +124,15 @@ class StarDictParser {
             return null; // Should not happen if correctly synthesized
         }
 
-        const entries = this.indexList.filter(e => e.word === word);
-        if (entries.length === 0) return null;
+        const indices = this.findAllIndices(word);
+        if (indices.length === 0) return null;
 
         const block: StructuredDefinition = {
             headword: word,
-            homographDefinitions: entries.map(e => this.readDictData(e.offset, e.size))
+            homographDefinitions: indices.map(idx => {
+                const e = this.indexList[idx];
+                return this.readDictData(e.offset, e.size);
+            })
         };
         results.push(block);
 
@@ -137,7 +141,7 @@ class StarDictParser {
 
     public async hasExactMatch(word: string): Promise<boolean> {
         await this.load();
-        return this.indexList.some(e => e.word === word);
+        return this.findFirstIndex(word) !== -1;
     }
 
     public async findExistingWords(words: string[]): Promise<string[]> {
@@ -147,7 +151,7 @@ class StarDictParser {
     }
 
     // Prefix/partial match search
-    public async searchWords(query: string, limit: number = 30): Promise<IndexEntry[]> {
+    public async searchWords(query: string, limit: number = 2000): Promise<IndexEntry[]> {
         await this.load();
         if (!query) return [];
 
@@ -161,21 +165,25 @@ class StarDictParser {
             }
         };
 
-        // Exact matches
-        for (const entry of this.indexList) {
-            if (entry.word.toLowerCase() === lowerQuery) {
-                addIfUnique(entry);
-                if (uniqueMatches.size >= limit) break;
-            }
+        // Exact matches using binary search
+        const exactIndices = this.findAllIndices(query);
+        for (const idx of exactIndices) {
+            addIfUnique(this.indexList[idx]);
+            if (uniqueMatches.size >= limit) break;
         }
 
-        // Prefix matches
+        // Prefix matches using binary search
         if (uniqueMatches.size < limit) {
-            for (const entry of this.indexList) {
-                const lowerWord = entry.word.toLowerCase();
-                if (lowerWord.startsWith(lowerQuery) && !uniqueMatches.has(entry.word)) {
-                    addIfUnique(entry);
-                    if (uniqueMatches.size >= limit) break;
+            let idx = this.findFirstIndexByPrefix(lowerQuery);
+            if (idx !== -1) {
+                while (idx < this.indexList.length && uniqueMatches.size < limit) {
+                    const entry = this.indexList[idx];
+                    if (entry.word.toLowerCase().startsWith(lowerQuery)) {
+                        addIfUnique(entry);
+                        idx++;
+                    } else {
+                        break;
+                    }
                 }
             }
         }
@@ -221,11 +229,11 @@ class StarDictParser {
 
         // Check if the current leftover word is a valid base word
         if (foundSuffixes.length > 0) {
-            const isBaseWordValid = this.indexList.some(e => e.word.toLowerCase() === currentWord);
-            if (isBaseWordValid) {
+            const baseIdx = this.findFirstIndex(currentWord);
+            if (baseIdx !== -1) {
                 // Synthesize a virtual entry
                 // Re-find the exact casing for the base word
-                const baseWordActual = this.indexList.find(e => e.word.toLowerCase() === currentWord)!.word;
+                const baseWordActual = this.indexList[baseIdx].word;
 
                 // Reconstruct the suffixes in the correct order (they were found backwards)
                 const suffixesStr = [...foundSuffixes].reverse().map(s => `-${s}`).join(' ');
@@ -300,6 +308,67 @@ class StarDictParser {
         if (!this.dictBuffer) return '';
         const bytes = new Uint8Array(this.dictBuffer, offset, size);
         return new TextDecoder('utf-8').decode(bytes);
+    }
+
+    // Binary Search Helpers
+    private findFirstIndex(word: string): number {
+        const query = word.toLowerCase();
+        let low = 0;
+        let high = this.indexList.length - 1;
+        let result = -1;
+
+        while (low <= high) {
+            const mid = Math.floor((low + high) / 2);
+            const midWord = this.indexList[mid].word.toLowerCase();
+
+            if (midWord === query) {
+                result = mid;
+                high = mid - 1; // Keep looking left to find the VERY first occurrence
+            } else if (midWord < query) {
+                low = mid + 1;
+            } else {
+                high = mid - 1;
+            }
+        }
+        return result;
+    }
+
+    private findAllIndices(word: string): number[] {
+        const firstIdx = this.findFirstIndex(word);
+        if (firstIdx === -1) return [];
+
+        const indices: number[] = [firstIdx];
+        const query = word.toLowerCase();
+        let nextIdx = firstIdx + 1;
+
+        // Collect all subsequent homographs
+        while (nextIdx < this.indexList.length && this.indexList[nextIdx].word.toLowerCase() === query) {
+            indices.push(nextIdx);
+            nextIdx++;
+        }
+        return indices;
+    }
+
+    private findFirstIndexByPrefix(prefix: string): number {
+        const query = prefix.toLowerCase();
+        let low = 0;
+        let high = this.indexList.length - 1;
+        let result = -1;
+
+        while (low <= high) {
+            const mid = Math.floor((low + high) / 2);
+            const midWord = this.indexList[mid].word.toLowerCase();
+
+            if (midWord.startsWith(query)) {
+                result = mid;
+                high = mid - 1; // Keep looking left for the first prefix match
+            } else if (midWord < query) {
+                low = mid + 1;
+            } else {
+                high = mid - 1;
+            }
+        }
+        return result;
     }
 }
 
