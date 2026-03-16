@@ -17,8 +17,8 @@
 .dark-theme .seld-theme-vars {
 	--bg-color: #020617;
 	--bg-panel: rgba(15, 23, 42, 0.9);
-	--text-primary: #f8fafc;
-	--text-secondary: #94a3b8;
+	--text-primary: #f6f8fa;
+	--text-secondary: #bfc8d4;
 	--border-color: #3c5379;
 	--accent: #f8fafc;
 	--accent-fg: #0f172a;
@@ -39,4 +39,9 @@
 		--border-color: #ffffff;
 		--text-primary: #ffffff;
 	}
+}
+
+.seld-highlight-bold {
+	font-weight: 800;
+
 }

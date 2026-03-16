@@ -9,6 +9,7 @@ import { DefinitionCard } from "../shared/DefinitionCard";
 
 import { SettingsUI } from "../shared/SettingsUI";
 import { Theme } from "../shared/types";
+import { Highlighter } from "../shared/Highlighter";
 
 type View = "search" | "settings" | "info";
 
@@ -470,7 +471,7 @@ function App({ onClose }: AppProps) {
               {results.length > 0 ? (
                 results.map((entry, idx) => (
                   <div key={idx} ref={selectedWord === entry.word ? selectedRef : null} className={`headword-item ${selectedWord === entry.word ? "selected" : ""}`} onClick={() => handleSelectWord(entry.word, entry.originalQuery)}>
-                    {entry.word}
+                    <Highlighter text={entry.word} searchTerm={query} />
                     {transliterateResults && /[\u0D80-\u0DFF]/.test(entry.word) && <span className="seld-transliteration"> {transliterateSinhala(entry.word)}</span>}
                   </div>
                 ))

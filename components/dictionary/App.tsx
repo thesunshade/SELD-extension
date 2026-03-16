@@ -7,6 +7,7 @@ import { browser } from "wxt/browser";
 import { DefinitionCard } from "../shared/DefinitionCard";
 import { SettingsUI } from "../shared/SettingsUI";
 import { Theme } from "../shared/types";
+import { Highlighter } from "../shared/Highlighter";
 import "./App.css";
 
 type ViewTab = "browse" | "search" | "settings";
@@ -415,7 +416,9 @@ export default function DictionaryApp() {
 							</div>
 							<div className="search-results-list custom-scroll">
 								{searchResults.map((entry, idx) => (
-									<div key={idx} className="headword-item" onClick={() => jumpToPrefix(getEffectiveWord(entry.word), false, idx)}>{entry.word}</div>
+									<div key={idx} className="headword-item" onClick={() => jumpToPrefix(getEffectiveWord(entry.word), false, idx)}>
+										<Highlighter text={entry.word} searchTerm={searchQuery} />
+									</div>
 								))}
 							</div>
 						</div>
