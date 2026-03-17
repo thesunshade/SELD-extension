@@ -4,7 +4,6 @@
 - [ ] particles should be treated like suffixes, e.g. ත්
 - [ ] homograph numbers need to be styled in synonym section.
 - [ ] add letter headers in dictionary browser
-- [ ] add save shortcut on text pad
 - [ ] font size of definition is too big relative to the rest of the sidebar. See sccreenshots
 - [ ] for suffix type headwords when the suffix starts with a dash and then a combining vowel, two non-breaking spaces should be inserted betweeen the vowel and the dash
 
@@ -38,3 +37,4 @@
 - [x] TTS should play original word, not broken up version
 - [x] sidebar doesn't shift properly on text pad page
 - [x] Add independent font resizer/selector for Text Pad.
+- [x] add save shortcut on text pad

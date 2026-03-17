@@ -234,12 +234,41 @@
 
 #seld-sidebar-root .search-input {
   width: 100%;
-  padding: 0.7em 1em;
+  padding: 0.7em 2.4em 0.7em 1em;
+  /* right padding leaves room for the icon */
   border-radius: 8px;
   border: 1px solid var(--border-color);
   background: var(--input-bg);
   color: var(--text-primary);
   font-size: 0.9em;
+}
+
+#seld-sidebar-root .search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+#seld-sidebar-root .search-copy-btn {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  padding: 2px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+#seld-sidebar-root .search-copy-btn:hover {
+  color: var(--accent);
+  background: var(--accent-bg);
 }
 
 #seld-sidebar-root .search-input:focus {
@@ -543,32 +572,33 @@
   opacity: .6;
 }
 
-#seld-sidebar-root .toast-notification {
-  position: absolute;
+/* ---- Toast ---- */
+#seld-sidebar-root .dict-toast {
+  position: fixed;
   bottom: 24px;
   left: 50%;
   transform: translateX(-50%);
   background: var(--accent);
   color: var(--accent-fg);
-  padding: 8px 16px;
+  padding: 10px 20px;
   border-radius: 20px;
   font-size: 0.85em;
   font-weight: 500;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  animation: toast-fade-in 0.2s ease-out;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  animation: toast-slide-up 0.25s ease-out;
   z-index: 10000;
   white-space: nowrap;
 }
 
-@keyframes toast-fade-in {
+@keyframes toast-slide-up {
   from {
     opacity: 0;
-    bottom: 10px;
+    transform: translateX(-50%) translateY(12px);
   }
 
   to {
     opacity: 1;
-    bottom: 24px;
+    transform: translateX(-50%) translateY(0);
   }
 }
 

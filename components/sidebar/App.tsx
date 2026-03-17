@@ -456,15 +456,40 @@ function App({ onClose }: AppProps) {
       {view === "search" && (
         <>
           <div className="search-section">
-            <input
-              type="text"
-              value={query}
-              onChange={e => {
-                setQuery(e.target.value);
-              }}
-              placeholder="Search..."
-              className="search-input"
-            />
+            <div className="search-input-wrapper">
+              <input
+                type="text"
+                value={query}
+                onChange={e => {
+                  setQuery(e.target.value);
+                }}
+                placeholder="Search..."
+                className="search-input"
+              />
+              {query && (
+                <button
+                  className="search-copy-btn"
+                  title="Copy search text"
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(query);
+                      setToastMessage("Copied!");
+                      setShowToast(true);
+                      setTimeout(() => setShowToast(false), 2000);
+                    } catch {
+                      setToastMessage("Failed to copy");
+                      setShowToast(true);
+                      setTimeout(() => setShowToast(false), 2000);
+                    }
+                  }}
+                >
+                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                </button>
+              )}
+            </div>
           </div>
           <div className="content-area">
             <div className="headword-list custom-scroll dynamic-font" style={{ height: `${listHeight}%`, flex: "none" }}>
@@ -563,7 +588,7 @@ function App({ onClose }: AppProps) {
           </details>
         </div>
       )}
-      {showToast && <div className="toast-notification">{toastMessage}</div>}
+      {showToast && <div className="dict-toast">{toastMessage}</div>}
     </div>
   );
 }
