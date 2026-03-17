@@ -105,7 +105,7 @@ export default function TextPadApp() {
 
 					<div className="textpad-resize">
 						<button onClick={decreaseFont} className="textpad-btn resize-btn">
-							-
+							–
 						</button>
 						<span className="textpad-scale" onClick={resetFont}>
 							{fontScale}%
