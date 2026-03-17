@@ -52,25 +52,27 @@ body {
 	font-weight: 500;
 	cursor: pointer;
 	transition: background-color 0.2s;
-}
-
-.textpad-btn.primary {
 	background-color: var(--bg-color);
 	color: var(--text-primary);
+	width: 5rem;
+	transition: transform 220ms ease, box-shadow 220ms ease;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 
-.textpad-btn.primary:hover {
-	background-color: #8ba6e1;
+.textpad-btn:hover {
+	background: var(--accent-bg);
+	border-color: var(--accent);
+	color: var(--accent);
+	transform: scale(1.03);
+	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.10);
 }
 
-.textpad-btn.danger {
+/* .textpad-btn.danger {
 	background-color: var(--bg-color);
 	color: var(--text-primary);
-}
+} */
 
-.textpad-btn.danger:hover {
-	background-color: #bebebe;
-}
+
 
 .textpad-main {
 	flex: 1;
@@ -115,4 +117,26 @@ body {
 .textpad-display p {
 	margin-top: 0;
 	margin-bottom: 1em;
+}
+
+.textpad-resize {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin-right: 8px;
+}
+
+.resize-btn {
+	font-size: 140%;
+	padding: 4px 8px;
+	width: 2rem;
+}
+
+.textpad-scale {
+	min-width: 48px;
+	text-align: center;
+	cursor: pointer;
+	user-select: none;
+	font-size: 14px;
+	color: var(--text-primary);
 }

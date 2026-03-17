@@ -3,14 +3,13 @@
 - [ ] need some way to give key to abbreviations
 - [ ] particles should be treated like suffixes, e.g. ත්
 - [ ] homograph numbers need to be styled in synonym section.
-- [ ] add letter headers in diictionary browser
+- [ ] add letter headers in dictionary browser
 - [ ] add save shortcut on text pad
 - [ ] font size of definition is too big relative to the rest of the sidebar. See sccreenshots
 - [ ] for suffix type headwords when the suffix starts with a dash and then a combining vowel, two non-breaking spaces should be inserted betweeen the vowel and the dash
 
 ## Possible new features
 
-- [ ] Add independent font resizer/selector for Text Pad.
 - [ ] underline should be one of three options: off, bold, subtle
 - [ ] export words to Anki
 - [ ] export history
@@ -38,3 +37,4 @@
 - [x] add settings panel to browser side bar
 - [x] TTS should play original word, not broken up version
 - [x] sidebar doesn't shift properly on text pad page
+- [x] Add independent font resizer/selector for Text Pad.

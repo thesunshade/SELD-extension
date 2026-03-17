@@ -7,6 +7,9 @@ export default function TextPadApp() {
 	const [text, setText] = useState('');
 	const [theme, setTheme] = useState<'system' | 'dark' | 'light'>('system');
 
+	// NEW: font size state
+	const [fontScale, setFontScale] = useState(100);
+
 	useEffect(() => {
 		browser.storage.local.get(['seldTextPadContent', 'theme']).then(res => {
 			if (res.seldTextPadContent) {
@@ -39,7 +42,7 @@ export default function TextPadApp() {
 
 	useEffect(() => {
 		const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-		const handler = () => { setTheme(t => t); }; // force re-render
+		const handler = () => { setTheme(t => t); };
 		mediaQuery.addEventListener("change", handler);
 		return () => mediaQuery.removeEventListener("change", handler);
 	}, []);
@@ -63,11 +66,37 @@ export default function TextPadApp() {
 		}
 	};
 
+	// NEW: resize handlers
+	const increaseFont = () => {
+		setFontScale(prev => Math.min(250, prev + 5));
+	};
+
+	const decreaseFont = () => {
+		setFontScale(prev => Math.max(30, prev - 5));
+	};
+
+	const resetFont = () => {
+		setFontScale(100);
+	};
+
 	return (
 		<div className={`textpad-container seld-theme-vars ${themeClass}`}>
 			<div className="textpad-header">
 				<h1>SELD Text Pad</h1>
 				<div className="textpad-actions">
+
+					<div className="textpad-resize">
+						<button onClick={decreaseFont} className="textpad-btn resize-btn">
+							-
+						</button>
+						<span className="textpad-scale" onClick={resetFont}>
+							{fontScale}%
+						</span>
+						<button onClick={increaseFont} className="textpad-btn resize-btn">
+							+
+						</button>
+					</div>
+
 					<button onClick={handleSaveEdit} className="textpad-btn primary">
 						{mode === 'EDIT' ? 'SAVE' : 'EDIT'}
 					</button>
@@ -76,17 +105,22 @@ export default function TextPadApp() {
 					</button>
 				</div>
 			</div>
+
 			<div className="textpad-main">
 				{mode === 'EDIT' ? (
 					<textarea
 						className="textpad-input"
+						style={{ fontSize: `${fontScale}%` }}
 						value={text}
 						onChange={e => setText(e.target.value)}
 						placeholder="Type or paste your Sinhala text here. Then save to start looking up words."
 						autoFocus
 					/>
 				) : (
-					<div className="textpad-display">
+					<div
+						className="textpad-display"
+						style={{ fontSize: `${fontScale}%` }}
+					>
 						{text.split('\n').map((paragraph, idx) => (
 							<p key={idx}>{paragraph}</p>
 						))}
