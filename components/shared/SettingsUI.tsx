@@ -121,6 +121,7 @@ export const SettingsUI: React.FC<SettingsUIProps> = ({
             type="range"
             min="50"
             max="200"
+            step="5"
             value={fontSize}
             onChange={e => {
               const val = parseInt(e.target.value);
