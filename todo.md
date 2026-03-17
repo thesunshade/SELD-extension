@@ -2,7 +2,7 @@
 - [ ] compound verbs in definitions need to be clickable as a unit. like වන්දනා කරනවා.
 - [ ] need some way to give key to abbreviations
 - [ ] particles should be treated like suffixes, e.g. ත්
-- [ ] homograph numbers need to be styled in synonym section.
+- [ ] homograph numbers need to be styled in synonym, component parts section. See වන්දනාමාන
 - [ ] add letter headers in dictionary browser
 - [ ] font size of definition is too big relative to the rest of the sidebar. See sccreenshots
 - [ ] for suffix type headwords when the suffix starts with a dash and then a combining vowel, two non-breaking spaces should be inserted betweeen the vowel and the dash
