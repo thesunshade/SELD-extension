@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { browser } from 'wxt/browser';
 import './TextPadApp.css';
 
@@ -7,8 +7,13 @@ export default function TextPadApp() {
 	const [text, setText] = useState('');
 	const [theme, setTheme] = useState<'system' | 'dark' | 'light'>('system');
 
-	// NEW: font size state
 	const [fontScale, setFontScale] = useState(100);
+
+	const modeRef = useRef(mode);
+
+	useEffect(() => {
+		modeRef.current = mode;
+	}, [mode]);
 
 	useEffect(() => {
 		browser.storage.local.get(['seldTextPadContent', 'theme']).then(res => {
@@ -27,8 +32,22 @@ export default function TextPadApp() {
 			}
 		};
 
+		const handleKeyDown = (e: KeyboardEvent) => {
+			if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+				if (modeRef.current === 'EDIT') {
+					e.preventDefault();
+					handleSaveEdit();
+				}
+			}
+		};
+
 		browser.storage.onChanged.addListener(handleStorageChange);
-		return () => browser.storage.onChanged.removeListener(handleStorageChange);
+		window.addEventListener('keydown', handleKeyDown);
+
+		return () => {
+			browser.storage.onChanged.removeListener(handleStorageChange);
+			window.removeEventListener('keydown', handleKeyDown);
+		};
 	}, []);
 
 	const getThemeClass = () => {
@@ -66,7 +85,6 @@ export default function TextPadApp() {
 		}
 	};
 
-	// NEW: resize handlers
 	const increaseFont = () => {
 		setFontScale(prev => Math.min(250, prev + 5));
 	};
