@@ -84,7 +84,7 @@
 }
 
 .tippy-arrow {
-	color: var(--bg-panel) !important;
+	color: var(--bg-color) !important;
 }
 
 .tippy-content {

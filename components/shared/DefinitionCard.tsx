@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import tippy, { delegate } from "tippy.js";
+import "tippy.js/dist/border.css";
 import "tippy.js/dist/tippy.css";
 import { StructuredDefinition } from "../../utils/stardict";
 import { transliterateSinhala } from "../../utils/transliterate";
@@ -48,6 +49,7 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 				console.log("[Tippy] Initializing delegate on container:", containerRef.current);
 
 				const instances = delegate(containerRef.current, {
+					arrow: true,
 					target: '.partofspeech, .usage, .language, .variantentrytype, .ownertype_abbreviation',
 					interactive: true,
 					allowHTML: true,
@@ -63,7 +65,7 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 					onShow(instance) {
 						const el = instance.reference as HTMLElement;
 						const rawText = el.textContent?.trim();
-						
+
 						if (!rawText || !abbrevMap) {
 							return false;
 						}
