@@ -50,7 +50,7 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 
 				const instances = delegate(containerRef.current, {
 					arrow: true,
-					target: '.partofspeech, .usage, .language, .variantentrytype, .ownertype_abbreviation',
+					target: '.partofspeech, .usage, .language, .variantentrytype, .ownertype_abbreviation, .complexformtype',
 					interactive: true,
 					allowHTML: true,
 					trigger: 'click', // show on click
@@ -70,7 +70,7 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 						const normalizedText = normalizeAbbrev(rawText);
 
 						let groupName = Array.from(el.classList).find(c =>
-							['partofspeech', 'usage', 'language', 'variantentrytype', 'ownertype_abbreviation'].includes(c)
+							['partofspeech', 'usage', 'language', 'variantentrytype', 'ownertype_abbreviation', 'complexformtype'].includes(c)
 						);
 						if (!groupName) return false;
 						if (!rawText || !abbrevMap) {
@@ -138,7 +138,9 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 
 		const handleClick = (e: MouseEvent) => {
 			const target = e.target as HTMLElement;
-			const matched = target.closest('.partofspeech, .usage, .language, .variantentrytype, .ownertype_abbreviation');
+			const matched = target.closest('.partofspeech, .usage, .language, .variantentrytype, .ownertype_abbreviation, .complexformtype');
+			console.log(matched)
+			console.log(containerRef.current?.contains(matched))
 			if (matched && containerRef.current?.contains(matched)) {
 				e.stopPropagation();
 				e.preventDefault();

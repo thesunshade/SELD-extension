@@ -6,6 +6,7 @@
 - [ ] add letter headers in dictionary browser
 - [ ] font size of definition is too big relative to the rest of the sidebar. See sccreenshots
 - [ ] for suffix type headwords when the suffix starts with a dash and then a combining vowel, two non-breaking spaces should be inserted betweeen the vowel and the dash
+- [ ] complexformtype are not being linked up properly. E.g. ඉඳලා `yug.` not linking
 
 ## Possible new features
 

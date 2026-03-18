@@ -26,10 +26,20 @@ The script may also need a tweak if the new list uses a different XML node type 
 
 ### 3. Update `DefinitionCard.tsx`
 
-Add the new class to the Tippy delegate's `target` selector (line ~51):
+Add the new class to the Tippy delegate's `target` selector :
 
 ```tsx
 target: '.partofspeech, .usage, .language, .variantentrytype, .ownertype_abbreviation, .yournewclassname',
+```
+and
+```tsx
+const matched = target.closest('.partofspeech, .usage, .language, .variantentrytype, .ownertype_abbreviation, .complexformtype');
+```
+and
+```tsx
+						let groupName = Array.from(el.classList).find(c =>
+							['partofspeech', 'usage', 'language', 'variantentrytype', 'ownertype_abbreviation', 'complexformtype'].includes(c)
+						);
 ```
 
 ### 4. Update `assets/theme.css`
