@@ -64,27 +64,35 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 					},
 					onShow(instance) {
 						const el = instance.reference as HTMLElement;
-						const rawText = el.textContent?.trim();
+						const rawText = el.textContent;
+						if (!rawText) return false;
 
+						const normalizedText = normalizeAbbrev(rawText);
+
+						let groupName = Array.from(el.classList).find(c =>
+							['partofspeech', 'usage', 'language', 'variantentrytype', 'ownertype_abbreviation'].includes(c)
+						);
+						if (!groupName) return false;
 						if (!rawText || !abbrevMap) {
 							return false;
 						}
 
-						let groupName = Array.from(el.classList).find(c => ['partofspeech', 'usage', 'language', 'variantentrytype', 'ownertype_abbreviation'].includes(c));
-						if (!groupName) {
-							return false;
-						}
-
 						const groupMap = abbrevMap[groupName];
-						if (!groupMap) {
+						if (!groupMap) return false;
+
+						// find match by normalized key
+						const matchKey = Object.keys(groupMap).find(
+							key => normalizeAbbrev(key) === normalizedText
+						);
+
+						if (!matchKey) {
+							console.warn(`[Tippy] Failed match: "${rawText}" → "${normalizedText}" not found in group "${groupName}".`);
 							return false;
 						}
 
-						const data = groupMap[rawText];
-						if (!data) {
-							console.warn(`[Tippy] Failed match: "${rawText}" not found in group "${groupName}". Known keys:`, Object.keys(groupMap).join(', '));
-							return false;
-						}
+						const data = groupMap[matchKey];
+
+
 
 						const content = document.createElement('div');
 						content.innerHTML = `
@@ -118,6 +126,13 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 				}
 			}
 		}
+
+		const normalizeAbbrev = (str: string) => {
+			return str
+				.trim()
+				.replace(/^[\s\p{P}]+|[\s\p{P}]+$/gu, '') // strip leading/trailing punctuation + spaces
+				.toLowerCase();
+		};
 
 		initTippy();
 
