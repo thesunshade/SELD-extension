@@ -47,6 +47,6 @@ export default defineConfig({
   outDir: ".output",
   extensionApi: "chrome",
   runner: {
-    startUrls: ["https://tripitaka.online/sutta/334", "https://mahamegha.lk/2022/04/23/sirapa-wandanawa/"],
+    startUrls: ["https://tripitaka.online/sutta/334", "https://mahamegha.lk/2022/04/23/sirapa-wandanawa/", "https://www.subaasna.com/%e0%b6%8b%e0%b6%ad%e0%b7%8a%e0%b6%b4%e0%b6%ad%e0%b7%8a%e0%b6%ad%e0%b7%92-%e0%b6%9a%e0%b6%ae%e0%b7%8f%e0%b7%80-1-%e0%b7%80%e0%b6%b1-%e0%b6%b4%e0%b6%bb%e0%b7%92%e0%b6%a0%e0%b7%8a%e0%b6%a1/"],
   },
 });

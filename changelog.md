@@ -2,7 +2,17 @@
 
 # Change Log
 
-## 0.1.1
+## 0.
+* Add settings panel to dictionary explorer
+* various CSS fixes
+* change to binary search
+* Add dedicated scaling to texpad area
+* Add copy button to search input in sidebar
+* Add Ctrl + s to save textpad
+* Add abbreviation and term interface
+
+
+## 0.1.1 (2026)-03-14)
 * tweak dictionary browser button sort order
 * fix css universal injection
 
