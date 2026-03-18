@@ -1,4 +1,6 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
+import tippy, { delegate } from "tippy.js";
+import "tippy.js/dist/tippy.css";
 import { StructuredDefinition } from "../../utils/stardict";
 import { transliterateSinhala } from "../../utils/transliterate";
 import { getFullEntryCopyData } from "../../utils/clipboard";
@@ -26,6 +28,121 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 	searchQuery,
 	ttsWord
 }) => {
+	const containerRef = useRef<HTMLDivElement>(null);
+
+	useEffect(() => {
+		let tippyInstances: any[] = [];
+		let abbrevMap: Record<string, any> | null = null;
+		let abortController = new AbortController();
+
+		async function initTippy() {
+			try {
+				const url = browser.runtime.getURL("/abbreviations.json");
+				const res = await fetch(url, { signal: abortController.signal });
+				abbrevMap = await res.json();
+
+				if (!containerRef.current || abortController.signal.aborted) {
+					return;
+				}
+
+				console.log("[Tippy] Initializing delegate on container:", containerRef.current);
+
+				const instances = delegate(containerRef.current, {
+					target: '.partofspeech, .usage, .language, .variantentrytype, .ownertype_abbreviation',
+					interactive: true,
+					allowHTML: true,
+					trigger: 'click', // show on click
+					appendTo: () => {
+						const el = containerRef.current;
+						if (el) {
+							const root = el.closest('.seld-theme-vars');
+							if (root) return root as HTMLElement;
+						}
+						return document.body;
+					},
+					onShow(instance) {
+						const el = instance.reference as HTMLElement;
+						const rawText = el.textContent?.trim();
+						
+						if (!rawText || !abbrevMap) {
+							return false;
+						}
+
+						let groupName = Array.from(el.classList).find(c => ['partofspeech', 'usage', 'language', 'variantentrytype', 'ownertype_abbreviation'].includes(c));
+						if (!groupName) {
+							return false;
+						}
+
+						const groupMap = abbrevMap[groupName];
+						if (!groupMap) {
+							return false;
+						}
+
+						const data = groupMap[rawText];
+						if (!data) {
+							console.warn(`[Tippy] Failed match: "${rawText}" not found in group "${groupName}". Known keys:`, Object.keys(groupMap).join(', '));
+							return false;
+						}
+
+						const content = document.createElement('div');
+						content.innerHTML = `
+							<div style="margin-bottom: 4px; padding-right: 18px;">
+								<strong style="font-size: 1.1em">${data.fullTerm}</strong> 
+								<span style="opacity: 0.8; font-size: 0.9em">(${data.abbreviation})</span>
+							</div>
+							${data.description ? `<div style="font-size: 0.95em; line-height: 1.4; padding-top: 4px; border-top: 1px solid rgba(255,255,255,0.2); margin-top: 4px;">${data.description}</div>` : ''}
+							<button class="tippy-close-btn" style="position: absolute; top: 4px; right: 4px; background: none; border: none; color: inherit; cursor: pointer; padding: 2px;">
+								<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+									<path d="M18 6L6 18M6 6l12 12"></path>
+								</svg>
+							</button>
+						`;
+
+						const closeBtn = content.querySelector('.tippy-close-btn');
+						closeBtn?.addEventListener('click', (e) => {
+							e.stopPropagation();
+							instance.hide();
+						});
+
+						instance.setContent(content);
+					}
+				});
+
+				tippyInstances.push(instances);
+
+			} catch (err) {
+				if (!abortController.signal.aborted) {
+					console.error("Failed to load abbreviations.json", err);
+				}
+			}
+		}
+
+		initTippy();
+
+		const handleClick = (e: MouseEvent) => {
+			const target = e.target as HTMLElement;
+			const matched = target.closest('.partofspeech, .usage, .language, .variantentrytype, .ownertype_abbreviation');
+			if (matched && containerRef.current?.contains(matched)) {
+				e.stopPropagation();
+				e.preventDefault();
+			}
+		};
+
+		if (containerRef.current) {
+			containerRef.current.addEventListener('click', handleClick, false);
+		}
+
+		return () => {
+			abortController.abort();
+			tippyInstances.forEach(inst => {
+				if (Array.isArray(inst)) inst.forEach(i => i.destroy());
+				else inst.destroy();
+			});
+			if (containerRef.current) {
+				containerRef.current.removeEventListener('click', handleClick, false);
+			}
+		};
+	}, []);
 
 	const renderTextWithClicks = (text: string) => {
 		const tokens = text.split(/([^a-zA-Z\u0D80-\u0DFF\u200D\u200C]+)/).filter(Boolean);
@@ -123,12 +240,20 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 		const styles = doc.querySelectorAll("style, script");
 		styles.forEach(s => s.remove());
 
-		const convertNode = (node: Node, key: string): React.ReactNode => {
-			if (node.nodeType === Node.TEXT_NODE) return <React.Fragment key={key}>{renderTextWithClicks(node.textContent || "")}</React.Fragment>;
+		const ABBREV_CLASSES = ["partofspeech", "usage", "language", "variantentrytype", "ownertype_abbreviation"];
+
+		const convertNode = (node: Node, key: string, isAbbrev: boolean = false): React.ReactNode => {
+			if (node.nodeType === Node.TEXT_NODE) {
+				if (isAbbrev) {
+					return <React.Fragment key={key}>{node.textContent}</React.Fragment>;
+				}
+				return <React.Fragment key={key}>{renderTextWithClicks(node.textContent || "")}</React.Fragment>;
+			}
 			if (node.nodeType === Node.ELEMENT_NODE) {
 				const element = node as HTMLElement;
 				const tagName = element.tagName.toLowerCase();
-				const children = Array.from(element.childNodes).map((child, i) => convertNode(child, `${key}-${i}`));
+				const nodeIsAbbrev = isAbbrev || Array.from(element.classList).some(c => ABBREV_CLASSES.includes(c));
+				const children = Array.from(element.childNodes).map((child, i) => convertNode(child, `${key}-${i}`, nodeIsAbbrev));
 
 				if (element.style && element.style.color) {
 					element.style.color = "";
@@ -157,7 +282,7 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 	};
 
 	return (
-		<div className="definition-box">
+		<div className="definition-box" ref={containerRef}>
 			<h2 className="def-title" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
 				<div style={{ display: "flex", flexDirection: "column" }}>
 					<span>{word}</span>

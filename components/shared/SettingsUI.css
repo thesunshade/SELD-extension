@@ -31,23 +31,27 @@
   gap: 0.2em;
 }
 
-.toggle-btn {
+.settings-panel .toggle-btn {
   padding: 0.4em 0.8em;
   border: 1px solid var(--border-color);
-  background: var(--bg-color);
+  background: var(--accent-bg);
   color: var(--text-primary);
   border-radius: 6px;
   font-size: 0.85em;
+  font-family: inherit;
+  line-height: normal;
+  appearance: none;
+  -webkit-appearance: none;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.toggle-btn:hover {
-  background: var(--accent-bg);
+.settings-panel .toggle-btn:hover {
+  background: var(--accent-bg-darker);
   border-color: var(--accent);
 }
 
-.toggle-btn.active {
+.settings-panel .toggle-btn.active {
   background: var(--accent);
   color: var(--accent-fg);
   border-color: var(--accent);
@@ -60,27 +64,27 @@
   width: 100%;
 }
 
-.slider-container input[type="range"] {
+.settings-panel .slider-container input[type="range"] {
   flex: 1;
-  height: 6px;
-  border-radius: 3px;
-  background: var(--border-color);
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
   cursor: pointer;
 }
 
-.slider-container input[type="range"]::-webkit-slider-runnable-track {
+.settings-panel .slider-container input[type="range"]::-webkit-slider-runnable-track {
   height: 6px;
   border-radius: 3px;
   background: var(--border-color);
 }
 
-.slider-container input[type="range"]::-moz-range-track {
+.settings-panel .slider-container input[type="range"]::-moz-range-track {
   height: 6px;
   border-radius: 3px;
   background: var(--border-color);
 }
 
-.slider-container input[type="range"]::-webkit-slider-thumb {
+.settings-panel .slider-container input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   width: 16px;
   height: 16px;
@@ -92,7 +96,7 @@
   transition: transform 0.15s ease;
 }
 
-.slider-container input[type="range"]::-moz-range-thumb {
+.settings-panel .slider-container input[type="range"]::-moz-range-thumb {
   width: 16px;
   height: 16px;
   border-radius: 50%;
@@ -102,8 +106,8 @@
   transition: transform 0.15s ease;
 }
 
-.slider-container input[type="range"]::-webkit-slider-thumb:hover,
-.slider-container input[type="range"]::-moz-range-thumb:hover {
+.settings-panel .slider-container input[type="range"]::-webkit-slider-thumb:hover,
+.settings-panel .slider-container input[type="range"]::-moz-range-thumb:hover {
   transform: scale(1.2);
 }
 

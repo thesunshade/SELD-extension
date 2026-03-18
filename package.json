@@ -3,7 +3,9 @@
   "version": "0.1.1",
   "description": "Sinhala-English Learners Dictionary Lookup Extension",
   "scripts": {
+    "predev": "node scripts/extract-lists.js",
     "dev": "wxt",
+    "prebuild": "node scripts/extract-lists.js",
     "build": "wxt build",
     "zip": "wxt zip",
     "compile": "tsc --noEmit"
@@ -16,6 +18,8 @@
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@wxt-dev/module-react": "^1.1.2",
+    "fast-xml-parser": "^5.5.6",
+    "npm-run-all": "^4.1.5",
     "sharp": "^0.34.5",
     "typescript": "^5.5.0",
     "wxt": "^0.19.10"

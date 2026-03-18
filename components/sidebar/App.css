@@ -544,10 +544,10 @@
   color: var(--text-primary);
 }
 
-#seld-sidebar-root .partofspeech,
+/* #seld-sidebar-root .partofspeech,
 #seld-sidebar-root .usages {
   opacity: .6;
-}
+} */
 
 #seld-sidebar-root .variantformentrybackrefs,
 #seld-sidebar-root .complexformentryrefs,

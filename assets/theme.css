@@ -24,6 +24,7 @@
 	--accent-fg: #0f172a;
 	--accent-hover: #e2e8f0;
 	--accent-bg: rgba(248, 250, 252, 0.1);
+	--accent-bg-darker: rgba(248, 250, 252, 0.2);
 	--input-bg: #0f172a;
 }
 
@@ -44,4 +45,53 @@
 .seld-highlight-bold {
 	font-weight: 800;
 
+}
+
+/* Abbreviation clickables */
+.partofspeech,
+.usage,
+.language,
+.variantentrytype,
+.ownertype_abbreviation {
+	border-radius: 4px;
+	cursor: pointer;
+	display: inline-block;
+	text-decoration: dotted;
+	/* opacity: .6; */
+	/* background-color: var(--accent-bg-darker); */
+	/* padding: 0 4px; */
+	/* transform: translateY(-1px); */
+	transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.partofspeech:hover,
+.usage:hover,
+.language:hover,
+.variantentrytype:hover,
+.ownertype_abbreviation:hover {
+	background-color: var(--accent-bg-darker);
+	color: var(--text-primary) !important;
+}
+
+/* Tippy styles inherited overrides */
+.tippy-box {
+	background-color: var(--bg-color) !important;
+	color: var(--text-primary) !important;
+	border: 1px solid var(--border-color);
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+	border-radius: 6px;
+	backdrop-filter: blur(8px);
+}
+
+.tippy-arrow {
+	color: var(--bg-panel) !important;
+}
+
+.tippy-content {
+	padding: 8px 10px !important;
+}
+
+.tippy-close-btn:hover {
+	background-color: rgba(128, 128, 128, 0.2) !important;
+	border-radius: 4px;
 }

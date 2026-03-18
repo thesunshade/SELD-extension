@@ -46,3 +46,6 @@ compile.txt
 errors-utf8.txt
 errors.txt
 compile_errors_v2.txt
+lists.xml
+scripts/extract-lists.js
+public/abbreviations.json
