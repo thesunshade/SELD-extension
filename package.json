@@ -3,10 +3,11 @@
   "version": "0.1.1",
   "description": "Sinhala-English Learners Dictionary Lookup Extension",
   "scripts": {
-    "predev": "node scripts/extract-lists.js",
+    "predev": "node scripts/check-freshness.js && node scripts/extract-lists.js",
     "dev": "wxt",
-    "prebuild": "node scripts/extract-lists.js",
+    "prebuild": "node scripts/check-freshness.js && node scripts/extract-lists.js",
     "build": "wxt build",
+    "prezip": "node scripts/check-freshness.js && node scripts/extract-lists.js",
     "zip": "wxt zip",
     "compile": "tsc --noEmit"
   },
