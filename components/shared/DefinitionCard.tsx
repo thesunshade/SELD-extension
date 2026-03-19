@@ -139,8 +139,7 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 		const handleClick = (e: MouseEvent) => {
 			const target = e.target as HTMLElement;
 			const matched = target.closest('.partofspeech, .usage, .language, .variantentrytype, .ownertype_abbreviation, .complexformtype');
-			console.log(matched)
-			console.log(containerRef.current?.contains(matched))
+
 			if (matched && containerRef.current?.contains(matched)) {
 				e.stopPropagation();
 				e.preventDefault();
