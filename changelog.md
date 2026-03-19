@@ -10,6 +10,7 @@
 * Add copy button to search input in sidebar
 * Add Ctrl + s to save textpad
 * Add abbreviation and term interface
+* Add enhanced history interface
 
 
 ## 0.1.1 (2026)-03-14)
