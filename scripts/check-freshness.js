@@ -8,18 +8,35 @@ const FILES_TO_CHECK = [
   'public/SELD.dict',
 ];
 
-const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+// 1. Get hours from command line argument (e.g., node script.js 48)
+// If no argument is provided, default to 168 hours (1 week)
+const args = process.argv.slice(2);
+const limitHours = parseInt(args[0]) || 168;
+const LIMIT_MS = limitHours * 60 * 60 * 1000;
 
+/**
+ * Gets the modification time and age in ms for a file
+ */
 function getAge(filePath) {
   const stat = fs.statSync(filePath);
-  return { mtime: stat.mtime, ageMs: Date.now() - stat.mtime.getTime() };
+  return {
+    mtime: stat.mtime,
+    ageMs: Date.now() - stat.mtime.getTime()
+  };
 }
 
+/**
+ * Formats milliseconds into a human-readable string
+ */
 function formatAge(ms) {
-  const days = Math.floor(ms / (24 * 60 * 60 * 1000));
-  if (days === 0) return 'less than a day';
-  if (days === 1) return '1 day';
-  return `${days} days`;
+  const hours = Math.floor(ms / (1000 * 60 * 60));
+  const days = Math.floor(hours / 24);
+
+  if (days > 0) {
+    const remainingHours = hours % 24;
+    return `${days}d ${remainingHours}h`;
+  }
+  return `${hours}h`;
 }
 
 async function main() {
@@ -27,46 +44,55 @@ async function main() {
 
   for (const relPath of FILES_TO_CHECK) {
     const fullPath = path.join(ROOT, relPath);
+
     if (!fs.existsSync(fullPath)) {
       console.warn(`⚠️  File not found: ${relPath} — skipping freshness check.`);
       continue;
     }
+
     const { mtime, ageMs } = getAge(fullPath);
-    if (ageMs > ONE_WEEK_MS) {
+
+    if (ageMs > LIMIT_MS) {
       staleFiles.push({
         file: relPath,
-        modified: mtime.toLocaleDateString(),
+        modified: mtime.toLocaleString(),
         age: formatAge(ageMs),
       });
     }
   }
 
-  if (staleFiles.length === 0) return; // All fresh, continue build
-
-  console.log('\n╔══════════════════════════════════════════════════╗');
-  console.log('║           ⚠️  STALE FILES DETECTED ⚠️            ║');
-  console.log('╠══════════════════════════════════════════════════╣');
-  for (const { file, modified, age } of staleFiles) {
-    console.log(`║  📄 ${file}`);
-    console.log(`║     Last modified: ${modified} (${age} ago)`);
+  // If everything is fresh, exit silently and let the build continue
+  if (staleFiles.length === 0) {
+    return;
   }
-  console.log('╚══════════════════════════════════════════════════╝\n');
 
-  const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
-  const answer = await new Promise(resolve => {
-    rl.question('These files are more than a week old. Continue anyway? (y/N) ', resolve);
+  // Log the stale files in a table format
+  console.log(`\n-- STALE FILES DETECTED (Limit: ${limitHours}h) --`);
+  console.table(staleFiles);
+
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
   });
+
+  // Dynamic prompt based on the hour limit
+  const timeDescription = limitHours === 168 ? 'one week' : `${limitHours} hours`;
+
+  const answer = await new Promise(resolve => {
+    rl.question(`These files are more than ${timeDescription} old. Continue anyway? (y/N): `, resolve);
+  });
+
   rl.close();
 
   if (answer.trim().toLowerCase() !== 'y') {
-    console.log('❌ Build aborted.');
+    console.log('❌ Build aborted by user.');
     process.exit(1);
   }
 
-  console.log('✅ Continuing build...\n');
+  console.log('✅ Continuing with build...\n');
 }
 
 main().catch(err => {
-  console.error('Freshness check failed:', err);
+  console.error('Error in freshness check:', err);
   process.exit(1);
 });

@@ -7,7 +7,7 @@
     "dev": "wxt",
     "prebuild": "node scripts/check-freshness.js && node scripts/extract-lists.js",
     "build": "wxt build",
-    "prezip": "node scripts/check-freshness.js && node scripts/extract-lists.js",
+    "prezip": "node scripts/check-freshness.js 24 && node scripts/extract-lists.js",
     "zip": "wxt zip",
     "compile": "tsc --noEmit"
   },
