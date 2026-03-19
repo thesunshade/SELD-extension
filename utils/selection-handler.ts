@@ -1,8 +1,10 @@
 import { browser } from 'wxt/browser';
+import type { ContentScriptContext } from 'wxt/client';
 
 export function setupSidebarEvents(
 	getIsSidebarOpen: () => boolean,
-	initSidebar: () => void
+	initSidebar: () => void,
+	ctx?: ContentScriptContext | null
 ) {
 	let lastQueryTime = 0;
 
@@ -70,8 +72,14 @@ export function setupSidebarEvents(
 		});
 	};
 
-	window.addEventListener('mouseup', handleSelection);
-	window.addEventListener('click', handleCtrlClick);
+	// Use ctx.addEventListener when available for auto-cleanup on context invalidation
+	if (ctx) {
+		ctx.addEventListener(window, 'mouseup', handleSelection);
+		ctx.addEventListener(window, 'click', handleCtrlClick);
+	} else {
+		window.addEventListener('mouseup', handleSelection);
+		window.addEventListener('click', handleCtrlClick);
+	}
 
 	return () => {
 		window.removeEventListener('mouseup', handleSelection);

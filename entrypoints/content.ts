@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom/client';
 import App from '../components/sidebar/App';
 import { browser } from 'wxt/browser';
 import { setupSidebarEvents } from '../utils/selection-handler';
-
+//
 // Import CSS normally - WXT will bundle these into a single content.css file
 import '../assets/theme.css';
 import '../assets/content.css';
@@ -29,7 +29,7 @@ export default defineContentScript({
             const link = document.createElement('link');
             link.id = STYLE_ID;
             link.rel = 'stylesheet';
-            link.href = browser.runtime.getURL('/content-scripts/content.css');
+            link.href = (browser.runtime.getURL as any)('/content-scripts/content.css');
             document.head.appendChild(link);
         };
 
@@ -61,14 +61,14 @@ export default defineContentScript({
             if (!document.getElementById('seld-main-content')) {
                 const container = document.createElement('div');
                 container.id = 'seld-main-content';
-                
+
                 // Collect nodes first to avoid live collection issues
                 const nodesToMove = Array.from(document.body.childNodes).filter(node => {
                     if (node instanceof HTMLElement && (
-                        node.id === 'seld-sidebar-root' || 
-                        node.tagName === 'SCRIPT' || 
-                        node.tagName === 'STYLE' || 
-                        node.id === STYLE_ID || 
+                        node.id === 'seld-sidebar-root' ||
+                        node.tagName === 'SCRIPT' ||
+                        node.tagName === 'STYLE' ||
+                        node.id === STYLE_ID ||
                         node.id === FONT_STYLE_ID
                     )) {
                         return false;
@@ -127,8 +127,7 @@ export default defineContentScript({
                     styleEl.id = FONT_STYLE_ID;
                     document.head.appendChild(styleEl);
                 }
-                const runtime = browser.runtime as any;
-                const fontUrl = runtime.getURL('assets/fonts/NotoSansSinhala-VariableFont_wdth,wght.ttf');
+                const fontUrl = (browser.runtime.getURL as any)('assets/fonts/NotoSansSinhala-VariableFont_wdth,wght.ttf');
                 styleEl.textContent = `
                     @font-face {
                         font-family: 'SeldNotoSansSinhala';
@@ -150,7 +149,8 @@ export default defineContentScript({
         // REMOVED: Initial check for font override on page load
         // This is now handled in initSidebar and storage listener only if sidebar is open
 
-        browser.storage.onChanged.addListener((changes, namespace) => {
+        const storageChangeHandler = (changes: { [key: string]: any }, namespace: string) => {
+            if (ctx.isInvalid) return;
             if (namespace === 'local') {
                 if (changes.seldOverrideSinhalaFont) {
                     const enabled = changes.seldOverrideSinhalaFont.newValue as boolean;
@@ -166,7 +166,8 @@ export default defineContentScript({
                     }
                 }
             }
-        });
+        };
+        browser.storage.onChanged.addListener(storageChangeHandler);
 
         const toggleSidebar = () => {
             if (isSidebarOpen) {
@@ -176,17 +177,90 @@ export default defineContentScript({
             }
         };
 
-        setupSidebarEvents(() => isSidebarOpen, initSidebar);
+        setupSidebarEvents(() => isSidebarOpen, initSidebar, ctx);
 
         // -------------------------------------------------------------
         // Listen for requests from the SidePanel
         // -------------------------------------------------------------
-        browser.runtime.onMessage.addListener((message: any, sender, sendResponse) => {
+        const messageHandler = (message: any, sender: any, sendResponse: (response?: any) => void) => {
+            if (ctx.isInvalid) return true;
             if (message.action === 'TOGGLE_SIDEBAR') {
                 toggleSidebar();
                 sendResponse({ success: true });
             }
             return true;
+        };
+        browser.runtime.onMessage.addListener(messageHandler as any);
+
+        // -------------------------------------------------------------
+        // Handle context invalidation (extension update while tab is open)
+        // -------------------------------------------------------------
+        ctx.onInvalidated(() => {
+            // Clean up sidebar and all injected DOM elements
+            try {
+                destroySidebar();
+            } catch (e) {
+                // Silently fail during invalidation cleanup
+            }
+
+            // Remove listeners that ctx doesn't auto-clean
+            try {
+                browser.storage.onChanged.removeListener(storageChangeHandler);
+                browser.runtime.onMessage.removeListener(messageHandler as any);
+            } catch (e) {
+                // Already invalidated
+            }
+
+            // Show a small, non-intrusive reload banner using only inline styles
+            // (extension CSS may no longer be loadable after invalidation)
+            const BANNER_ID = 'seld-reload-banner';
+            if (!document.getElementById(BANNER_ID)) {
+                const banner = document.createElement('div');
+                banner.id = BANNER_ID;
+                banner.setAttribute('style', [
+                    'position: fixed',
+                    'bottom: 0',
+                    'left: 0',
+                    'right: 0',
+                    'z-index: 2147483647',
+                    'background: #1a1a2e',
+                    'color: #e0e0e0',
+                    'padding: 10px 16px',
+                    'font: 14px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                    'display: flex',
+                    'align-items: center',
+                    'justify-content: center',
+                    'gap: 12px',
+                    'box-shadow: 0 -2px 8px rgba(0,0,0,0.3)',
+                ].join('; '));
+
+                const text = document.createElement('span');
+                text.textContent = 'SELD Dictionary was updated. Please refresh the page to continue using it.';
+
+                const dismissBtn = document.createElement('button');
+                dismissBtn.textContent = '✕';
+                dismissBtn.setAttribute('style', [
+                    'background: transparent',
+                    'border: 1px solid #555',
+                    'color: #e0e0e0',
+                    'border-radius: 4px',
+                    'padding: 2px 8px',
+                    'cursor: pointer',
+                    'font-size: 14px',
+                    'flex-shrink: 0',
+                ].join('; '));
+                dismissBtn.addEventListener('click', () => banner.remove());
+
+                banner.appendChild(text);
+                banner.appendChild(dismissBtn);
+
+                if (document.body) {
+                    document.body.appendChild(banner);
+                    console.log("[SELD] Reload banner injected at bottom.");
+                } else {
+                    document.documentElement.appendChild(banner);
+                }
+            }
         });
 
     }
