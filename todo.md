@@ -1,8 +1,11 @@
 ## Bugs
 - [ ] in a list of usage abbreviations, only the first is clickable
 - [ ] transltierations break when word is parsed. e.g. අහසෙහි ->අහස -ෙහි ahasa -ෙhi
+- [ ] settings panel needs to be scrollable
+- [ ] term in පියාඹන්ට is not clickable
 
 ## Improvements
+- [ ] searching for පියඹනවා does not return පියාඹනවා. We need a fuzzy kind of search
 - [ ] single click or double click option
 - [ ] compound verbs in definitions need to be clickable as a unit. like වන්දනා කරනවා.
 - [ ] particles should be treated like suffixes, e.g. ත්
@@ -18,6 +21,8 @@
 - [ ] export history
 - [ ] favorites
 - [ ] headword button to open dictionary explorer browser (new tab or existing tab?)
+- [ ] link to other dictionaries
+- [ ] when word is not found, try to break into existing words
 
 
 ## On hold
