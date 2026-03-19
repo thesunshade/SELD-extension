@@ -52,6 +52,9 @@ function App({ onClose }: AppProps) {
   const [history, setHistory] = useState<string[]>([]);
   const historyIndex = useRef(-1);
   const isNavigatingHistory = useRef(false);
+  const [showHistoryDropdown, setShowHistoryDropdown] = useState(false);
+  const historyDropdownRef = useRef<HTMLDivElement>(null);
+  const historyBtnRef = useRef<HTMLButtonElement>(null);
 
   const isInitialized = useRef(false);
 
@@ -113,6 +116,12 @@ function App({ onClose }: AppProps) {
       seldTransliterateResults: v => setTransliterateResults(v as boolean),
       seldTransliterateDefinitions: v => setTransliterateDefinitions(v as boolean),
       seldSidebarPosition: v => setSidebarPosition(v as 'left' | 'right'),
+      seldSearchHistory: v => {
+        if (Array.isArray(v)) {
+          setHistory(v);
+          historyIndex.current = v.length - 1;
+        }
+      },
     };
 
     const keys = Object.keys(settingsConfig);
@@ -247,6 +256,29 @@ function App({ onClose }: AppProps) {
     return () => clearTimeout(timer);
   }, [query, view]);
 
+  // Debounced history push for all searched queries (not just dictionary matches)
+  useEffect(() => {
+    if (view !== "search") return;
+    const sanitized = sanitizeSearchQuery(query);
+    if (!sanitized) return;
+
+    const timer = setTimeout(() => {
+      if (isNavigatingHistory.current) return;
+      setHistory(prev => {
+        const truncated = prev.slice(0, historyIndex.current + 1);
+        if (truncated.length > 0 && truncated[truncated.length - 1] === sanitized) {
+          return truncated;
+        }
+        const updated = [...truncated, sanitized];
+        historyIndex.current = updated.length - 1;
+        browser.storage.local.set({ seldSearchHistory: updated });
+        return updated;
+      });
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, [query, view]);
+
   const handleSearch = async (q: string) => {
     const sanitized = sanitizeSearchQuery(q);
     if (!sanitized) {
@@ -286,6 +318,7 @@ function App({ onClose }: AppProps) {
         }
         const updated = [...truncated, word];
         historyIndex.current = updated.length - 1;
+        browser.storage.local.set({ seldSearchHistory: updated });
         return updated;
       });
     }
@@ -382,6 +415,47 @@ function App({ onClose }: AppProps) {
     browser.storage.local.set({ [key]: value });
   };
 
+  // History dropdown helpers
+  const clearHistory = () => {
+    setHistory([]);
+    historyIndex.current = -1;
+    browser.storage.local.set({ seldSearchHistory: [] });
+    setShowHistoryDropdown(false);
+  };
+
+  const downloadHistory = () => {
+    const unique = [...new Set(history)];
+    const blob = new Blob([unique.join("\n")], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "seld-history.txt";
+    a.click();
+    URL.revokeObjectURL(url);
+    setShowHistoryDropdown(false);
+  };
+
+  const handleHistoryWordClick = (word: string) => {
+    setQuery(word);
+    handleSearch(word);
+    setShowHistoryDropdown(false);
+  };
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    if (!showHistoryDropdown) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        historyDropdownRef.current && !historyDropdownRef.current.contains(e.target as Node) &&
+        historyBtnRef.current && !historyBtnRef.current.contains(e.target as Node)
+      ) {
+        setShowHistoryDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showHistoryDropdown]);
+
   return (
     <div
       id="seld-sidebar-inner"
@@ -407,6 +481,28 @@ function App({ onClose }: AppProps) {
           <button className="history-btn" onClick={goForward} disabled={historyIndex.current >= history.length - 1} title="Go forward">
             &gt;
           </button>
+          <button className="history-btn" ref={historyBtnRef} onClick={() => setShowHistoryDropdown(prev => !prev)} disabled={history.length === 0} title="History">
+            &#9662;
+          </button>
+          {showHistoryDropdown && history.length > 0 && (
+            <div className="history-dropdown" ref={historyDropdownRef}>
+              <div className="history-dropdown-list custom-scroll">
+                {[...new Set([...history].reverse())].map((word, idx) => (
+                  <div key={idx} className="history-dropdown-item" onClick={() => handleHistoryWordClick(word)}>
+                    {word}
+                  </div>
+                ))}
+              </div>
+              <div className="history-dropdown-footer">
+                <button className="history-dropdown-btn" onClick={clearHistory} title="Clear History">
+                  Clear
+                </button>
+                <button className="history-dropdown-btn" onClick={downloadHistory} title="Download History">
+                  Download
+                </button>
+              </div>
+            </div>
+          )}
         </div>
         {!isResizingSidebar.current && sidebarWidth < 300 ? "" : "SELD"}
         <div className="header-actions">
