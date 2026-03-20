@@ -95,24 +95,55 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 
 
 						const content = document.createElement('div');
-						content.innerHTML = `
-							<div style="margin-bottom: 4px; padding-right: 18px;">
-								<strong style="font-size: 1.1em">${data.fullTerm}</strong> 
-								<span style="opacity: 0.8; font-size: 0.9em">(${data.abbreviation})</span>
-							</div>
-							${data.description ? `<div style="font-size: 0.95em; line-height: 1.4; padding-top: 4px; border-top: 1px solid rgba(255,255,255,0.2); margin-top: 4px;">${data.description}</div>` : ''}
-							<button class="tippy-close-btn" style="position: absolute; top: 4px; right: 4px; background: none; border: none; color: inherit; cursor: pointer; padding: 2px;">
-								<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-									<path d="M18 6L6 18M6 6l12 12"></path>
-								</svg>
-							</button>
-						`;
+						
+						// Header line with term and abbreviation
+						const header = document.createElement('div');
+						header.setAttribute('style', 'margin-bottom: 4px; padding-right: 18px;');
+						
+						const strong = document.createElement('strong');
+						strong.style.fontSize = '1.1em';
+						strong.textContent = data.fullTerm;
+						
+						const span = document.createElement('span');
+						span.style.opacity = '0.8';
+						span.style.fontSize = '0.9em';
+						span.textContent = ` (${data.abbreviation})`;
+						
+						header.appendChild(strong);
+						header.appendChild(span);
+						content.appendChild(header);
 
-						const closeBtn = content.querySelector('.tippy-close-btn');
-						closeBtn?.addEventListener('click', (e) => {
+						// Description if available
+						if (data.description) {
+							const desc = document.createElement('div');
+							desc.setAttribute('style', 'font-size: 0.95em; line-height: 1.4; padding-top: 4px; border-top: 1px solid rgba(255,255,255,0.2); margin-top: 4px;');
+							desc.textContent = data.description;
+							content.appendChild(desc);
+						}
+
+						// Close button
+						const closeBtn = document.createElement('button');
+						closeBtn.className = 'tippy-close-btn';
+						closeBtn.setAttribute('style', 'position: absolute; top: 4px; right: 4px; background: none; border: none; color: inherit; cursor: pointer; padding: 2px;');
+						
+						const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+						svg.setAttribute('width', '14');
+						svg.setAttribute('height', '14');
+						svg.setAttribute('viewBox', '0 0 24 24');
+						svg.setAttribute('fill', 'none');
+						svg.setAttribute('stroke', 'currentColor');
+						svg.setAttribute('stroke-width', '2');
+						
+						const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+						path.setAttribute('d', 'M18 6L6 18M6 6l12 12');
+						svg.appendChild(path);
+						
+						closeBtn.appendChild(svg);
+						closeBtn.addEventListener('click', (e: MouseEvent) => {
 							e.stopPropagation();
 							instance.hide();
 						});
+						content.appendChild(closeBtn);
 
 						instance.setContent(content);
 					}

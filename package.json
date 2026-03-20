@@ -1,6 +1,6 @@
 {
   "name": "seld-extension",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Sinhala-English Learners Dictionary Lookup Extension",
   "scripts": {
     "predev": "node scripts/check-freshness.js && node scripts/extract-lists.js",

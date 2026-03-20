@@ -8,9 +8,8 @@ export const stripHtml = (html: string) => {
 		.replace(/<\/p>/gi, "\n\n")
 		.replace(/<div class="synthesized-header"[^>]*>/gi, "\n");
 
-	const tmp = document.createElement("DIV");
-	tmp.innerHTML = textWithNewlines;
-	return (tmp.textContent || tmp.innerText || "").replace(/\n\s*\n/g, "\n\n").trim();
+	const doc = new DOMParser().parseFromString(textWithNewlines, "text/html");
+	return (doc.body.textContent || "").replace(/\n\s*\n/g, "\n\n").trim();
 };
 
 export const getCopyText = (word: string, defs: string | string[]) => {
