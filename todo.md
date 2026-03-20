@@ -3,25 +3,28 @@
 - [ ] transltierations break when word is parsed. e.g. අහසෙහි ->අහස -ෙහි ahasa -ෙhi
 - [ ] settings panel needs to be scrollable
 - [ ] term in පියාඹන්ට is not clickable
-
-## Improvements
-- [ ] searching for පියඹනවා does not return පියාඹනවා. We need a fuzzy kind of search
-- [ ] single click or double click option
-- [ ] compound verbs in definitions need to be clickable as a unit. like වන්දනා කරනවා.
-- [ ] particles should be treated like suffixes, e.g. ත්
-- [ ] add letter headers in dictionary browser
-- [ ] font size of definition is too big relative to the rest of the sidebar. See sccreenshots
 - [ ] for suffix type headwords when the suffix starts with a dash and then a combining vowel, two non-breaking spaces should be inserted betweeen the vowel and the dash
 
-## Possible new features
+## Search
+- [ ] searching for පියඹනවා does not return පියාඹනවා. We need a fuzzy kind of search
+- [ ] particles should be treated like suffixes, e.g. ත්
 
+
+## Improvements
+- [ ] dictionary browser should have identical history
+- [ ] add history browser to Dictionary Explorer
+- [ ] single click or double click option
+- [ ] compound verbs in definitions need to be clickable as a unit. like වන්දනා කරනවා.
+- [ ] add letter headers in dictionary browser
+- [ ] font size of definition is too big relative to the rest of the sidebar. See sccreenshots
+
+## Possible new features
 - [ ] grammar overview page that provides an interface for lists.xml data
 - [ ] underline should be one of three options: off, bold, subtle
 - [ ] export words to Anki
-- [ ] export history
 - [ ] favorites
 - [ ] headword button to open dictionary explorer browser (new tab or existing tab?)
-- [ ] link to other dictionaries
+- [ ] links to other dictionaries
 - [ ] when word is not found, try to break into existing words
 
 
@@ -49,3 +52,4 @@
 - [x] add save shortcut on text pad
 - [x] need some way to give key to abbreviations
 - [x] complexformtype are not being linked up properly. E.g. ඉඳලා `yug.` not linking
+- [x] export history
