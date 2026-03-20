@@ -2,7 +2,7 @@
 
 # Change Log
 
-## 0.
+## 0.2.1 (2026-03-20)
 * Add settings panel to dictionary explorer
 * various CSS fixes
 * change to binary search
@@ -13,7 +13,7 @@
 * Add enhanced history interface
 
 
-## 0.1.1 (2026)-03-14)
+## 0.1.1 (2026-03-14)
 * tweak dictionary browser button sort order
 * fix css universal injection
 
