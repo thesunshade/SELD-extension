@@ -334,7 +334,7 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 		<div className="definition-box" ref={containerRef}>
 			<h2 className="def-title" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
 				<div style={{ display: "flex", flexDirection: "column" }}>
-					<span>{word}</span>
+					<span>{highlightText(word)}</span>
 					{transliterateHeadwords && /[\u0D80-\u0DFF]/.test(word || "") && (
 						<span className="seld-transliteration" style={{ fontSize: "0.6em", fontWeight: "normal", opacity: 0.8, marginTop: "2px" }}>
 							{transliterateSinhala(word!)}
@@ -395,7 +395,7 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 											onWordClick(block.headword);
 										}}
 										title="Search this word">
-										{block.headword}
+										{highlightText(block.headword)}
 									</span>
 									{transliterateHeadwords && /[\u0D80-\u0DFF]/.test(block.headword) && (
 										<span className="seld-transliteration" style={{ fontSize: "0.8em", fontWeight: "normal", opacity: 0.8, marginTop: "2px" }}>
