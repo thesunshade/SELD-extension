@@ -2,6 +2,15 @@
 
 # Change Log
 
+## 0.2.2 (2026-03-23)
+* add fuzzy search results, ignoring vowel markers
+* Add edit hotkey for Text Pad
+* Add button to open dictionary browser from any definition card
+* improve result highlighting in search
+* page specific favicons
+* Dev: add unit testing for search
+* update dictionary file
+
 ## 0.2.1 (2026-03-20)
 * Add settings panel to dictionary explorer
 * various CSS fixes
