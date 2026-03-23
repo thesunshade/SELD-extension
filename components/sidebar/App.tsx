@@ -399,6 +399,10 @@ function App({ onClose }: AppProps) {
     }
   };
 
+  const handleExplorerClick = (word: string) => {
+    browser.runtime.sendMessage({ action: 'OPEN_EXPLORER', word });
+  };
+
   const startVerticalResizing = () => {
     isResizingVertical.current = true;
     document.body.style.userSelect = "none";
@@ -619,8 +623,10 @@ function App({ onClose }: AppProps) {
                   }}
                   onSpeakClick={handleSpeak}
                   onCopyClick={handleCopy}
-                  ttsWord={selectedOriginalQuery || undefined}
-                />
+                   ttsWord={selectedOriginalQuery || undefined}
+                   showExplorerLink={true}
+                   onExplorerClick={handleExplorerClick}
+                 />
               ) : !query ? (
                 <div className="empty-state">Highlight text or double click to look up</div>
               ) : results.length > 0 ? (

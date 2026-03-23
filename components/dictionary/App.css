@@ -415,7 +415,8 @@ body {
 }
 
 .tts-button,
-.copy-button {
+.copy-button,
+.explorer-link-button {
 	background: var(--bg-color);
 	border: 1px solid var(--border-color);
 	color: var(--text-primary);
@@ -430,7 +431,8 @@ body {
 }
 
 .tts-button:hover,
-.copy-button:hover {
+.copy-button:hover,
+.explorer-link-button:hover {
 	background: var(--accent-bg);
 	color: var(--accent);
 	border-color: var(--accent);

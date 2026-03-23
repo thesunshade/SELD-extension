@@ -2,11 +2,13 @@ import { defineBackground } from 'wxt/sandbox';
 import { browser } from 'wxt/browser';
 
 export default defineBackground(() => {
+    let explorerTabId: number | null = null;
+
     // Open welcome page on install or update
     browser.runtime.onInstalled.addListener(({ reason }) => {
         if (reason === 'install' || reason === 'update') {
             browser.tabs.create({
-                url: chrome.runtime.getURL('/extension-pages/welcome.html'),
+                url: browser.runtime.getURL('/extension-pages/welcome.html'),
             });
         }
     });
@@ -75,9 +77,35 @@ export default defineBackground(() => {
                 handleSidebarToggle(tab?.id, tab?.url);
             });
             sendResponse({ success: true });
+        } else if (message.action === 'OPEN_EXPLORER') {
+            const { word } = message;
+            const url = browser.runtime.getURL(`/dictionary.html?word=${encodeURIComponent(word || '')}`);
+
+            if (explorerTabId !== null) {
+                browser.tabs.get(explorerTabId)
+                    .then((tab) => {
+                        browser.tabs.update(explorerTabId!, { url, active: true });
+                    })
+                    .catch(() => {
+                        // Tab no longer exists, create a new one
+                        browser.tabs.create({ url }).then(tab => {
+                            explorerTabId = tab.id ?? null;
+                        });
+                    });
+            } else {
+                browser.tabs.create({ url }).then(tab => {
+                    explorerTabId = tab.id ?? null;
+                });
+            }
+            sendResponse({ success: true });
         }
         return true;
     });
+
+    // Track explorer tab closure
+    browser.tabs.onRemoved.addListener((tabId) => {
+        if (tabId === explorerTabId) {
+            explorerTabId = null;
+        }
+    });
 });
-
-
