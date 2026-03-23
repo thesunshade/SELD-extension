@@ -54,6 +54,7 @@ export default function DictionaryApp() {
 	const [scrollTop, setScrollTop] = useState(0);
 	const [viewportHeight, setViewportHeight] = useState(800);
 	const [definitionCache, setDefinitionCache] = useState<Map<string, StructuredDefinition[]>>(new Map());
+	const [highlightedWord, setHighlightedWord] = useState<string | null>(null);
 	const [showToast, setShowToast] = useState(false);
 	const [toastMessage, setToastMessage] = useState("");
 
@@ -219,6 +220,7 @@ export default function DictionaryApp() {
 				const targetScroll = targetIndex * ITEM_HEIGHT;
 				bookViewRef.current.scrollTop = targetScroll;
 				setScrollTop(targetScroll);
+				setHighlightedWord(entries[targetIndex].word);
 			}
 			setTimeout(() => { isManualJump.current = false; }, 100);
 		}
@@ -464,8 +466,9 @@ export default function DictionaryApp() {
 						)}
 						{visibleEntries.map((entry, idx) => {
 							const defs = definitionCache.get(entry.word);
+							const isHighlighted = entry.word === highlightedWord;
 							return (
-								<div key={`${entry.word}-${startIndex + idx}`} className="book-entry-card" style={{ minHeight: ITEM_HEIGHT }}>
+								<div key={`${entry.word}-${startIndex + idx}`} className={`book-entry-card ${isHighlighted ? "highlighted-card" : ""}`} style={{ minHeight: ITEM_HEIGHT }}>
 									{defs ? (
 										<DefinitionCard
 											word={entry.word}
