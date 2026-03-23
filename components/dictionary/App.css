@@ -415,7 +415,8 @@ body {
 }
 
 .tts-button,
-.copy-button {
+.copy-button,
+.explorer-link-button {
 	background: var(--bg-color);
 	border: 1px solid var(--border-color);
 	color: var(--text-primary);
@@ -430,7 +431,8 @@ body {
 }
 
 .tts-button:hover,
-.copy-button:hover {
+.copy-button:hover,
+.explorer-link-button:hover {
 	background: var(--accent-bg);
 	color: var(--accent);
 	border-color: var(--accent);
@@ -620,3 +622,11 @@ body {
 /* .dict-sidebar-body {
 	padding-bottom: 40px;
 } */
+
+/* ---- Card Highlight ---- */
+.book-entry-card.highlighted-card {
+	background-color: rgba(131, 131, 131, 0.1);
+	border-color: var(--accent);
+	box-shadow: 0 0 12px rgba(131, 131, 131, 0.2);
+	transition: background-color 0.3s ease, border-color 0.3s ease;
+}

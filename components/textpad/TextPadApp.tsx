@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { browser } from 'wxt/browser';
+import tippy from 'tippy.js';
+import 'tippy.js/dist/border.css';
+import 'tippy.js/dist/tippy.css';
 import './TextPadApp.css';
 
 export default function TextPadApp() {
@@ -8,12 +11,15 @@ export default function TextPadApp() {
 	const [theme, setTheme] = useState<'system' | 'dark' | 'light'>('system');
 
 	const [fontScale, setFontScale] = useState(100);
+	const containerRef = useRef<HTMLDivElement>(null);
 
 	const modeRef = useRef(mode);
+	const textRef = useRef(text);
 
 	useEffect(() => {
 		modeRef.current = mode;
-	}, [mode]);
+		textRef.current = text;
+	}, [mode, text]);
 
 	useEffect(() => {
 		browser.storage.local.get(['seldTextPadContent', 'theme']).then(res => {
@@ -33,11 +39,15 @@ export default function TextPadApp() {
 		};
 
 		const handleKeyDown = (e: KeyboardEvent) => {
-			if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
-				if (modeRef.current === 'EDIT') {
-					e.preventDefault();
-					handleSaveEdit();
-				}
+			if (!(e.ctrlKey || e.metaKey)) return;
+			const key = e.key.toLowerCase();
+
+			if (key === 's' && modeRef.current === 'EDIT') {
+				e.preventDefault();
+				handleSaveEdit();
+			} else if (key === 'e' && modeRef.current === 'SAVE') {
+				e.preventDefault();
+				handleSaveEdit();
 			}
 		};
 
@@ -66,9 +76,21 @@ export default function TextPadApp() {
 		return () => mediaQuery.removeEventListener("change", handler);
 	}, []);
 
+	useEffect(() => {
+		const isMac = /Mac/.test(navigator.userAgent);
+		const modifier = isMac ? '⌘' : 'Ctrl';
+		const tip = tippy('.textpad-btn.primary', {
+			content: mode === 'EDIT' ? `${modifier}+S to Save` : `${modifier}+E to Edit`,
+			placement: 'bottom',
+			delay: [500, 0],
+			appendTo: () => containerRef.current || document.body,
+		});
+		return () => tip.forEach(t => t.destroy());
+	}, [mode]);
+
 	const handleSaveEdit = () => {
-		if (mode === 'EDIT') {
-			browser.storage.local.set({ seldTextPadContent: text }).then(() => {
+		if (modeRef.current === 'EDIT') {
+			browser.storage.local.set({ seldTextPadContent: textRef.current }).then(() => {
 				setMode('SAVE');
 			});
 		} else {
@@ -98,7 +120,7 @@ export default function TextPadApp() {
 	};
 
 	return (
-		<div className={`textpad-container seld-theme-vars ${themeClass}`}>
+		<div className={`textpad-container seld-theme-vars ${themeClass}`} ref={containerRef}>
 			<div className="textpad-header">
 				<h1>SELD Text Pad</h1>
 				<div className="textpad-actions">

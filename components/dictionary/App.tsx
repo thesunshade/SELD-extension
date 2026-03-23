@@ -54,6 +54,7 @@ export default function DictionaryApp() {
 	const [scrollTop, setScrollTop] = useState(0);
 	const [viewportHeight, setViewportHeight] = useState(800);
 	const [definitionCache, setDefinitionCache] = useState<Map<string, StructuredDefinition[]>>(new Map());
+	const [highlightedWord, setHighlightedWord] = useState<string | null>(null);
 	const [showToast, setShowToast] = useState(false);
 	const [toastMessage, setToastMessage] = useState("");
 
@@ -219,10 +220,40 @@ export default function DictionaryApp() {
 				const targetScroll = targetIndex * ITEM_HEIGHT;
 				bookViewRef.current.scrollTop = targetScroll;
 				setScrollTop(targetScroll);
+				setHighlightedWord(entries[targetIndex].word);
 			}
 			setTimeout(() => { isManualJump.current = false; }, 100);
 		}
 	}, [allEntries, searchResults, view]);
+
+	const handleExplorerLinkClick = useCallback((word: string) => {
+		const index = allEntries.findIndex(e => e.word === word);
+		if (index !== -1) {
+			setView("browse");
+			setHighlightedWord(word);
+			setTimeout(() => {
+				jumpToPrefix(word, false, index);
+			}, 50);
+		}
+	}, [allEntries, jumpToPrefix]);
+
+	// --- Handle Word from URL ---
+	useEffect(() => {
+		const params = new URLSearchParams(window.location.search);
+		const word = params.get("word");
+		if (word && allEntries.length > 0) {
+			const index = allEntries.findIndex(e => e.word === word);
+			if (index !== -1) {
+				setView("browse");
+				// Clear the word param so it doesn't jump back on settings/search toggle
+				window.history.replaceState({}, document.title, window.location.pathname);
+				
+				setTimeout(() => {
+					jumpToPrefix(word, false, index);
+				}, 100);
+			}
+		}
+	}, [allEntries, jumpToPrefix]);
 
 	// --- Handlers ---
 	const handleLetterClick = (letter: string) => {
@@ -464,8 +495,9 @@ export default function DictionaryApp() {
 						)}
 						{visibleEntries.map((entry, idx) => {
 							const defs = definitionCache.get(entry.word);
+							const isHighlighted = entry.word === highlightedWord;
 							return (
-								<div key={`${entry.word}-${startIndex + idx}`} className="book-entry-card" style={{ minHeight: ITEM_HEIGHT }}>
+								<div key={`${entry.word}-${startIndex + idx}`} className={`book-entry-card ${isHighlighted ? "highlighted-card" : ""}`} style={{ minHeight: ITEM_HEIGHT }}>
 									{defs ? (
 										<DefinitionCard
 											word={entry.word}
@@ -476,6 +508,8 @@ export default function DictionaryApp() {
 											onSpeakClick={handleSpeak}
 											onCopyClick={handleCopy}
 											searchQuery={view === "search" ? searchQuery : undefined}
+											showExplorerLink={view === "search"}
+											onExplorerClick={handleExplorerLinkClick}
 										/>
 									) : (
 										<div className="loading-card">
