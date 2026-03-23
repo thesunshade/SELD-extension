@@ -1,4 +1,5 @@
 import { DEFAULT_SEARCH_LIMIT } from './constants';
+import { normalizeSinhala, levenshteinDistance, vowelSimilarityScore } from './normalization';
 
 export interface DictEntry {
     word: string;
@@ -14,10 +15,21 @@ export interface IndexEntry {
     word: string;
     offset: number;
     size: number;
+    normalizedWord?: string;
     isSynthesizedMatch?: boolean;
     suffixCount?: number;
     originalQuery?: string;
+    matchPriority?: number;
+    fuzzyDist?: number;
+    vowelScore?: number;
 }
+
+const MATCH_EXACT = 0;
+const MATCH_SUFFIX = 1;
+const MATCH_PREFIX = 2;
+const MATCH_CONTAINS = 3;
+const MATCH_FUZZY_EXACT = 4;
+const MATCH_FUZZY_PREFIX = 5;
 
 class StarDictParser {
     private idxBuffer: ArrayBuffer | null = null;
@@ -77,7 +89,8 @@ class StarDictParser {
                 this.indexList.push({
                     word: wordStr,
                     offset,
-                    size
+                    size,
+                    normalizedWord: normalizeSinhala(wordStr)
                 });
 
                 if (wordStr.startsWith('-') && wordStr.length > 1) {
@@ -158,9 +171,10 @@ class StarDictParser {
         const lowerQuery = query.toLowerCase();
         const uniqueMatches = new Map<string, IndexEntry>();
 
-        const addIfUnique = (entry: IndexEntry) => {
+        const addIfUnique = (entry: IndexEntry, priority: number) => {
             if (uniqueMatches.size >= limit) return;
             if (!uniqueMatches.has(entry.word)) {
+                entry.matchPriority = priority;
                 uniqueMatches.set(entry.word, entry);
             }
         };
@@ -168,7 +182,7 @@ class StarDictParser {
         // Exact matches using binary search
         const exactIndices = this.findAllIndices(query);
         for (const idx of exactIndices) {
-            addIfUnique(this.indexList[idx]);
+            addIfUnique(this.indexList[idx], MATCH_EXACT);
             if (uniqueMatches.size >= limit) break;
         }
 
@@ -179,7 +193,7 @@ class StarDictParser {
                 while (idx < this.indexList.length && uniqueMatches.size < limit) {
                     const entry = this.indexList[idx];
                     if (entry.word.toLowerCase().startsWith(lowerQuery)) {
-                        addIfUnique(entry);
+                        addIfUnique(entry, MATCH_PREFIX);
                         idx++;
                     } else {
                         break;
@@ -193,7 +207,7 @@ class StarDictParser {
             for (const entry of this.indexList) {
                 const lowerWord = entry.word.toLowerCase();
                 if (lowerWord.includes(lowerQuery) && !uniqueMatches.has(entry.word)) {
-                    addIfUnique(entry);
+                    addIfUnique(entry, MATCH_CONTAINS);
                     if (uniqueMatches.size >= limit) break;
                 }
             }
@@ -204,14 +218,64 @@ class StarDictParser {
             this.findSuffixCombinations(lowerQuery, [], uniqueMatches, limit, 0, query);
         }
 
+        // Fuzzy matches (vowel modifier ignorance and interchangeable consonants)
+        if (uniqueMatches.size < limit) {
+            const normalizedQuery = normalizeSinhala(query);
+            const fuzzyMatches: { entry: IndexEntry; dist: number; score: number; isExactFuzzy: boolean }[] = [];
+
+            for (const entry of this.indexList) {
+                if (uniqueMatches.has(entry.word)) continue;
+                if (entry.normalizedWord === normalizedQuery || (entry.normalizedWord && entry.normalizedWord.startsWith(normalizedQuery))) {
+                    fuzzyMatches.push({
+                        entry,
+                        dist: levenshteinDistance(query, entry.word),
+                        score: vowelSimilarityScore(query, entry.word),
+                        isExactFuzzy: entry.normalizedWord === normalizedQuery
+                    });
+                }
+            }
+
+            // Rank by:
+            // 1. Exact fuzzy vs Prefix fuzzy (exact first)
+            // 2. Distance (lower is better)
+            // 3. Similarity score (higher is better)
+            fuzzyMatches.sort((a, b) => {
+                if (a.isExactFuzzy !== b.isExactFuzzy) return a.isExactFuzzy ? -1 : 1;
+                if (a.dist !== b.dist) return a.dist - b.dist;
+                return b.score - a.score;
+            });
+
+            for (const m of fuzzyMatches) {
+                if (uniqueMatches.size >= limit) break;
+                // Store fuzzy metrics for final sort
+                m.entry.fuzzyDist = m.dist;
+                m.entry.vowelScore = m.score;
+                addIfUnique(m.entry, m.isExactFuzzy ? MATCH_FUZZY_EXACT : MATCH_FUZZY_PREFIX);
+            }
+        }
+
         // Convert exactly matched base items to an array to sort alongside synthesized ones safely
         const matchesArray = Array.from(uniqueMatches.values());
 
-        // Sort so that items with FEWER suffixes come first (base words -> 1 suffix -> 2 suffixes)
+        // Sort results by priority first, then secondary factors
         matchesArray.sort((a, b) => {
-            const aSuf = a.suffixCount || 0;
-            const bSuf = b.suffixCount || 0;
-            return aSuf - bSuf;
+            const pA = a.matchPriority ?? 99;
+            const pB = b.matchPriority ?? 99;
+            if (pA !== pB) return pA - pB;
+
+            // Tie-breaker for fuzzy: dist and score
+            if (pA === MATCH_FUZZY_EXACT || pA === MATCH_FUZZY_PREFIX) {
+                if (a.fuzzyDist !== b.fuzzyDist) return (a.fuzzyDist ?? 0) - (b.fuzzyDist ?? 0);
+                if (a.vowelScore !== b.vowelScore) return (b.vowelScore ?? 0) - (a.vowelScore ?? 0);
+            }
+
+            // Tie-breaker for suffix combos (fewer suffixes first)
+            const sA = a.suffixCount || 0;
+            const sB = b.suffixCount || 0;
+            if (sA !== sB) return sA - sB;
+
+            // Secondary sort for prefix/contains (shorter words first)
+            return a.word.length - b.word.length;
         });
 
         return matchesArray;
@@ -248,7 +312,8 @@ class StarDictParser {
                         size: 0,
                         isSynthesizedMatch: true,
                         suffixCount: foundSuffixes.length,
-                        originalQuery: originalQuery
+                        originalQuery: originalQuery,
+                        matchPriority: MATCH_SUFFIX
                     });
                 }
             }
