@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
 const FILES_TO_CHECK = [
-  'lists.xml',
+  '/data/lists.xml',
   'public/SELD.dict',
 ];
 

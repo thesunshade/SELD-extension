@@ -4,7 +4,7 @@ import { XMLParser } from 'fast-xml-parser';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const XML_PATH = path.join(__dirname, '../lists.xml');
+const XML_PATH = path.join(__dirname, '../data/lists.xml');
 const OUTPUT_PATH = path.join(__dirname, '../public/abbreviations.json');
 
 const TARGET_GUIDS = {
