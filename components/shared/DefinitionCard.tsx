@@ -15,6 +15,7 @@ interface DefinitionCardProps {
 	onSpeakClick: (word: string) => void;
 	onCopyClick: (targetWord: string, specificDefBlock?: string | string[]) => void;
 	ttsWord?: string;     // Original query for synthesized matches
+	searchQuery?: string;
 	showExplorerLink?: boolean;
 	onExplorerClick?: (word: string) => void;
 }
@@ -98,20 +99,20 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 
 
 						const content = document.createElement('div');
-						
+
 						// Header line with term and abbreviation
 						const header = document.createElement('div');
 						header.setAttribute('style', 'margin-bottom: 4px; padding-right: 18px;');
-						
+
 						const strong = document.createElement('strong');
 						strong.style.fontSize = '1.1em';
 						strong.textContent = data.fullTerm;
-						
+
 						const span = document.createElement('span');
 						span.style.opacity = '0.8';
 						span.style.fontSize = '0.9em';
 						span.textContent = ` (${data.abbreviation})`;
-						
+
 						header.appendChild(strong);
 						header.appendChild(span);
 						content.appendChild(header);
@@ -128,7 +129,7 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 						const closeBtn = document.createElement('button');
 						closeBtn.className = 'tippy-close-btn';
 						closeBtn.setAttribute('style', 'position: absolute; top: 4px; right: 4px; background: none; border: none; color: inherit; cursor: pointer; padding: 2px;');
-						
+
 						const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
 						svg.setAttribute('width', '14');
 						svg.setAttribute('height', '14');
@@ -136,11 +137,11 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 						svg.setAttribute('fill', 'none');
 						svg.setAttribute('stroke', 'currentColor');
 						svg.setAttribute('stroke-width', '2');
-						
+
 						const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
 						path.setAttribute('d', 'M18 6L6 18M6 6l12 12');
 						svg.appendChild(path);
-						
+
 						closeBtn.appendChild(svg);
 						closeBtn.addEventListener('click', (e: MouseEvent) => {
 							e.stopPropagation();
@@ -351,16 +352,23 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 							onClick={() => onExplorerClick?.(word!)}
 							title="Show in Dictionary Explorer"
 						>
-							<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-								<path d="M12 6 C9 5, 5 5, 3 6 L3 18 C5 17, 9 17, 12 18 Z" fill="currentColor" fillOpacity="0.15" />
-								<path d="M12 6 C15 5, 19 5, 21 6 L21 18 C19 17, 15 17, 12 18 Z" fill="currentColor" fillOpacity="0.15" />
-								<path d="M12 18 C12 19.5, 12 19.5, 12 18" />
-								<line x1="5.5" y1="9.5" x2="10" y2="9" strokeWidth="1.2" opacity="0.7" />
-								<line x1="5.5" y1="12" x2="10" y2="11.5" strokeWidth="1.2" opacity="0.7" />
-								<line x1="5.5" y1="14.5" x2="10" y2="14" strokeWidth="1.2" opacity="0.7" />
-								<line x1="14" y1="9" x2="18.5" y2="9.5" strokeWidth="1.2" opacity="0.7" />
-								<line x1="14" y1="11.5" x2="18.5" y2="12" strokeWidth="1.2" opacity="0.7" />
-								<line x1="14" y1="14" x2="18.5" y2="14.5" strokeWidth="1.2" opacity="0.7" />
+							<svg
+								width="24"
+								height="24"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								strokeWidth="1.8"
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								style={{
+									transform: "scale(1.15)",
+									transformOrigin: "center",
+									overflow: "visible"
+								}}
+							>
+								<path d="M12 6C12 6 13.6875 5 16.5 5C19.3125 5 21 6 21 6V19C21 19 19.3125 18 16.5 18C13.6875 18 12 19 12 19V6Z" fill="currentColor" fillOpacity="0" strokeMiterlimit="10" />
+								<path d="M3 6C3 6 4.6875 5 7.5 5C10.3125 5 12 6 12 6V19C12 19 10.3125 18 7.5 18C4.6875 18 3 19 3 19V6Z" fill="currentColor" fillOpacity="0" strokeMiterlimit="10" />
 							</svg>
 						</button>
 					)}
@@ -432,16 +440,9 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 											onClick={() => onExplorerClick?.(block.headword)}
 											title="Show in Dictionary Explorer"
 										>
-											<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-												<path d="M12 6 C9 5, 5 5, 3 6 L3 18 C5 17, 9 17, 12 18 Z" fill="currentColor" fillOpacity="0.15" />
-												<path d="M12 6 C15 5, 19 5, 21 6 L21 18 C19 17, 15 17, 12 18 Z" fill="currentColor" fillOpacity="0.15" />
-												<path d="M12 18 C12 19.5, 12 19.5, 12 18" />
-												<line x1="5.5" y1="9.5" x2="10" y2="9" strokeWidth="1.2" opacity="0.7" />
-												<line x1="5.5" y1="12" x2="10" y2="11.5" strokeWidth="1.2" opacity="0.7" />
-												<line x1="5.5" y1="14.5" x2="10" y2="14" strokeWidth="1.2" opacity="0.7" />
-												<line x1="14" y1="9" x2="18.5" y2="9.5" strokeWidth="1.2" opacity="0.7" />
-												<line x1="14" y1="11.5" x2="18.5" y2="12" strokeWidth="1.2" opacity="0.7" />
-												<line x1="14" y1="14" x2="18.5" y2="14.5" strokeWidth="1.2" opacity="0.7" />
+											<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+												<path d="M12 6C12 6 13.6875 5 16.5 5C19.3125 5 21 6 21 6V19C21 19 19.3125 18 16.5 18C13.6875 18 12 19 12 19V6Z" fill="currentColor" fillOpacity="0" strokeMiterlimit="10" />
+												<path d="M3 6C3 6 4.6875 5 7.5 5C10.3125 5 12 6 12 6V19C12 19 10.3125 18 7.5 18C4.6875 18 3 19 3 19V6Z" fill="currentColor" fillOpacity="0" strokeMiterlimit="10" />
 											</svg>
 										</button>
 									)}

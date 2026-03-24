@@ -1,12 +1,10 @@
 ## Bugs
 - [ ] in a list of usage abbreviations, only the first is clickable
 - [ ] transltierations break when word is parsed. e.g. අහසෙහි ->අහස -ෙහි ahasa -ෙhi
-- [ ] settings panel needs to be scrollable
 - [ ] term in පියාඹන්ට is not clickable
 - [ ] for suffix type headwords when the suffix starts with a dash and then a combining vowel, two non-breaking spaces should be inserted betweeen the vowel and the dash
 
 ## Search
-- [ ] searching for පියඹනවා does not return පියාඹනවා. We need a fuzzy kind of search
 - [ ] particles should be treated like suffixes, e.g. ත්
 
 
@@ -53,3 +51,5 @@
 - [x] need some way to give key to abbreviations
 - [x] complexformtype are not being linked up properly. E.g. ඉඳලා `yug.` not linking
 - [x] export history
+- [x] settings panel needs to be scrollable
+- [x] searching for පියඹනවා does not return පියාඹනවා. We need a fuzzy kind of search
