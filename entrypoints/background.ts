@@ -29,12 +29,8 @@ export default defineBackground(() => {
 
     const handleSidebarToggle = async (tabId?: number, url?: string) => {
         if (isRestrictedPage(url)) {
-            browser.notifications.create({
-                type: 'basic',
-                iconUrl: browser.runtime.getURL('/icon-128.png'),
-                title: 'Action Restricted',
-                message: 'SELD Dictionary Sidebar cannot be opened on restricted browser pages.',
-            });
+            // No longer using browser.notifications.create. 
+            // Popup now handles this with a Tippy tooltip.
             return;
         }
 

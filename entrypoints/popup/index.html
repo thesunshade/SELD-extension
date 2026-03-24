@@ -16,6 +16,20 @@
       background: #12122a;
       font-family: system-ui, sans-serif;
       width: 200px;
+      overflow: hidden;
+    }
+
+    /* Custom tippy theme for the popup warning - styled as an overlay toast */
+    .tippy-box[data-theme~='seld-warning'] {
+      background-color: #312e81;
+      color: white;
+      font-size: 1rem;
+      font-weight: bold;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      padding: 4px;
     }
 
     #app {
@@ -115,7 +129,8 @@
       <div class="dock-icon squircle" style="background: #1a3a2a;">
         <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="1.8"
           stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 6C12 6 13.6875 5 16.5 5C19.3125 5 21 6 21 6V19C21 19 19.3125 18 16.5 18C13.6875 18 12 19 12 19V6Z"
+          <path
+            d="M12 6C12 6 13.6875 5 16.5 5C19.3125 5 21 6 21 6V19C21 19 19.3125 18 16.5 18C13.6875 18 12 19 12 19V6Z"
             fill="#4ade80" fill-opacity="0.15" stroke-miterlimit="10" />
           <path d="M3 6C3 6 4.6875 5 7.5 5C10.3125 5 12 6 12 6V19C12 19 10.3125 18 7.5 18C4.6875 18 3 19 3 19V6Z"
             fill="#4ade80" fill-opacity="0.15" stroke-miterlimit="10" />
