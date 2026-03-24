@@ -292,6 +292,12 @@
   border-radius: 12px;
 }
 
+#seld-sidebar-root .settings-panel {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
 #seld-sidebar-root .search-section {
   padding: 2px;
   flex-shrink: 0;
@@ -589,6 +595,9 @@
   padding: 1.2em;
   font-size: 0.9em;
   line-height: 1.5;
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 #seld-sidebar-root .custom-scroll::-webkit-scrollbar {
