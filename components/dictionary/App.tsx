@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import tippy, { delegate } from "tippy.js";
 import { stardict, IndexEntry, StructuredDefinition } from "../../utils/stardict";
 import { DEFAULT_SEARCH_LIMIT, DEFAULT_SEARCH_DEBOUNCE_MS } from "../../utils/constants";
 import { transliterateSinhala as transliterateSinhalaTxt } from "../../utils/transliterate";
@@ -6,12 +7,13 @@ import { getCopyText } from "../../utils/clipboard";
 import { browser } from "wxt/browser";
 import { DefinitionCard } from "../shared/DefinitionCard";
 import { SettingsUI } from "../shared/SettingsUI";
+import { WordListUI } from "../shared/WordListUI";
 import { Theme } from "../shared/types";
 import { Highlighter } from "../shared/Highlighter";
 import { HistoryNav } from "../shared/HistoryNav";
 import "./App.css";
 
-type ViewTab = "browse" | "search" | "settings";
+type ViewTab = "browse" | "search" | "favorites" | "history" | "settings";
 type SearchScope = "headwords" | "fulltext";
 
 const ITEM_HEIGHT = 140;
@@ -54,6 +56,11 @@ export default function DictionaryApp() {
 	const historyIndex = useRef(-1);
 	const isNavigatingHistory = useRef(false);
 
+	// Favorites state
+	const [favorites, setFavorites] = useState<string[]>([]);
+	const [historyFiltered, setHistoryFiltered] = useState<string[]>([]);
+	const [favoritesFiltered, setFavoritesFiltered] = useState<string[]>([]);
+
 	// Viewport/Scroll state
 	const [scrollTop, setScrollTop] = useState(0);
 	const [viewportHeight, setViewportHeight] = useState(800);
@@ -65,14 +72,23 @@ export default function DictionaryApp() {
 	const bookViewRef = useRef<HTMLDivElement>(null);
 	const debounceTimer = useRef<number | null>(null);
 	const isManualJump = useRef(false);
-	const lastContentView = useRef<"browse" | "search">("browse");
+	const lastContentView = useRef<"browse" | "search" | "favorites" | "history">("browse");
 
 	// Update lastContentView whenever view changes to browse or search
 	useEffect(() => {
-		if (view === "browse" || view === "search") {
+		if (view === "browse" || view === "search" || view === "favorites" || view === "history") {
 			lastContentView.current = view;
 		}
 	}, [view]);
+
+	const tabsRef = useRef<HTMLDivElement>(null);
+	useEffect(() => {
+		let instance: any = null;
+		if (tabsRef.current) {
+			instance = delegate(tabsRef.current, { target: '[data-tippy-content]', animation: 'fade' });
+		}
+		return () => { if (instance) instance.destroy(); };
+	}, []);
 
 	// --- Helpers ---
 	const getEffectiveWord = (word: string) => word.startsWith("-") ? word.slice(1) : word;
@@ -101,6 +117,9 @@ export default function DictionaryApp() {
 					setHistory(v);
 					historyIndex.current = v.length - 1;
 				}
+			},
+			seldFavorites: v => {
+				if (Array.isArray(v)) setFavorites(v);
 			},
 		};
 
@@ -361,6 +380,19 @@ export default function DictionaryApp() {
 		performSearch(word);
 	};
 
+	const handleToggleFavorite = useCallback((word: string) => {
+		setFavorites(prev => {
+			let newFavs: string[];
+			if (prev.includes(word)) {
+				newFavs = prev.filter(w => w !== word);
+			} else {
+				newFavs = [...prev, word];
+			}
+			browser.storage.local.set({ seldFavorites: newFavs });
+			return newFavs;
+		});
+	}, []);
+
 	useEffect(() => {
 		if (view === "search") {
 			if (debounceTimer.current) clearTimeout(debounceTimer.current);
@@ -411,7 +443,14 @@ export default function DictionaryApp() {
 		}
 	};
 
-	const currentEntries = (view === "settings" ? lastContentView.current : view) === "browse" ? allEntries : searchResults;
+	const currentView = view === "settings" ? lastContentView.current : view;
+	const currentEntries = useMemo(() => {
+		if (currentView === "browse") return allEntries;
+		if (currentView === "search") return searchResults;
+		if (currentView === "history") return historyFiltered.map(w => ({ word: w, isSynthesizedMatch: false, isFuzzyMatch: false, originalQuery: undefined } as unknown as IndexEntry));
+		if (currentView === "favorites") return favoritesFiltered.map(w => ({ word: w, isSynthesizedMatch: false, isFuzzyMatch: false, originalQuery: undefined } as unknown as IndexEntry));
+		return [];
+	}, [currentView, allEntries, searchResults, historyFiltered, favoritesFiltered]);
 	const startIndex = Math.max(0, Math.floor(scrollTop / ITEM_HEIGHT) - OVERSCAN);
 	const endIndex = Math.min(currentEntries.length, Math.ceil((scrollTop + viewportHeight) / ITEM_HEIGHT) + OVERSCAN);
 	const visibleEntries = useMemo(() => currentEntries.slice(startIndex, endIndex), [currentEntries, startIndex, endIndex]);
@@ -462,10 +501,22 @@ export default function DictionaryApp() {
 	return (
 		<div className={`dict-explorer seld-theme-vars ${themeClass}`} style={{ "--font-size-percent": `${fontSize}%` } as any}>
 			<aside className="dict-sidebar">
-				<div className="dict-tabs">
-					<button className={`dict-tab ${view === "browse" ? "active" : ""}`} onClick={() => setView("browse")}>Browse</button>
-					<button className={`dict-tab ${view === "search" ? "active" : ""}`} onClick={() => setView("search")}>Search</button>
-					<button className={`dict-tab ${view === "settings" ? "active" : ""}`} onClick={() => setView("settings")}>Settings</button>
+				<div className="dict-tabs" ref={tabsRef}>
+					<button data-tippy-content="Browse" className={`dict-tab ${view === "browse" ? "active" : ""}`} onClick={() => setView("browse")}>
+						<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 6C12 6 13.6875 5 16.5 5C19.3125 5 21 6 21 6V19C21 19 19.3125 18 16.5 18C13.6875 18 12 19 12 19V6Z" /><path d="M3 6C3 6 4.6875 5 7.5 5C10.3125 5 12 6 12 6V19C12 19 10.3125 18 7.5 18C4.6875 18 3 19 3 19V6Z" /></svg>
+					</button>
+					<button data-tippy-content="Search" className={`dict-tab ${view === "search" ? "active" : ""}`} onClick={() => setView("search")}>
+						<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+					</button>
+					<button data-tippy-content="Favorites" className={`dict-tab ${view === "favorites" ? "active" : ""}`} onClick={() => setView("favorites")}>
+						<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+					</button>
+					<button data-tippy-content="History" className={`dict-tab ${view === "history" ? "active" : ""}`} onClick={() => setView("history")}>
+						<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+					</button>
+					<button data-tippy-content="Settings" className={`dict-tab ${view === "settings" ? "active" : ""}`} onClick={() => setView("settings")}>
+						<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+					</button>
 				</div>
 
 				<div className="dict-sidebar-body custom-scroll">
@@ -554,6 +605,38 @@ export default function DictionaryApp() {
 							saveSetting={saveSetting}
 						/>
 					)}
+
+					{view === "favorites" && (
+						<div className="favorites-panel" style={{ height: "100%" }}>
+							<WordListUI
+								items={favorites}
+								transliterateSinhala={transliterateSinhala}
+								onItemClick={(word, idx) => jumpToPrefix(word, false, idx)}
+								onItemRemove={(word) => handleToggleFavorite(word)}
+								onFilteredItemsChange={setFavoritesFiltered}
+								emptyMessage="No favorites yet. Add some from the definition cards."
+							/>
+						</div>
+					)}
+
+					{view === "history" && (
+						<div className="history-panel" style={{ height: "100%" }}>
+							<WordListUI
+								items={history}
+								transliterateSinhala={transliterateSinhala}
+								onItemClick={(word, idx) => jumpToPrefix(word, false, idx)}
+								onItemRemove={(word) => {
+									setHistory(prev => {
+									    const newHist = prev.filter(w => w !== word);
+									    browser.storage.local.set({ seldSearchHistory: newHist });
+									    return newHist;
+									});
+								}}
+								onFilteredItemsChange={setHistoryFiltered}
+								emptyMessage="No search history yet."
+							/>
+						</div>
+					)}
 				</div>
 			</aside>
 
@@ -564,6 +647,10 @@ export default function DictionaryApp() {
 							<div className="dict-empty-state">
 								{view === "browse"
 									? "Select a letter from the alphabet to browse entries."
+									: view === "favorites"
+										? "No matching favorites."
+									: view === "history"
+										? "No matching history entries."
 									: searchQuery.trim()
 										? "No matching entries found."
 										: "Type a search query to find entries."}
@@ -585,6 +672,9 @@ export default function DictionaryApp() {
 											searchQuery={view === "search" ? searchQuery : undefined}
 											showExplorerLink={view === "search"}
 											onExplorerClick={handleExplorerLinkClick}
+											isFavorite={favorites.includes(entry.word)}
+											favoritesList={favorites}
+											onToggleFavorite={handleToggleFavorite}
 										/>
 									) : (
 										<div className="loading-card">

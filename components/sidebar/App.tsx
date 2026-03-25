@@ -52,6 +52,9 @@ function App({ onClose }: AppProps) {
   const historyIndex = useRef(-1);
   const isNavigatingHistory = useRef(false);
 
+  // Favorites state
+  const [favorites, setFavorites] = useState<string[]>([]);
+
 
   const isInitialized = useRef(false);
 
@@ -115,6 +118,11 @@ function App({ onClose }: AppProps) {
         if (Array.isArray(v)) {
           setHistory(v);
           historyIndex.current = v.length - 1;
+        }
+      },
+      seldFavorites: v => {
+        if (Array.isArray(v)) {
+          setFavorites(v);
         }
       },
     };
@@ -437,6 +445,19 @@ function App({ onClose }: AppProps) {
     handleSearch(word);
   };
 
+  const handleToggleFavorite = (word: string) => {
+    setFavorites(prev => {
+      let newFavs: string[];
+      if (prev.includes(word)) {
+        newFavs = prev.filter(w => w !== word);
+      } else {
+        newFavs = [...prev, word];
+      }
+      browser.storage.local.set({ seldFavorites: newFavs });
+      return newFavs;
+    });
+  };
+
   return (
     <div
       id="seld-sidebar-inner"
@@ -582,6 +603,9 @@ function App({ onClose }: AppProps) {
                    ttsWord={selectedOriginalQuery || undefined}
                    showExplorerLink={true}
                    onExplorerClick={handleExplorerClick}
+                   isFavorite={favorites.includes(selectedWord!)}
+                   favoritesList={favorites}
+                   onToggleFavorite={handleToggleFavorite}
                  />
               ) : !query ? (
                 <div className="empty-state">Highlight text or double click to look up</div>

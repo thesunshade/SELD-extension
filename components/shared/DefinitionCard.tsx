@@ -17,6 +17,9 @@ interface DefinitionCardProps {
 	searchQuery?: string;
 	showExplorerLink?: boolean;
 	onExplorerClick?: (word: string) => void;
+	isFavorite?: boolean;
+	favoritesList?: string[];
+	onToggleFavorite?: (word: string) => void;
 }
 
 export const DefinitionCard: React.FC<DefinitionCardProps> = ({
@@ -29,7 +32,10 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 	searchQuery,
 	ttsWord,
 	showExplorerLink,
-	onExplorerClick
+	onExplorerClick,
+	isFavorite,
+	favoritesList,
+	onToggleFavorite
 }) => {
 	const containerRef = useRef<HTMLDivElement>(null);
 
@@ -370,6 +376,17 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 							</svg>
 						</button>
 					)}
+					{definition.length === 1 && (
+					<button
+						className={`favorite-button ${isFavorite || (favoritesList && favoritesList.includes(word!)) ? "active" : ""}`}
+						onClick={() => onToggleFavorite?.(word!)}
+						title={(isFavorite || (favoritesList && favoritesList.includes(word!))) ? "Remove from Favorites" : "Add to Favorites"}
+					>
+						<svg viewBox="0 0 24 24" width="18" height="18" fill={(isFavorite || (favoritesList && favoritesList.includes(word!))) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+							<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+						</svg>
+					</button>
+					)}
 					<a
 						href={`https://jotform.com/260678150051452?q2_textbox0=${encodeURIComponent(word || "")}&q4_textbox2=${encodeURIComponent(window.location.href)}&existingDefinition=${encodeURIComponent(getFullEntryCopyData(word!, definition!).plainText)}`}
 						target="_blank"
@@ -444,6 +461,15 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 											</svg>
 										</button>
 									)}
+									<button
+										className={`favorite-button ${(favoritesList && favoritesList.includes(block.headword)) ? "active" : ""}`}
+										onClick={() => onToggleFavorite?.(block.headword)}
+										title={(favoritesList && favoritesList.includes(block.headword)) ? "Remove from Favorites" : "Add to Favorites"}
+									>
+										<svg viewBox="0 0 24 24" width="18" height="18" fill={(favoritesList && favoritesList.includes(block.headword)) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+											<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+										</svg>
+									</button>
 									<button className="copy-button" onClick={() => onCopyClick(block.headword, block.homographDefinitions)} title="Copy entry">
 										<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
 											<path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>

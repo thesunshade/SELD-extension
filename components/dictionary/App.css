@@ -408,6 +408,8 @@ body {
 .def-title {
 	display: flex;
 	align-items: center;
+	flex-wrap: wrap-reverse;
+	gap: .7rem;
 	justify-content: space-between;
 	margin: 0 0 0.8em 0;
 	font-size: 1.2em;
@@ -418,6 +420,7 @@ body {
 
 .tts-button,
 .copy-button,
+.favorite-button,
 .explorer-link-button {
 	background: var(--bg-color);
 	border: 1px solid var(--border-color);
@@ -434,6 +437,7 @@ body {
 
 .tts-button:hover,
 .copy-button:hover,
+.favorite-button:hover,
 .explorer-link-button:hover {
 	background: var(--accent-bg);
 	color: var(--accent);

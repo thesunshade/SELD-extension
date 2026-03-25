@@ -330,6 +330,8 @@
 
 #seld-sidebar-root .def-title {
   display: flex;
+  flex-wrap: wrap-reverse;
+  gap: .7rem;
   align-items: center;
   justify-content: space-between;
   margin: 0 0 0.8em 0;
@@ -339,8 +341,13 @@
   color: var(--text-primary);
 }
 
+.global-actions {
+  margin-left: auto;
+}
+
 #seld-sidebar-root .tts-button,
 #seld-sidebar-root .copy-button,
+#seld-sidebar-root .favorite-button,
 #seld-sidebar-root .explorer-link-button {
   background: var(--bg-color);
   border: 1px solid var(--border-color);
@@ -358,6 +365,7 @@
 
 #seld-sidebar-root .tts-button svg,
 #seld-sidebar-root .copy-button svg,
+#seld-sidebar-root .favorite-button svg,
 #seld-sidebar-root .explorer-link-button svg {
   width: 18px;
   height: 18px;
@@ -366,6 +374,7 @@
 
 #seld-sidebar-root .tts-button:hover,
 #seld-sidebar-root .copy-button:hover,
+#seld-sidebar-root .favorite-button:hover,
 #seld-sidebar-root .explorer-link-button:hover {
   background: var(--accent-bg);
   color: var(--accent);
