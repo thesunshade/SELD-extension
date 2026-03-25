@@ -2,6 +2,9 @@
 
 # Change Log
 
+## 0.3.0
+* Combine transliteration settings into one and refactor
+
 ## 0.2.2 (2026-03-23)
 * add fuzzy search results, ignoring vowel markers
 * Add edit hotkey for Text Pad

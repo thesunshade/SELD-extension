@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { stardict, IndexEntry, StructuredDefinition } from "../../utils/stardict";
 import { DEFAULT_SEARCH_LIMIT, DEFAULT_SEARCH_DEBOUNCE_MS } from "../../utils/constants";
-import { transliterateSinhala } from "../../utils/transliterate";
+import { transliterateSinhala as transliterateSinhalaTxt } from "../../utils/transliterate";
 import { getCopyText } from "../../utils/clipboard";
 import { browser } from "wxt/browser";
 import { DefinitionCard } from "../shared/DefinitionCard";
@@ -27,9 +27,7 @@ export default function DictionaryApp() {
 	const [underlineDictionaryWords, setUnderlineDictionaryWords] = useState(true);
 	const [autoPlayTTS, setAutoPlayTTS] = useState(false);
 	const [overrideSinhalaFont, setOverrideSinhalaFont] = useState(false);
-	const [transliterateHeadwords, setTransliterateHeadwords] = useState(false);
-	const [transliterateResults, setTransliterateResults] = useState(false);
-	const [transliterateDefinitions, setTransliterateDefinitions] = useState(false);
+	const [transliterateSinhala, setTransliterateSinhala] = useState(false);
 
 	// Browse state
 	const [allEntries, setAllEntries] = useState<IndexEntry[]>([]);
@@ -91,9 +89,7 @@ export default function DictionaryApp() {
 			seldUnderlineWords: v => setUnderlineDictionaryWords(v as boolean),
 			seldAutoPlayTTS: v => setAutoPlayTTS(v as boolean),
 			seldOverrideSinhalaFont: v => setOverrideSinhalaFont(v as boolean),
-			seldTransliterateHeadwords: v => setTransliterateHeadwords(v as boolean),
-			seldTransliterateResults: v => setTransliterateResults(v as boolean),
-			seldTransliterateDefinitions: v => setTransliterateDefinitions(v as boolean),
+			transliterateSinhala: v => setTransliterateSinhala(v as boolean),
 		};
 
 		const keys = Object.keys(settingsConfig);
@@ -449,6 +445,7 @@ export default function DictionaryApp() {
 								{searchResults.map((entry, idx) => (
 									<div key={idx} className="headword-item" onClick={() => jumpToPrefix(getEffectiveWord(entry.word), false, idx)}>
 										<Highlighter text={entry.word} searchTerm={searchQuery} />
+										{transliterateSinhala && /[\u0D80-\u0DFF]/.test(entry.word) && <span className="seld-transliteration"> {transliterateSinhalaTxt(entry.word)}</span>}
 									</div>
 								))}
 							</div>
@@ -469,12 +466,8 @@ export default function DictionaryApp() {
 							setAutoPlayTTS={setAutoPlayTTS}
 							overrideSinhalaFont={overrideSinhalaFont}
 							setOverrideSinhalaFont={setOverrideSinhalaFont}
-							transliterateHeadwords={transliterateHeadwords}
-							setTransliterateHeadwords={setTransliterateHeadwords}
-							transliterateResults={transliterateResults}
-							setTransliterateResults={setTransliterateResults}
-							transliterateDefinitions={transliterateDefinitions}
-							setTransliterateDefinitions={setTransliterateDefinitions}
+							transliterateSinhala={transliterateSinhala}
+							setTransliterateSinhala={setTransliterateSinhala}
 							saveSetting={saveSetting}
 						/>
 					)}
@@ -502,8 +495,7 @@ export default function DictionaryApp() {
 										<DefinitionCard
 											word={entry.word}
 											definition={defs}
-											transliterateHeadwords={transliterateHeadwords}
-											transliterateDefinitions={transliterateDefinitions}
+											transliterateSinhala={transliterateSinhala}
 											onWordClick={handleWordClick}
 											onSpeakClick={handleSpeak}
 											onCopyClick={handleCopy}

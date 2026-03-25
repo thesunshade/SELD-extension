@@ -17,12 +17,8 @@ interface SettingsUIProps {
   setAutoPlayTTS: (val: boolean) => void;
   overrideSinhalaFont: boolean;
   setOverrideSinhalaFont: (val: boolean) => void;
-  transliterateHeadwords: boolean;
-  setTransliterateHeadwords: (val: boolean) => void;
-  transliterateResults: boolean;
-  setTransliterateResults: (val: boolean) => void;
-  transliterateDefinitions: boolean;
-  setTransliterateDefinitions: (val: boolean) => void;
+  transliterateSinhala: boolean;
+  setTransliterateSinhala: (val: boolean) => void;
   saveSetting: (key: string, value: any) => void;
 }
 
@@ -41,12 +37,8 @@ export const SettingsUI: React.FC<SettingsUIProps> = ({
   setAutoPlayTTS,
   overrideSinhalaFont,
   setOverrideSinhalaFont,
-  transliterateHeadwords,
-  setTransliterateHeadwords,
-  transliterateResults,
-  setTransliterateResults,
-  transliterateDefinitions,
-  setTransliterateDefinitions,
+  transliterateSinhala,
+  setTransliterateSinhala,
   saveSetting,
 }) => {
   return (
@@ -202,43 +194,15 @@ export const SettingsUI: React.FC<SettingsUIProps> = ({
           <label className="checkbox-container">
             <input
               type="checkbox"
-              checked={transliterateHeadwords}
+              checked={transliterateSinhala}
               onChange={e => {
                 const val = e.target.checked;
-                setTransliterateHeadwords(val);
-                saveSetting("seldTransliterateHeadwords", val);
+                setTransliterateSinhala(val);
+                saveSetting("transliterateSinhala", val);
               }}
             />
             <span className="custom-checkbox"></span>
-            <span className="checkbox-label">Transliterate headwords</span>
-          </label>
-
-          <label className="checkbox-container">
-            <input
-              type="checkbox"
-              checked={transliterateResults}
-              onChange={e => {
-                const val = e.target.checked;
-                setTransliterateResults(val);
-                saveSetting("seldTransliterateResults", val);
-              }}
-            />
-            <span className="custom-checkbox"></span>
-            <span className="checkbox-label">Transliterate results list</span>
-          </label>
-
-          <label className="checkbox-container">
-            <input
-              type="checkbox"
-              checked={transliterateDefinitions}
-              onChange={e => {
-                const val = e.target.checked;
-                setTransliterateDefinitions(val);
-                saveSetting("seldTransliterateDefinitions", val);
-              }}
-            />
-            <span className="custom-checkbox"></span>
-            <span className="checkbox-label">Transliterate definitions inline</span>
+            <span className="checkbox-label">Transliterate Sinhala</span>
           </label>
         </div>
       </div>

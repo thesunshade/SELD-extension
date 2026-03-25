@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { stardict, IndexEntry, StructuredDefinition } from "../../utils/stardict";
 import { DEFAULT_SEARCH_LIMIT, DEFAULT_SEARCH_DEBOUNCE_MS } from "../../utils/constants";
 import { extractUniqueSinhalaWords, applyHighlights } from "../../utils/dom-highlights";
-import { transliterateSinhala } from "../../utils/transliterate";
+import { transliterateSinhala as transliterateSinhalaTxt } from "../../utils/transliterate";
 import { browser } from "wxt/browser";
 import { getCopyText } from "../../utils/clipboard";
 import { DefinitionCard } from "../shared/DefinitionCard";
@@ -34,9 +34,7 @@ function App({ onClose }: AppProps) {
   const [overrideSinhalaFont, setOverrideSinhalaFont] = useState(false);
 
   // Transliteration settings
-  const [transliterateHeadwords, setTransliterateHeadwords] = useState(false);
-  const [transliterateResults, setTransliterateResults] = useState(false);
-  const [transliterateDefinitions, setTransliterateDefinitions] = useState(false);
+  const [transliterateSinhala, setTransliterateSinhala] = useState(false);
   const [sidebarPosition, setSidebarPosition] = useState<'left' | 'right'>('right');
 
   const autoPlayTTSRef = useRef(false);
@@ -112,9 +110,7 @@ function App({ onClose }: AppProps) {
       seldOverrideSinhalaFont: v => setOverrideSinhalaFont(v as boolean),
       sidebarWidth: v => setSidebarWidth(v as number),
       listHeight: v => setListHeight(v as number),
-      seldTransliterateHeadwords: v => setTransliterateHeadwords(v as boolean),
-      seldTransliterateResults: v => setTransliterateResults(v as boolean),
-      seldTransliterateDefinitions: v => setTransliterateDefinitions(v as boolean),
+      transliterateSinhala: v => setTransliterateSinhala(v as boolean),
       seldSidebarPosition: v => setSidebarPosition(v as 'left' | 'right'),
       seldSearchHistory: v => {
         if (Array.isArray(v)) {
@@ -597,7 +593,7 @@ function App({ onClose }: AppProps) {
                 results.map((entry, idx) => (
                   <div key={idx} ref={selectedWord === entry.word ? selectedRef : null} className={`headword-item ${selectedWord === entry.word ? "selected" : ""}`} onClick={() => handleSelectWord(entry.word, entry.originalQuery)}>
                     <Highlighter text={entry.word} searchTerm={query} />
-                    {transliterateResults && /[\u0D80-\u0DFF]/.test(entry.word) && <span className="seld-transliteration"> {transliterateSinhala(entry.word)}</span>}
+                    {transliterateSinhala && /[\u0D80-\u0DFF]/.test(entry.word) && <span className="seld-transliteration"> {transliterateSinhalaTxt(entry.word)}</span>}
                   </div>
                 ))
               ) : query.trim() ? (
@@ -615,8 +611,7 @@ function App({ onClose }: AppProps) {
                 <DefinitionCard
                   word={selectedWord!}
                   definition={definition}
-                  transliterateHeadwords={transliterateHeadwords}
-                  transliterateDefinitions={transliterateDefinitions}
+                  transliterateSinhala={transliterateSinhala}
                   onWordClick={word => {
                     setQuery(word);
                     handleSearch(word);
@@ -656,12 +651,8 @@ function App({ onClose }: AppProps) {
           }}
           overrideSinhalaFont={overrideSinhalaFont}
           setOverrideSinhalaFont={setOverrideSinhalaFont}
-          transliterateHeadwords={transliterateHeadwords}
-          setTransliterateHeadwords={setTransliterateHeadwords}
-          transliterateResults={transliterateResults}
-          setTransliterateResults={setTransliterateResults}
-          transliterateDefinitions={transliterateDefinitions}
-          setTransliterateDefinitions={setTransliterateDefinitions}
+          transliterateSinhala={transliterateSinhala}
+          setTransliterateSinhala={setTransliterateSinhala}
           saveSetting={saveSetting}
         />
       )}

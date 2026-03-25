@@ -3,14 +3,13 @@ import tippy, { delegate } from "tippy.js";
 import "tippy.js/dist/border.css";
 import "tippy.js/dist/tippy.css";
 import { StructuredDefinition } from "../../utils/stardict";
-import { transliterateSinhala } from "../../utils/transliterate";
+import { transliterateSinhala as transliterateSinhalaTxt } from "../../utils/transliterate";
 import { getFullEntryCopyData } from "../../utils/clipboard";
 
 interface DefinitionCardProps {
 	word: string;
 	definition: StructuredDefinition[];
-	transliterateHeadwords: boolean;
-	transliterateDefinitions: boolean;
+	transliterateSinhala: boolean;
 	onWordClick: (word: string) => void;
 	onSpeakClick: (word: string) => void;
 	onCopyClick: (targetWord: string, specificDefBlock?: string | string[]) => void;
@@ -23,8 +22,7 @@ interface DefinitionCardProps {
 export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 	word,
 	definition,
-	transliterateHeadwords,
-	transliterateDefinitions,
+	transliterateSinhala,
 	onWordClick,
 	onSpeakClick,
 	onCopyClick,
@@ -242,11 +240,11 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 					}
 				}
 
-				if (transliterateDefinitions) {
+				if (transliterateSinhala) {
 					elements.push(
 						<span key={`t-${i}`} className="seld-transliteration">
 							{" "}
-							[{transliterateSinhala(phraseForTranslit.trim())}]
+							[{transliterateSinhalaTxt(phraseForTranslit.trim())}]
 						</span>
 					);
 				}
@@ -339,9 +337,9 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 			<h2 className="def-title" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
 				<div style={{ display: "flex", flexDirection: "column" }}>
 					<span>{highlightText(word)}</span>
-					{transliterateHeadwords && /[\u0D80-\u0DFF]/.test(word || "") && (
+					{transliterateSinhala && /[\u0D80-\u0DFF]/.test(word || "") && (
 						<span className="seld-transliteration" style={{ fontSize: "0.6em", fontWeight: "normal", opacity: 0.8, marginTop: "2px" }}>
-							{transliterateSinhala(word!)}
+							{transliterateSinhalaTxt(word!)}
 						</span>
 					)}
 				</div>
@@ -427,9 +425,9 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 										title="Search this word">
 										{highlightText(block.headword)}
 									</span>
-									{transliterateHeadwords && /[\u0D80-\u0DFF]/.test(block.headword) && (
+									{transliterateSinhala && /[\u0D80-\u0DFF]/.test(block.headword) && (
 										<span className="seld-transliteration" style={{ fontSize: "0.8em", fontWeight: "normal", opacity: 0.8, marginTop: "2px" }}>
-											{transliterateSinhala(block.headword)}
+											{transliterateSinhalaTxt(block.headword)}
 										</span>
 									)}
 								</div>
