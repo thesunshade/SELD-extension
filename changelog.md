@@ -3,6 +3,7 @@
 # Change Log
 
 ## 0.3.0
+* add history interface to search in Dictionary Explorer
 * Combine transliteration settings into one and refactor
 
 ## 0.2.2 (2026-03-23)

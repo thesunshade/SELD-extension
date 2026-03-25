@@ -8,6 +8,7 @@ import { DefinitionCard } from "../shared/DefinitionCard";
 import { SettingsUI } from "../shared/SettingsUI";
 import { Theme } from "../shared/types";
 import { Highlighter } from "../shared/Highlighter";
+import { HistoryNav } from "../shared/HistoryNav";
 import "./App.css";
 
 type ViewTab = "browse" | "search" | "settings";
@@ -47,6 +48,11 @@ export default function DictionaryApp() {
 	});
 	const [searchResults, setSearchResults] = useState<IndexEntry[]>([]);
 	const [isSearching, setIsSearching] = useState(false);
+
+	// History navigation state
+	const [history, setHistory] = useState<string[]>([]);
+	const historyIndex = useRef(-1);
+	const isNavigatingHistory = useRef(false);
 
 	// Viewport/Scroll state
 	const [scrollTop, setScrollTop] = useState(0);
@@ -90,6 +96,12 @@ export default function DictionaryApp() {
 			seldAutoPlayTTS: v => setAutoPlayTTS(v as boolean),
 			seldOverrideSinhalaFont: v => setOverrideSinhalaFont(v as boolean),
 			transliterateSinhala: v => setTransliterateSinhala(v as boolean),
+			seldSearchHistory: v => {
+				if (Array.isArray(v)) {
+					setHistory(v);
+					historyIndex.current = v.length - 1;
+				}
+			},
 		};
 
 		const keys = Object.keys(settingsConfig);
@@ -288,6 +300,67 @@ export default function DictionaryApp() {
 		if (bookViewRef.current) { bookViewRef.current.scrollTop = 0; setScrollTop(0); }
 	}, [searchScope]);
 
+	// Debounced history push — fires 1.5 s after the query settles
+	useEffect(() => {
+		if (view !== "search") return;
+		const sanitized = searchQuery.trim();
+		if (!sanitized) return;
+		const timer = setTimeout(() => {
+			if (isNavigatingHistory.current) return;
+			setHistory(prev => {
+				const truncated = prev.slice(0, historyIndex.current + 1);
+				if (truncated.length > 0 && truncated[truncated.length - 1] === sanitized) return truncated;
+				const updated = [...truncated, sanitized];
+				historyIndex.current = updated.length - 1;
+				browser.storage.local.set({ seldSearchHistory: updated });
+				return updated;
+			});
+		}, 1500);
+		return () => clearTimeout(timer);
+	}, [searchQuery, view]);
+
+	const goBack = async () => {
+		if (historyIndex.current <= 0) return;
+		historyIndex.current -= 1;
+		const word = history[historyIndex.current];
+		isNavigatingHistory.current = true;
+		setSearchQuery(word);
+		await performSearch(word);
+		isNavigatingHistory.current = false;
+	};
+
+	const goForward = async () => {
+		if (historyIndex.current >= history.length - 1) return;
+		historyIndex.current += 1;
+		const word = history[historyIndex.current];
+		isNavigatingHistory.current = true;
+		setSearchQuery(word);
+		await performSearch(word);
+		isNavigatingHistory.current = false;
+	};
+
+	const clearHistory = () => {
+		setHistory([]);
+		historyIndex.current = -1;
+		browser.storage.local.set({ seldSearchHistory: [] });
+	};
+
+	const downloadHistory = () => {
+		const unique = [...new Set(history)];
+		const blob = new Blob([unique.join("\n")], { type: "text/plain" });
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement("a");
+		a.href = url;
+		a.download = "seld-history.txt";
+		a.click();
+		URL.revokeObjectURL(url);
+	};
+
+	const handleHistoryWordClick = (word: string) => {
+		setSearchQuery(word);
+		performSearch(word);
+	};
+
 	useEffect(() => {
 		if (view === "search") {
 			if (debounceTimer.current) clearTimeout(debounceTimer.current);
@@ -436,6 +509,16 @@ export default function DictionaryApp() {
 
 					{view === "search" && (
 						<div className="search-panel">
+							<HistoryNav
+								history={history}
+								historyIndex={historyIndex}
+								transliterateSinhala={transliterateSinhala}
+								onGoBack={goBack}
+								onGoForward={goForward}
+								onWordClick={handleHistoryWordClick}
+								onClear={clearHistory}
+								onDownload={downloadHistory}
+							/>
 							<input type="text" className="dict-search-input" placeholder="Search..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} autoFocus />
 							<div className="search-scope-toggle">
 								<button className={`scope-btn ${searchScope === "headwords" ? "active" : ""}`} onClick={() => setSearchScope("headwords")}>Headwords</button>

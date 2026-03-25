@@ -10,6 +10,7 @@ import { DefinitionCard } from "../shared/DefinitionCard";
 import { SettingsUI } from "../shared/SettingsUI";
 import { Theme } from "../shared/types";
 import { Highlighter } from "../shared/Highlighter";
+import { HistoryNav } from "../shared/HistoryNav";
 
 type View = "search" | "settings" | "info";
 
@@ -50,9 +51,7 @@ function App({ onClose }: AppProps) {
   const [history, setHistory] = useState<string[]>([]);
   const historyIndex = useRef(-1);
   const isNavigatingHistory = useRef(false);
-  const [showHistoryDropdown, setShowHistoryDropdown] = useState(false);
-  const historyDropdownRef = useRef<HTMLDivElement>(null);
-  const historyBtnRef = useRef<HTMLButtonElement>(null);
+
 
   const isInitialized = useRef(false);
 
@@ -420,7 +419,6 @@ function App({ onClose }: AppProps) {
     setHistory([]);
     historyIndex.current = -1;
     browser.storage.local.set({ seldSearchHistory: [] });
-    setShowHistoryDropdown(false);
   };
 
   const downloadHistory = () => {
@@ -432,29 +430,12 @@ function App({ onClose }: AppProps) {
     a.download = "seld-history.txt";
     a.click();
     URL.revokeObjectURL(url);
-    setShowHistoryDropdown(false);
   };
 
   const handleHistoryWordClick = (word: string) => {
     setQuery(word);
     handleSearch(word);
-    setShowHistoryDropdown(false);
   };
-
-  // Close dropdown on outside click
-  useEffect(() => {
-    if (!showHistoryDropdown) return;
-    const handleClickOutside = (e: MouseEvent) => {
-      if (
-        historyDropdownRef.current && !historyDropdownRef.current.contains(e.target as Node) &&
-        historyBtnRef.current && !historyBtnRef.current.contains(e.target as Node)
-      ) {
-        setShowHistoryDropdown(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [showHistoryDropdown]);
 
   return (
     <div
@@ -474,36 +455,16 @@ function App({ onClose }: AppProps) {
     >
       <div className="sidebar-resize-handle" onMouseDown={startSidebarResizing}></div>
       <div className="header-row">
-        <div className="history-nav">
-          <button className="history-btn" onClick={goBack} disabled={historyIndex.current <= 0} title="Go back">
-            &lt;
-          </button>
-          <button className="history-btn" onClick={goForward} disabled={historyIndex.current >= history.length - 1} title="Go forward">
-            &gt;
-          </button>
-          <button className="history-btn" ref={historyBtnRef} onClick={() => setShowHistoryDropdown(prev => !prev)} disabled={history.length === 0} title="History">
-            &#9662;
-          </button>
-          {showHistoryDropdown && history.length > 0 && (
-            <div className="history-dropdown" ref={historyDropdownRef}>
-              <div className="history-dropdown-list custom-scroll">
-                {[...new Set([...history].reverse())].map((word, idx) => (
-                  <div key={idx} className="history-dropdown-item" onClick={() => handleHistoryWordClick(word)}>
-                    {word}
-                  </div>
-                ))}
-              </div>
-              <div className="history-dropdown-footer">
-                <button className="history-dropdown-btn" onClick={clearHistory} title="Clear History">
-                  Clear
-                </button>
-                <button className="history-dropdown-btn" onClick={downloadHistory} title="Download History">
-                  Download
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
+        <HistoryNav
+          history={history}
+          historyIndex={historyIndex}
+          transliterateSinhala={transliterateSinhala}
+          onGoBack={goBack}
+          onGoForward={goForward}
+          onWordClick={handleHistoryWordClick}
+          onClear={clearHistory}
+          onDownload={downloadHistory}
+        />
         {!isResizingSidebar.current && sidebarWidth < 300 ? "" : "SELD"}
         <div className="header-actions">
           <button className={`header-action-btn ${sidebarWidth < 400 ? "icon-only" : ""} ${view === "search" ? "active" : ""}`} onClick={() => setView("search")} title="Search">

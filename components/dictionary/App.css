@@ -3,6 +3,8 @@
    Uses the same theme variables from assets/theme.css
    ============================================================ */
 
+@import "../shared/HistoryNav.css";
+
 @font-face {
 	font-family: 'Noto Sans Sinhala';
 	src: url('~/assets/fonts/NotoSansSinhala-VariableFont_wdth,wght.ttf') format('truetype');

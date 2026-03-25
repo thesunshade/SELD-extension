@@ -1,0 +1,95 @@
+/* Shared History Navigation Styles */
+
+:is(#seld-sidebar-root, .dict-explorer) .history-nav {
+  display: flex;
+  gap: 4px;
+  position: relative;
+}
+
+:is(#seld-sidebar-root, .dict-explorer) .history-btn {
+  background: var(--bg-color);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  border-radius: 6px;
+  padding: 0.4em 0.7em;
+  cursor: pointer;
+  font-size: 0.85em;
+  font-weight: 600;
+  line-height: 1;
+  transition: all 0.2s ease;
+}
+
+:is(#seld-sidebar-root, .dict-explorer) .history-btn:hover:not(:disabled) {
+  background: var(--accent);
+  color: var(--accent-fg);
+  border-color: var(--accent);
+}
+
+:is(#seld-sidebar-root, .dict-explorer) .history-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+:is(#seld-sidebar-root, .dict-explorer) .history-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  min-width: 180px;
+  max-width: 260px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  overflow: hidden;
+}
+
+:is(#seld-sidebar-root, .dict-explorer) .history-dropdown-list {
+  max-height: 220px;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+
+:is(#seld-sidebar-root, .dict-explorer) .history-dropdown-item {
+  padding: 0.35em 0.8em;
+  cursor: pointer;
+  font-size: 0.85em;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+:is(#seld-sidebar-root, .dict-explorer) .history-dropdown-item:hover {
+  background: var(--accent-bg);
+  color: var(--accent);
+}
+
+:is(#seld-sidebar-root, .dict-explorer) .history-dropdown-footer {
+  display: flex;
+  gap: 4px;
+  padding: 6px 8px;
+  border-top: 1px solid var(--border-color);
+}
+
+:is(#seld-sidebar-root, .dict-explorer) .history-dropdown-btn {
+  flex: 1;
+  background: var(--bg-color);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  border-radius: 6px;
+  padding: 0.35em 0.6em;
+  cursor: pointer;
+  font-size: 0.8em;
+  font-weight: 600;
+  line-height: 1;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+:is(#seld-sidebar-root, .dict-explorer) .history-dropdown-btn:hover {
+  background: var(--accent);
+  color: var(--accent-fg);
+  border-color: var(--accent);
+}
