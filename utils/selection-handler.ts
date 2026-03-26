@@ -1,5 +1,54 @@
 import { browser } from 'wxt/browser';
 import type { ContentScriptContext } from 'wxt/client';
+import { checkBloom } from './bloom-data';
+
+function getNGrams(text: string, offset: number): { clickedWord: string, potentialCompounds: string[] } {
+	// Need to identify the word at offset first.
+	const start = text.substring(0, offset).search(/[\u0D80-\u0DFFa-zA-Z\u200D\u200C]+$/);
+	const end = text.substring(offset).search(/[^\u0D80-\u0DFFa-zA-Z\u200D\u200C]/);
+
+	let clickedWord = '';
+	let clickWordStart = -1;
+
+	if (start !== -1) {
+		clickWordStart = start;
+		const actualEnd = end === -1 ? text.length : offset + end;
+		clickedWord = text.substring(clickWordStart, actualEnd).trim();
+	}
+
+	if (!clickedWord) return { clickedWord: '', potentialCompounds: [] };
+
+	// Parse simple tokens
+	const regex = /[\u0D80-\u0DFFa-zA-Z\u200D\u200C]+/g;
+	let match;
+	const tokens: string[] = [];
+	let clickedWordIdx = -1;
+
+	while ((match = regex.exec(text)) !== null) {
+		tokens.push(match[0]);
+		// Match offset roughly
+		if (match.index <= offset && match.index + match[0].length >= offset) {
+			clickedWordIdx = tokens.length - 1;
+		}
+	}
+
+	if (clickedWordIdx === -1) return { clickedWord, potentialCompounds: [] };
+
+	const compounds: string[] = [];
+	// Generates 4, 3, 2-grams containing the clicked word
+	for (let size = 4; size >= 2; size--) {
+		for (let i = 0; i < size; i++) {
+			const startIdx = clickedWordIdx - i;
+			const endIdx = startIdx + size - 1;
+
+			if (startIdx >= 0 && endIdx < tokens.length) {
+				compounds.push(tokens.slice(startIdx, endIdx + 1).join(' '));
+			}
+		}
+	}
+
+	return { clickedWord, potentialCompounds: compounds };
+}
 
 export function setupSidebarEvents(
 	getIsSidebarOpen: () => boolean,
@@ -15,14 +64,49 @@ export function setupSidebarEvents(
 		const selection = window.getSelection();
 		if (!selection || selection.rangeCount === 0) return;
 
-		const text = selection.toString().trim();
+		const range = selection.getRangeAt(0);
+		const textNode = range.startContainer;
+		const offset = range.startOffset;
 
-		if (text && text.length > 0 && text.length < 50) {
-			const now = Date.now();
-			if (now - lastQueryTime > 300) {
-				window.dispatchEvent(new CustomEvent('seld:search', { detail: text }));
-				lastQueryTime = now;
+		// Fallback for non-text-node selections or complex ranges
+		if (!textNode || textNode.nodeType !== Node.TEXT_NODE) {
+			const text = selection.toString().trim();
+			if (text && text.length > 0 && text.length < 50) {
+				const now = Date.now();
+				if (now - lastQueryTime > 300) {
+					window.dispatchEvent(new CustomEvent('seld:search', { detail: text }));
+					lastQueryTime = now;
+				}
 			}
+			return;
+		}
+
+		const text = textNode.nodeValue || '';
+		const { clickedWord, potentialCompounds } = getNGrams(text, offset);
+
+		let searchTarget = clickedWord;
+		let isCompoundMaybe = false;
+
+		for (const compound of potentialCompounds) {
+			if (checkBloom(compound)) {
+				searchTarget = compound;
+				isCompoundMaybe = true;
+				break;
+			}
+		}
+
+		// Use the selection string if clickedWord failed to resolve (e.g. punctuation only)
+		const finalFallback = clickedWord || selection.toString().trim();
+		if (!finalFallback) return;
+
+		const now = Date.now();
+		if (now - lastQueryTime > 300) {
+			window.dispatchEvent(
+				new CustomEvent('seld:search', {
+					detail: isCompoundMaybe ? { primarySearch: searchTarget, fallbackSearch: finalFallback } : finalFallback
+				})
+			);
+			lastQueryTime = now;
 		}
 	};
 
@@ -54,20 +138,28 @@ export function setupSidebarEvents(
 
 			const text = textNode.nodeValue || '';
 
-			const start = text.substring(0, offset).search(/[\u0D80-\u0DFFa-zA-Z]+$/);
-			const end = text.substring(offset).search(/[^\u0D80-\u0DFFa-zA-Z]/);
+			const { clickedWord, potentialCompounds } = getNGrams(text, offset);
 
-			let word = '';
-			if (start !== -1) {
-				const actualEnd = end === -1 ? text.length : offset + end;
-				word = text.substring(start, actualEnd).trim();
+			let searchTarget = clickedWord;
+			let isCompoundMaybe = false;
+
+			for (const compound of potentialCompounds) {
+				if (checkBloom(compound)) {
+					searchTarget = compound;
+					isCompoundMaybe = true;
+					break;
+				}
 			}
 
-			if (word && word.length < 50) {
+			if (searchTarget && searchTarget.length < 50) {
 				if (!getIsSidebarOpen()) {
 					initSidebar();
 				}
-				window.dispatchEvent(new CustomEvent('seld:search', { detail: word }));
+				window.dispatchEvent(
+					new CustomEvent('seld:search', {
+						detail: isCompoundMaybe ? { primarySearch: searchTarget, fallbackSearch: clickedWord } : searchTarget
+					})
+				);
 			}
 		});
 	};

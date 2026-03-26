@@ -25,6 +25,7 @@ function App({ onClose }: AppProps) {
   const [selectedWord, setSelectedWord] = useState<string | null>(null);
   const [selectedOriginalQuery, setSelectedOriginalQuery] = useState<string | null>(null);
   const [definition, setDefinition] = useState<StructuredDefinition[] | null>(null);
+  const [searchBooster, setSearchBooster] = useState<string | null>(null);
 
   // Settings state
   const [theme, setTheme] = useState<Theme>("system");
@@ -151,10 +152,17 @@ function App({ onClose }: AppProps) {
     };
 
     const handleSearchEvent = (e: Event) => {
-      const query = (e as CustomEvent).detail;
-      if (query) {
-        setQuery(query);
-        handleSearch(query);
+      const detail = (e as CustomEvent).detail;
+      if (detail) {
+        if (typeof detail === 'object' && detail.primarySearch) {
+          setQuery(detail.fallbackSearch);
+          setSearchBooster(detail.primarySearch);
+          handleSearch(detail.fallbackSearch, detail.primarySearch);
+        } else {
+          setQuery(detail as string);
+          setSearchBooster(null);
+          handleSearch(detail as string);
+        }
         setView("search");
       }
     };
@@ -253,7 +261,7 @@ function App({ onClose }: AppProps) {
     if (view !== "search") return;
 
     const timer = setTimeout(() => {
-      handleSearch(query);
+      handleSearch(query, searchBooster);
     }, DEFAULT_SEARCH_DEBOUNCE_MS);
 
     return () => clearTimeout(timer);
@@ -282,7 +290,7 @@ function App({ onClose }: AppProps) {
     return () => clearTimeout(timer);
   }, [query, view]);
 
-  const handleSearch = async (q: string) => {
+  const handleSearch = async (q: string, booster?: string | null) => {
     const sanitized = sanitizeSearchQuery(q);
     if (!sanitized) {
       setResults([]);
@@ -291,15 +299,41 @@ function App({ onClose }: AppProps) {
       setSelectedOriginalQuery(null);
       return;
     }
-    const matches = await stardict.searchWords(sanitized, DEFAULT_SEARCH_LIMIT);
-    setResults(matches);
-    const exact = matches.find(m => m.word.toLowerCase() === sanitized.toLowerCase()) || matches.find(m => m.isSynthesizedMatch);
-    if (exact) {
-      handleSelectWord(exact.word, exact.originalQuery);
+
+    let boosterMatches: IndexEntry[] = [];
+    let boosterExact: IndexEntry | undefined;
+
+    if (booster) {
+      const bSanitized = sanitizeSearchQuery(booster);
+      const matches = await stardict.searchWords(bSanitized, 5);
+      boosterExact = matches.find(m => m.word.toLowerCase() === bSanitized.toLowerCase()) || matches.find(m => m.isSynthesizedMatch);
+      if (boosterExact) {
+        boosterMatches = matches;
+      }
+    }
+
+    const fallbackMatches = await stardict.searchWords(sanitized, DEFAULT_SEARCH_LIMIT);
+    
+    if (boosterExact) {
+      const merged = [...boosterMatches];
+      const seen = new Set(merged.map(m => m.word));
+      for (const fm of fallbackMatches) {
+        if (!seen.has(fm.word)) {
+          merged.push(fm);
+        }
+      }
+      setResults(merged);
+      handleSelectWord(boosterExact.word, boosterExact.originalQuery);
     } else {
-      setDefinition(null);
-      setSelectedWord(null);
-      setSelectedOriginalQuery(null);
+      const exact = fallbackMatches.find(m => m.word.toLowerCase() === sanitized.toLowerCase()) || fallbackMatches.find(m => m.isSynthesizedMatch);
+      setResults(fallbackMatches);
+      if (exact) {
+        handleSelectWord(exact.word, exact.originalQuery);
+      } else {
+        setDefinition(null);
+        setSelectedWord(null);
+        setSelectedOriginalQuery(null);
+      }
     }
   };
 
@@ -540,6 +574,7 @@ function App({ onClose }: AppProps) {
                 value={query}
                 onChange={e => {
                   setQuery(e.target.value);
+                  setSearchBooster(null);
                 }}
                 placeholder="Search..."
                 className="search-input"
@@ -594,9 +629,13 @@ function App({ onClose }: AppProps) {
                   word={selectedWord!}
                   definition={definition}
                   transliterateSinhala={transliterateSinhala}
-                  onWordClick={word => {
+                  onWordClick={(word, fallbackWord) => {
                     setQuery(word);
-                    handleSearch(word);
+                    if (fallbackWord) {
+                        handleSearch(word, fallbackWord);
+                    } else {
+                        handleSearch(word);
+                    }
                   }}
                   onSpeakClick={handleSpeak}
                   onCopyClick={handleCopy}

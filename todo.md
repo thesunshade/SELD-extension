@@ -4,6 +4,7 @@
 - [ ] term in පියාඹන්ට is not clickable
 - [ ] for suffix type headwords when the suffix starts with a dash and then a combining vowel, two non-breaking spaces should be inserted betweeen the vowel and the dash
 - [ ] remove all transparent/glassmorphism backgrounds from elements, especially history drop down interface on search
+- [ ] ගොඩ නැගිල්ල doesn't seem to be in the lexicon
 
 ## Search
 - [ ] particles should be treated like suffixes, e.g. ත්

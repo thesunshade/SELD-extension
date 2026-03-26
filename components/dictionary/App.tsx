@@ -45,6 +45,7 @@ export default function DictionaryApp() {
 
 	// Search state
 	const [searchQuery, setSearchQuery] = useState(() => sessionStorage.getItem("dict-search") || "");
+	const [fallbackSearchQuery, setFallbackSearchQuery] = useState("");
 	const [searchScope, setSearchScope] = useState<SearchScope>(() => {
 		return (sessionStorage.getItem("dict-scope") as SearchScope) || "headwords";
 	});
@@ -308,18 +309,54 @@ export default function DictionaryApp() {
 		jumpToPrefix(fullPrefix);
 	};
 
-	const handleWordClick = (w: string) => {
+	const handleWordClick = async (w: string, fallbackWord?: string) => {
 		setView("search");
-		setSearchQuery(w);
+		if (fallbackWord) {
+			setSearchQuery(fallbackWord);
+			setFallbackSearchQuery(w); // Using this as the booster
+			performSearch(fallbackWord, w);
+		} else {
+			setSearchQuery(w);
+			setFallbackSearchQuery("");
+			performSearch(w);
+		}
 	};
 
 	// --- Virtualization & Search Sync ---
-	const performSearch = useCallback(async (q: string) => {
+	const performSearch = useCallback(async (q: string, booster?: string) => {
 		if (!q.trim()) { setSearchResults([]); setIsSearching(false); return; }
 		setIsSearching(true);
+
+		let boosterMatches: IndexEntry[] = [];
+		let boosterExact: IndexEntry | undefined;
+
+		if (booster) {
+			const bSanitized = booster.trim();
+			const bMatches = searchScope === "headwords"
+				? await stardict.searchWords(bSanitized, 5)
+				: await stardict.searchFullText(bSanitized, 5);
+			
+			boosterExact = bMatches.find(m => m.word.toLowerCase() === bSanitized.toLowerCase()) || bMatches.find(m => m.isSynthesizedMatch);
+			if (boosterExact) {
+				boosterMatches = bMatches;
+			}
+		}
+
 		let results = searchScope === "headwords"
 			? await stardict.searchWords(q, DEFAULT_SEARCH_LIMIT)
 			: await stardict.searchFullText(q, DEFAULT_SEARCH_LIMIT);
+
+		if (boosterExact) {
+			const merged = [...boosterMatches];
+			const seen = new Set(merged.map(m => m.word));
+			for (const r of results) {
+				if (!seen.has(r.word)) {
+					merged.push(r);
+				}
+			}
+			results = merged;
+		}
+
 		setSearchResults(results);
 		setIsSearching(false);
 		if (bookViewRef.current) { bookViewRef.current.scrollTop = 0; setScrollTop(0); }
@@ -382,6 +419,7 @@ export default function DictionaryApp() {
 	};
 
 	const handleHistoryWordClick = (word: string) => {
+		setFallbackSearchQuery("");
 		setSearchQuery(word);
 		performSearch(word);
 	};
@@ -402,10 +440,10 @@ export default function DictionaryApp() {
 	useEffect(() => {
 		if (view === "search") {
 			if (debounceTimer.current) clearTimeout(debounceTimer.current);
-			debounceTimer.current = window.setTimeout(() => performSearch(searchQuery), DEFAULT_SEARCH_DEBOUNCE_MS);
+			debounceTimer.current = window.setTimeout(() => performSearch(searchQuery, fallbackSearchQuery), DEFAULT_SEARCH_DEBOUNCE_MS);
 			return () => { if (debounceTimer.current) clearTimeout(debounceTimer.current); };
 		}
-	}, [searchQuery, searchScope, view, performSearch]);
+	}, [searchQuery, fallbackSearchQuery, searchScope, view, performSearch]);
 
 	// --- Virtualization Scroll Sync ---
 	const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
@@ -576,7 +614,7 @@ export default function DictionaryApp() {
 								onClear={clearHistory}
 								onDownload={downloadHistory}
 							/>
-							<input type="text" className="dict-search-input" placeholder="Search..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} autoFocus />
+							<input type="text" className="dict-search-input" placeholder="Search..." value={searchQuery} onChange={e => { setSearchQuery(e.target.value); setFallbackSearchQuery(""); }} autoFocus />
 							<div className="search-scope-toggle">
 								<button className={`scope-btn ${searchScope === "headwords" ? "active" : ""}`} onClick={() => setSearchScope("headwords")}>Headwords</button>
 								<button className={`scope-btn ${searchScope === "fulltext" ? "active" : ""}`} onClick={() => setSearchScope("fulltext")}>Full Text</button>

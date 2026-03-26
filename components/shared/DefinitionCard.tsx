@@ -5,12 +5,13 @@ import "tippy.js/dist/tippy.css";
 import { StructuredDefinition } from "../../utils/stardict";
 import { transliterateSinhala as transliterateSinhalaTxt } from "../../utils/transliterate";
 import { getFullEntryCopyData } from "../../utils/clipboard";
+import { checkBloom } from "../../utils/bloom-data";
 
 interface DefinitionCardProps {
 	word: string;
 	definition: StructuredDefinition[];
 	transliterateSinhala: boolean;
-	onWordClick: (word: string) => void;
+	onWordClick: (word: string, fallbackWord?: string) => void;
 	onSpeakClick: (word: string) => void;
 	onCopyClick: (targetWord: string, specificDefBlock?: string | string[]) => void;
 	ttsWord?: string;     // Original query for synthesized matches
@@ -230,13 +231,48 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 					const t = tokens[k];
 					phraseForTranslit += t;
 					if (/[a-zA-Z\u0D80-\u0DFF]/.test(t)) {
+						let compoundSearchTarget = t;
+						let hasCompound = false;
+
+						// Try up to 4 words from the tokens array
+						const compoundsText: string[] = [];
+						let tokenWords: string[] = [];
+						let wordIndices: number[] = [];
+						for (let idx = 0; idx < tokens.length; idx++) {
+							if (/[a-zA-Z\u0D80-\u0DFF]/.test(tokens[idx])) {
+								tokenWords.push(tokens[idx]);
+								wordIndices.push(idx);
+							}
+						}
+
+						const wordIndexInTokens = wordIndices.indexOf(k);
+						if (wordIndexInTokens !== -1) {
+							for (let size = 4; size >= 2; size--) {
+								for (let step = 0; step < size; step++) {
+									const startIdx = wordIndexInTokens - step;
+									const endIdx = startIdx + size - 1;
+									if (startIdx >= 0 && endIdx < tokenWords.length) {
+										compoundsText.push(tokenWords.slice(startIdx, endIdx + 1).join(' '));
+									}
+								}
+							}
+						}
+
+						for (const c of compoundsText) {
+							if (checkBloom(c)) {
+								compoundSearchTarget = c;
+								hasCompound = true;
+								break;
+							}
+						}
+
 						elements.push(
 							<span
 								key={k}
 								className="clickable-word"
 								onClick={e => {
 									e.stopPropagation();
-									onWordClick(t);
+									onWordClick(compoundSearchTarget, hasCompound ? t : undefined);
 								}}>
 								{highlightText(t)}
 							</span>
