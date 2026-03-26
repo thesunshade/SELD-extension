@@ -4,11 +4,11 @@
   "type": "module",
   "description": "Sinhala-English Learners Dictionary Lookup Extension",
   "scripts": {
-    "predev": "node scripts/check-freshness.js && node scripts/extract-lists.js && node scripts/build-bloom.js && node scripts/run-tests-prompt.js",
+    "predev": "node scripts/generate-build-info.js && node scripts/check-freshness.js && node scripts/extract-lists.js && node scripts/build-bloom.js && node scripts/run-tests-prompt.js",
     "dev": "wxt",
-    "prebuild": "node scripts/check-freshness.js && node scripts/extract-lists.js && node scripts/build-bloom.js && node scripts/run-tests-prompt.js",
+    "prebuild": "node scripts/generate-build-info.js && node scripts/check-freshness.js && node scripts/extract-lists.js && node scripts/build-bloom.js && node scripts/run-tests-prompt.js",
     "build": "wxt build",
-    "prezip": "node scripts/check-freshness.js 24 && node scripts/extract-lists.js && node scripts/build-bloom.js",
+    "prezip": "node scripts/generate-build-info.js && node scripts/check-freshness.js 24 && node scripts/extract-lists.js && node scripts/build-bloom.js",
     "zip": "wxt zip",
     "compile": "tsc --noEmit",
     "test": "vitest run"

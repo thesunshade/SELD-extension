@@ -11,6 +11,7 @@ import { SettingsUI } from "../shared/SettingsUI";
 import { Theme } from "../shared/types";
 import { Highlighter } from "../shared/Highlighter";
 import { HistoryNav } from "../shared/HistoryNav";
+import { BUILD_INFO } from "../../utils/build-info";
 
 type View = "search" | "settings" | "info";
 
@@ -685,6 +686,9 @@ function App({ onClose }: AppProps) {
         <div className="info-pane glassmorphism custom-scroll">
           <h3>About SELD Dictionary</h3>
           <p>Sinhala-English Learner's Dictionary (SELD).</p>
+          <p>Version: {BUILD_INFO.version}</p>
+          <p>Dictionary Date: {BUILD_INFO.dictionaryDate}</p>
+          <p>Entries: {BUILD_INFO.entryCount.toLocaleString()}</p>
           <p>Double click or select words to look up.</p>
           <p>Text to speech provided by Google.</p>
           <details>
