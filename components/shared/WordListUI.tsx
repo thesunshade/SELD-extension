@@ -96,7 +96,18 @@ export const WordListUI: React.FC<WordListUIProps> = ({
 					ref={sortBtnRef}
 					onClick={toggleSort}
 					className="sort-toggle-btn"
-					style={{ background: "transparent", border: "1px solid rgba(128,128,128,0.3)", borderRadius: "4px", padding: "4px 8px", cursor: "pointer", color: "inherit", display: "flex", alignItems: "center", justifyContent: "center", minWidth: "40px" }}
+					style={{
+						background: "transparent",
+						border: "1px solid rgba(128,128,128,0.3)",
+						borderRadius: "4px",
+						padding: "4px 8px",
+						cursor: "pointer",
+						color: "inherit",
+						display: "flex",
+						alignItems: "center",
+						justifyContent: "center",
+						minWidth: "40px"
+					}}
 				>
 					{sortMode === "date" ? (
 						<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -106,7 +117,16 @@ export const WordListUI: React.FC<WordListUIProps> = ({
 							<line x1="3" y1="10" x2="21" y2="10"></line>
 						</svg>
 					) : (
-						<span style={{ fontSize: "1.2rem", fontWeight: "bold" }}>අ</span>
+						<svg
+							viewBox="173 218 32 32"  /* Adjusted for 15% smaller scale & rightward shift */
+							width="23"              /* Back to 20px to match the calendar icon exactly */
+							height="23"
+							fill="currentColor"
+							stroke="currentColor"
+							strokeWidth="0.4"       /* Slightly thinner stroke to match smaller scale */
+						>
+							<path d="m 191.30077,242.60092 q -1.58985,0.20052 -3.26563,0.20052 -4.2539,0 -6.64582,-1.8763 -2.39193,-1.8763 -2.39193,-5.27082 0,-1.7474 0.6875,-3.00781 0.6875,-1.27474 1.99089,-2.10547 1.30338,-0.83073 2.97916,-1.11719 1.6901,-0.28645 4.31119,-0.28645 h 2.33464 q -0.0716,-1.27474 -0.81641,-1.97656 -0.74479,-0.70183 -2.00521,-0.70183 -1.16015,0 -1.74739,0.44401 -0.57292,0.42969 -0.57292,1.16016 0,0.25781 0.0286,0.42969 l -2.09114,0.25781 q -0.0716,-0.42969 -0.0716,-0.88802 0,-1.57552 1.13151,-2.44922 1.13151,-0.88802 3.17969,-0.88802 3.05077,0 4.19661,2.49219 0.77343,-1.33203 2.16275,-2.50651 l 1.60417,1.28906 q -0.17188,0.22917 -0.17188,0.60156 0,0.34375 0.20052,0.75912 0.20052,0.40104 0.75912,1.26041 0.65885,0.98828 0.91666,1.6901 0.25782,0.6875 0.25782,1.34636 0,1.46093 -0.94532,2.22005 -0.93098,0.74479 -2.77864,0.74479 -0.65885,0 -1.16015,-0.12891 v 5.88671 q 0.98828,-0.28646 2.09114,-0.88802 l 0.75911,1.94792 q -1.16015,0.55859 -2.85025,1.0026 v 6.17317 h -2.07682 z m 2.07682,-10.22655 q 0.37239,0.11458 1.04557,0.11458 0.94531,0 1.33203,-0.3151 0.38672,-0.3151 0.38672,-0.94531 0,-0.47266 -0.17188,-0.90234 -0.17187,-0.44401 -0.65885,-1.20313 -0.6875,-1.03125 -0.80208,-1.61848 -0.50131,0.61588 -0.81641,1.41796 -0.3151,0.78776 -0.3151,2.14844 z m -2.07682,8.16405 v -9.46743 h -2.09115 q -2.6927,0 -4.02473,0.24349 -1.33203,0.24349 -2.2487,0.84505 -0.90234,0.60156 -1.3177,1.51823 -0.40105,0.90234 -0.40105,2.10546 0,2.27734 1.81901,3.60937 1.81901,1.31771 5.22786,1.31771 1.91927,0 3.03646,-0.17188 z" />
+						</svg>
 					)}
 				</button>
 			</div>
