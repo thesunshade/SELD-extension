@@ -231,7 +231,13 @@ export default function DictionaryApp() {
 	}, [selectedLetter, selectedPrefix, allEntries]);
 
 	const jumpToPrefix = useCallback((prefix: string, isFromScroll = false, index?: number) => {
-		const entries = (view === "settings" ? lastContentView.current : view) === "browse" ? allEntries : searchResults;
+		const currentView = view === "settings" ? lastContentView.current : view;
+		let entries: IndexEntry[] = [];
+		if (currentView === "browse") entries = allEntries;
+		else if (currentView === "search") entries = searchResults;
+		else if (currentView === "history") entries = historyFiltered.map(w => ({ word: w } as IndexEntry));
+		else if (currentView === "favorites") entries = favoritesFiltered.map(w => ({ word: w } as IndexEntry));
+
 		if (entries.length === 0) return;
 
 		let targetIndex = index;
@@ -251,7 +257,7 @@ export default function DictionaryApp() {
 			}
 			setTimeout(() => { isManualJump.current = false; }, 100);
 		}
-	}, [allEntries, searchResults, view]);
+	}, [allEntries, searchResults, historyFiltered, favoritesFiltered, view]);
 
 	const handleExplorerLinkClick = useCallback((word: string) => {
 		const index = allEntries.findIndex(e => e.word === word);

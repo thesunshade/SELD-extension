@@ -9,8 +9,6 @@
 
 
 ## Improvements
-- [ ] dictionary browser should have identical history
-- [ ] add history browser to Dictionary Explorer
 - [ ] single click or double click option
 - [ ] compound verbs in definitions need to be clickable as a unit. like වන්දනා කරනවා.
 - [ ] add letter headers in dictionary browser
@@ -20,8 +18,6 @@
 - [ ] grammar overview page that provides an interface for lists.xml data
 - [ ] underline should be one of three options: off, bold, subtle
 - [ ] export words to Anki
-- [ ] favorites
-- [ ] headword button to open dictionary explorer browser (new tab or existing tab?)
 - [ ] links to other dictionaries
 - [ ] when word is not found, try to break into existing words
 
@@ -53,3 +49,7 @@
 - [x] export history
 - [x] settings panel needs to be scrollable
 - [x] searching for පියඹනවා does not return පියාඹනවා. We need a fuzzy kind of search
+- [x] dictionary browser should have identical history
+- [x] favorites
+- [x] add history browser to Dictionary Explorer
+- [x] headword button to open dictionary explorer browser (new tab or existing tab?)
