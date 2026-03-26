@@ -3,6 +3,7 @@
 # Change Log
 
 ## 0.3.0
+* add favoriting system
 * add history interface to search in Dictionary Explorer
 * Combine transliteration settings into one and refactor
 
