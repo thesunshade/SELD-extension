@@ -4,6 +4,8 @@ import ReactDOM from 'react-dom/client';
 import App from '../components/sidebar/App';
 import { browser } from 'wxt/browser';
 import { setupSidebarEvents } from '../utils/selection-handler';
+import { createShadowRootUi } from 'wxt/client';
+import type { ContentScriptUi } from 'wxt/client';
 //
 // Import CSS normally - WXT will bundle these into a single content.css file
 import '../assets/theme.css';
@@ -13,10 +15,10 @@ import '../components/sidebar/App.css';
 
 export default defineContentScript({
     matches: ['<all_urls>'],
-    cssInjectionMode: 'manual',
+    cssInjectionMode: 'ui',
     main(ctx) {
         let isSidebarOpen = false;
-        let root: ReactDOM.Root | null = null;
+        let ui: ContentScriptUi<ReactDOM.Root> | null = null;
         const STYLE_ID = 'seld-dynamic-styles';
 
         const updateSidebarPositionClass = (position: 'left' | 'right') => {
@@ -24,24 +26,47 @@ export default defineContentScript({
             document.documentElement.classList.add(`seld-pos-${position}`);
         };
 
-        const injectExtensionStyles = () => {
+        const injectHostStyles = () => {
             if (document.getElementById(STYLE_ID)) return;
             const link = document.createElement('link');
             link.id = STYLE_ID;
             link.rel = 'stylesheet';
-            link.href = (browser.runtime.getURL as any)('/content-scripts/content.css');
+            link.href = browser.runtime.getURL('/content-scripts/content.css');
             document.head.appendChild(link);
         };
 
-        const removeExtensionStyles = () => {
+        const removeHostStyles = () => {
             document.getElementById(STYLE_ID)?.remove();
         };
 
-        const initSidebar = async () => {
-            if (document.getElementById('seld-sidebar-root')) return;
+        const destroySidebar = () => {
+            document.documentElement.classList.remove('seld-active');
+            document.body.classList.remove('seld-active');
+            document.documentElement.classList.remove('seld-pos-left', 'seld-pos-right');
 
-            // Inject styles only when sidebar is initiated
-            injectExtensionStyles();
+            // Remove font override when sidebar is closed
+            applyFontOverride(false);
+
+            // Remove host layout styles
+            removeHostStyles();
+
+            if (ui) {
+                ui.remove();
+                ui = null;
+            }
+
+            const container = document.getElementById('seld-main-content');
+            if (container) {
+                while (container.firstChild) {
+                    document.body.appendChild(container.firstChild);
+                }
+                container.remove();
+            }
+            isSidebarOpen = false;
+        };
+
+        const initSidebar = async () => {
+            if (ui) return;
 
             // Load position and apply class
             const res = await browser.storage.local.get(['seldSidebarPosition', 'seldOverrideSinhalaFont']);
@@ -65,7 +90,7 @@ export default defineContentScript({
                 // Collect nodes first to avoid live collection issues
                 const nodesToMove = Array.from(document.body.childNodes).filter(node => {
                     if (node instanceof HTMLElement && (
-                        node.id === 'seld-sidebar-root' ||
+                        node.id === 'seld-sidebar-root' || // Still check old ID just in case
                         node.tagName === 'SCRIPT' ||
                         node.tagName === 'STYLE' ||
                         node.id === STYLE_ID ||
@@ -80,42 +105,32 @@ export default defineContentScript({
                 document.body.appendChild(container);
             }
 
-            const sidebar = document.createElement('div');
-            sidebar.id = 'seld-sidebar-root';
-            document.body.appendChild(sidebar);
+            // Inject styles for host layout (push-aside)
+            injectHostStyles();
 
-            // Mount React App
-            root = ReactDOM.createRoot(sidebar);
-            root.render(React.createElement(App, { onClose: destroySidebar }));
+            // Create Shadow Root UI
+            ui = await createShadowRootUi(ctx, {
+                name: 'seld-sidebar',
+                position: 'overlay',
+                anchor: 'body',
+                append: 'last',
+                onMount: (container) => {
+                    // Create a wrapper for React inside the Shadow Root
+                    const appRoot = document.createElement('div');
+                    appRoot.id = 'seld-sidebar-root';
+                    container.appendChild(appRoot);
 
+                    const root = ReactDOM.createRoot(appRoot);
+                    root.render(React.createElement(App, { onClose: destroySidebar }));
+                    return root;
+                },
+                onRemove: (root) => {
+                    root?.unmount();
+                },
+            });
+
+            ui.mount();
             isSidebarOpen = true;
-        };
-
-        const destroySidebar = () => {
-            document.documentElement.classList.remove('seld-active');
-            document.body.classList.remove('seld-active');
-            document.documentElement.classList.remove('seld-pos-left', 'seld-pos-right');
-
-            // Remove font override when sidebar is closed
-            applyFontOverride(false);
-
-            // Remove main extension styles
-            removeExtensionStyles();
-
-            if (root) {
-                root.unmount();
-                root = null;
-            }
-            document.getElementById('seld-sidebar-root')?.remove();
-
-            const container = document.getElementById('seld-main-content');
-            if (container) {
-                while (container.firstChild) {
-                    document.body.appendChild(container.firstChild);
-                }
-                container.remove();
-            }
-            isSidebarOpen = false;
         };
 
         const FONT_STYLE_ID = 'seld-font-override';

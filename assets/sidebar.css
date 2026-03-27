@@ -52,7 +52,7 @@ html.seld-pos-left body.seld-active #seld-main-content {
 }
 
 /* Sidebar Styling */
-#seld-sidebar-root {
+seld-sidebar {
 	height: 100vh;
 	position: fixed;
 	left: var(--seld-sidebar-left);
