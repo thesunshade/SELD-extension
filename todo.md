@@ -5,6 +5,7 @@
 - [ ] for suffix type headwords when the suffix starts with a dash and then a combining vowel, two non-breaking spaces should be inserted betweeen the vowel and the dash
 - [ ] remove all transparent/glassmorphism backgrounds from elements, especially history drop down interface on search
 - [ ] ගොඩ නැගිල්ල doesn't seem to be in the lexicon
+- [ ] In the sidebar, if you are on settings or info, clicking a history item does not open search.
 
 ## Search
 - [ ] particles should be treated like suffixes, e.g. ත්
