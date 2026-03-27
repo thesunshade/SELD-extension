@@ -374,6 +374,7 @@ function App({ onClose }: AppProps) {
     await handleSearch(word);
     await handleSelectWord(word, entry?.originalQuery);
     isNavigatingHistory.current = false;
+    setView("search");
   };
 
 
@@ -389,6 +390,7 @@ function App({ onClose }: AppProps) {
     await handleSearch(word);
     await handleSelectWord(word, entry?.originalQuery);
     isNavigatingHistory.current = false;
+    setView("search");
   };
 
   const handleSpeak = (text: string) => {
@@ -478,6 +480,7 @@ function App({ onClose }: AppProps) {
   const handleHistoryWordClick = (word: string) => {
     setQuery(word);
     handleSearch(word);
+    setView("search");
   };
 
   const handleToggleFavorite = (word: string) => {
