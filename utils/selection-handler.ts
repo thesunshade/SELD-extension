@@ -59,7 +59,7 @@ export function setupSidebarEvents(
 
 	const handleSelection = (e: MouseEvent) => {
 		if (!getIsSidebarOpen()) return;
-		if (e.target instanceof HTMLElement && e.target.closest('#seld-sidebar-root')) return;
+		if (e.target instanceof HTMLElement && (e.target.closest('#seld-sidebar-root') || e.target.tagName.toLowerCase() === 'seld-sidebar')) return;
 
 		const selection = window.getSelection();
 		if (!selection || selection.rangeCount === 0) return;
@@ -112,7 +112,7 @@ export function setupSidebarEvents(
 
 	const handleCtrlClick = (e: MouseEvent) => {
 		if (!e.ctrlKey) return;
-		if (e.target instanceof HTMLElement && e.target.closest('#seld-sidebar-root')) return;
+		if (e.target instanceof HTMLElement && (e.target.closest('#seld-sidebar-root') || e.target.tagName.toLowerCase() === 'seld-sidebar')) return;
 
 		browser.storage.local.get(['seldCtrlClickLookup']).then((result) => {
 			if (result.seldCtrlClickLookup === false) return;
