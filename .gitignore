@@ -51,3 +51,5 @@ lists.xml
 public/abbreviations.json
 dev.log
 utils/build-info.ts
+utils/bloom-data.ts
+public/SELD/SELD.dict
