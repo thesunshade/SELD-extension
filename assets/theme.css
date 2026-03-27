@@ -1,6 +1,6 @@
 .seld-theme-vars {
 	--bg-color: #f8fafc;
-	--bg-panel: rgba(255, 255, 255, 0.9);
+	--bg-panel: rgba(255, 255, 255);
 	--text-primary: #0f172a;
 	--text-secondary: #475569;
 	--border-color: #e2e8f0;
@@ -16,7 +16,7 @@
 .seld-theme-vars.dark-theme,
 .dark-theme .seld-theme-vars {
 	--bg-color: #020617;
-	--bg-panel: rgba(15, 23, 42);
+	--bg-panel: rgb(15, 23, 42);
 	/*removed transparency*/
 	--text-primary: #f6f8fa;
 	--text-secondary: #bfc8d4;

@@ -31,7 +31,6 @@
   display: block;
   box-sizing: border-box;
   font-family: 'Noto Sans', 'Noto Sans Sinhala', sans-serif;
-  /* Remove hardcoded top/right/left here so React can manage it */
   z-index: 2147483647;
 }
 
@@ -49,9 +48,6 @@
   /* list-style: none; */
 }
 
-/* Restore basic display properties for common elements within sidebar */
-/* Restore basic display properties for common elements within sidebar */
-/* Restore basic display properties for common elements within sidebar */
 :where(#seld-sidebar-root div,
   #seld-sidebar-root section,
   #seld-sidebar-root p,
@@ -195,8 +191,6 @@
 
 #seld-sidebar-root .glassmorphism {
   background: var(--bg-panel);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border-color);
   border-radius: 12px;
 }
@@ -410,18 +404,6 @@
 
 }
 
-#seld-sidebar-root .examplescontents {
-  list-style-type: none;
-  padding-left: 0.0em;
-  padding-right: .4rem;
-  padding-top: .5em;
-  padding-bottom: .5em;
-  border-left: 2px solid var(--border-color);
-  margin: 0.8em 0;
-  background-color: #8383834f;
-
-}
-
 #seld-sidebar-root .examplescontent {
   margin-bottom: 0.6em;
 }
@@ -536,15 +518,6 @@
   background: var(--text-secondary);
 }
 
-#seld-sidebar-root .checkbox-label {
-  color: var(--text-primary);
-}
-
-/* #seld-sidebar-root .partofspeech,
-#seld-sidebar-root .usages {
-  opacity: .6;
-} */
-
 #seld-sidebar-root .variantformentrybackrefs,
 #seld-sidebar-root .complexformentryrefs,
 #seld-sidebar-root .lexsensereferences,
@@ -559,13 +532,6 @@
 
 #seld-sidebar-root .checkbox-label {
   color: var(--text-primary);
-}
-
-#seld-sidebar-root .variantformentrybackrefs,
-#seld-sidebar-root .complexformentryrefs,
-#seld-sidebar-root .lexsensereferences {
-  display: block !important;
-  opacity: .6;
 }
 
 /* ---- Toast ---- */
