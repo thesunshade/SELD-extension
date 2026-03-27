@@ -72,8 +72,7 @@
   display: inline;
 }
 
-:where(#seld-sidebar-root button,
-  #seld-sidebar-root input) {
+:where(#seld-sidebar-root button) {
   display: inline-block;
   appearance: none;
   -webkit-appearance: none;
