@@ -30,9 +30,10 @@ export function HistoryNav({
   useEffect(() => {
     if (!showDropdown) return;
     const handleClickOutside = (e: MouseEvent) => {
+      const path = e.composedPath();
       if (
-        dropdownRef.current && !dropdownRef.current.contains(e.target as Node) &&
-        toggleBtnRef.current && !toggleBtnRef.current.contains(e.target as Node)
+        dropdownRef.current && !path.includes(dropdownRef.current) &&
+        toggleBtnRef.current && !path.includes(toggleBtnRef.current)
       ) {
         setShowDropdown(false);
       }
