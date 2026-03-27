@@ -3,7 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const IDX_PATH = path.join(__dirname, '../public/SELD.idx');
+const IDX_PATH = path.join(__dirname, '../public/SELD/SELD.idx');
 const OUTPUT_PATH = path.join(__dirname, '../utils/bloom-data.ts');
 
 function fnv1a(str) {

@@ -5,8 +5,8 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
 const PACKAGE_JSON_PATH = path.join(ROOT, 'package.json');
-const DICT_PATH = path.join(ROOT, 'public/SELD.dict');
-const IDX_PATH = path.join(ROOT, 'public/SELD.idx');
+const DICT_PATH = path.join(ROOT, 'public/SELD/SELD.dict');
+const IDX_PATH = path.join(ROOT, 'public/SELD/SELD.idx');
 const OUTPUT_PATH = path.join(ROOT, 'utils/build-info.ts');
 
 function getEntryCount() {

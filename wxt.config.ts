@@ -22,7 +22,7 @@ export default defineConfig({
     },
     web_accessible_resources: [
       {
-        resources: ["SELD.idx", "SELD.dict", "assets/fonts/*.ttf", "content-scripts/content.css", "abbreviations.json"],
+        resources: ["SELD/SELD.idx", "SELD/SELD.dict", "assets/fonts/*.ttf", "content-scripts/content.css", "abbreviations.json"],
         matches: ["<all_urls>"],
       },
     ],

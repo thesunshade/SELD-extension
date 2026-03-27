@@ -7,7 +7,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
 const FILES_TO_CHECK = [
   '/data/lists.xml',
-  'public/SELD.dict',
+  'public/SELD/SELD.dict',
 ];
 
 // 1. Get hours from command line argument (e.g., node script.js 48)

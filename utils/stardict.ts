@@ -46,10 +46,10 @@ class StarDictParser {
             if (this.isLoaded) return;
             try {
                 // Fetch the binary data from the extension bundle
-                const idxResponse = await fetch(chrome.runtime.getURL('/SELD.idx'));
+                const idxResponse = await fetch(chrome.runtime.getURL('/SELD/SELD.idx'));
                 this.idxBuffer = await idxResponse.arrayBuffer();
 
-                const dictResponse = await fetch(chrome.runtime.getURL('/SELD.dict'));
+                const dictResponse = await fetch(chrome.runtime.getURL('/SELD/SELD.dict'));
                 this.dictBuffer = await dictResponse.arrayBuffer();
 
                 this.parseIndex();
