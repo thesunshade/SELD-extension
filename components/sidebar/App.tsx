@@ -523,7 +523,7 @@ function App({ onClose }: AppProps) {
         />
         {!isResizingSidebar.current && sidebarWidth < 300 ? "" : "SELD"}
         <div className="header-actions">
-          <button className={`header-action-btn ${sidebarWidth < 400 ? "icon-only" : ""} ${view === "search" ? "active" : ""}`} onClick={() => setView("search")} title="Search">
+          <button className={`seld-btn seld-btn-secondary ${sidebarWidth < 400 ? "seld-btn-icon-circle" : ""} ${view === "search" ? "active" : ""}`} onClick={() => setView("search")} title="Search">
             {sidebarWidth < 400 ? (
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="11" cy="11" r="8"></circle>
@@ -533,7 +533,7 @@ function App({ onClose }: AppProps) {
               "Search"
             )}
           </button>
-          <button className={`header-action-btn ${sidebarWidth < 400 ? "icon-only" : ""} ${view === "settings" ? "active" : ""}`} onClick={() => setView("settings")} title="Settings">
+          <button className={`seld-btn seld-btn-secondary ${sidebarWidth < 400 ? "seld-btn-icon-circle" : ""} ${view === "settings" ? "active" : ""}`} onClick={() => setView("settings")} title="Settings">
             {sidebarWidth < 400 ? (
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="3"></circle>
@@ -543,7 +543,7 @@ function App({ onClose }: AppProps) {
               "Settings"
             )}
           </button>
-          <button className={`header-action-btn ${sidebarWidth < 400 ? "icon-only" : ""} ${view === "info" ? "active" : ""}`} onClick={() => setView("info")} title="Info">
+          <button className={`seld-btn seld-btn-secondary ${sidebarWidth < 400 ? "seld-btn-icon-circle" : ""} ${view === "info" ? "active" : ""}`} onClick={() => setView("info")} title="Info">
             {sidebarWidth < 400 ? (
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="11.5" cy="6" r="0.5" fill="currentColor"></circle>
@@ -556,7 +556,7 @@ function App({ onClose }: AppProps) {
             )}
           </button>
           {onClose && (
-            <button className="header-action-btn icon-only" onClick={onClose} title="Close Sidebar">
+            <button className="seld-btn seld-btn-secondary seld-btn-icon-circle" onClick={onClose} title="Close Sidebar">
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -582,7 +582,7 @@ function App({ onClose }: AppProps) {
               />
               {query && (
                 <button
-                  className="search-copy-btn"
+                  className="seld-btn seld-btn-ghost seld-btn-icon-circle search-copy-btn"
                   title="Copy search text"
                   onClick={async () => {
                     try {
@@ -617,7 +617,7 @@ function App({ onClose }: AppProps) {
               ) : query.trim() ? (
                 <div className="no-results">
                   <div>No results found</div>
-                  <a href={`https://jotform.com/260678120991058?q2_textbox0=${encodeURIComponent(query)}&q4_textbox2=${encodeURIComponent(window.location.href)}`} target="_blank" rel="noopener noreferrer" className="suggest-link-btn">
+                  <a href={`https://jotform.com/260678120991058?q2_textbox0=${encodeURIComponent(query)}&q4_textbox2=${encodeURIComponent(window.location.href)}`} target="_blank" rel="noopener noreferrer" className="seld-btn seld-btn-primary suggest-link-btn">
                     Suggest Definition
                   </a>
                 </div>

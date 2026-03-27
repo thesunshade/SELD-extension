@@ -49,7 +49,7 @@ export const SettingsUI: React.FC<SettingsUIProps> = ({
           {(["system", "light", "dark"] as Theme[]).map(t => (
             <button
               key={t}
-              className={`toggle-btn ${theme === t ? "active" : ""}`}
+              className={`seld-btn seld-btn-secondary toggle-btn ${theme === t ? "active" : ""}`}
               onClick={() => {
                 setTheme(t);
                 saveSetting("theme", t);
@@ -59,7 +59,7 @@ export const SettingsUI: React.FC<SettingsUIProps> = ({
           ))}
           {sidebarPosition && setSidebarPosition && (
             <button
-              className="header-action-btn icon-only"
+              className="seld-btn seld-btn-secondary seld-btn-icon-circle header-action-btn"
               onClick={() => {
                 const newPos = sidebarPosition === 'right' ? 'left' : 'right';
                 setSidebarPosition(newPos);

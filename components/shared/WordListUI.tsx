@@ -95,19 +95,8 @@ export const WordListUI: React.FC<WordListUIProps> = ({
 				<button
 					ref={sortBtnRef}
 					onClick={toggleSort}
-					className="sort-toggle-btn"
-					style={{
-						background: "transparent",
-						border: "1px solid rgba(128,128,128,0.3)",
-						borderRadius: "4px",
-						padding: "4px 8px",
-						cursor: "pointer",
-						color: "inherit",
-						display: "flex",
-						alignItems: "center",
-						justifyContent: "center",
-						minWidth: "40px"
-					}}
+					className="seld-btn seld-btn-secondary sort-toggle-btn"
+					style={{ minWidth: "40px", padding: "4px 8px" }}
 				>
 					{sortMode === "date" ? (
 						<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -151,13 +140,12 @@ export const WordListUI: React.FC<WordListUIProps> = ({
 								)}
 							</div>
 							<button
-								className="remove-item-btn"
+								className="seld-btn seld-btn-ghost seld-btn-icon-circle remove-item-btn"
 								onClick={e => {
 									e.stopPropagation();
 									onItemRemove(word);
 								}}
 								title="Remove"
-								style={{ background: "transparent", border: "none", cursor: "pointer", padding: "4px", color: "inherit" }}
 							>
 								<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
 									<line x1="18" y1="6" x2="6" y2="18"></line>
@@ -169,9 +157,9 @@ export const WordListUI: React.FC<WordListUIProps> = ({
 				)}
 			</div>
 			<style>{`
-				.list-item .remove-item-btn { opacity: 0; transition: opacity 0.2s; }
-				.list-item:hover .remove-item-btn { opacity: 0.5; }
-				.list-item .remove-item-btn:hover { opacity: 1; color: #e74c3c; }
+				.list-item .remove-item-btn { opacity: 0; transform: scale(0.8); }
+				.list-item:hover .remove-item-btn { opacity: 0.6; }
+				.list-item .remove-item-btn:hover { opacity: 1; color: #e74c3c; transform: scale(1); }
 			`}</style>
 		</div>
 	);

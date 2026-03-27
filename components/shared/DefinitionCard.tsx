@@ -388,7 +388,7 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 				<div className="global-actions" style={{ display: "flex", gap: "8px" }}>
 					{showExplorerLink && definition.length === 1 && (
 						<button
-							className="explorer-link-button"
+							className="seld-btn seld-btn-secondary seld-btn-icon-circle explorer-link-button"
 							onClick={() => onExplorerClick?.(word!)}
 							title="Show in Dictionary Explorer"
 						>
@@ -414,7 +414,7 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 					)}
 					{definition.length === 1 && (
 					<button
-						className={`favorite-button ${isFavorite || (favoritesList && favoritesList.includes(word!)) ? "active" : ""}`}
+						className={`seld-btn seld-btn-secondary seld-btn-icon-circle favorite-button ${isFavorite || (favoritesList && favoritesList.includes(word!)) ? "active" : ""}`}
 						onClick={() => onToggleFavorite?.(word!)}
 						title={(isFavorite || (favoritesList && favoritesList.includes(word!))) ? "Remove from Favorites" : "Add to Favorites"}
 					>
@@ -427,7 +427,7 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 						href={`https://jotform.com/260678150051452?q2_textbox0=${encodeURIComponent(word || "")}&q4_textbox2=${encodeURIComponent(window.location.href)}&existingDefinition=${encodeURIComponent(getFullEntryCopyData(word!, definition!).plainText)}`}
 						target="_blank"
 						rel="noopener noreferrer"
-						className="report-button"
+						className="seld-btn seld-btn-secondary seld-btn-icon-circle report-button"
 						title="Report an error"
 					>
 						<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -436,7 +436,7 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 						</svg>
 					</a>
 					<button
-						className="copy-button"
+						className="seld-btn seld-btn-secondary seld-btn-icon-circle copy-button"
 						onClick={() => {
 							let allDefsHtml: string[] = [];
 							if (definition.length > 1) {
@@ -456,7 +456,7 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 							<rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
 						</svg>
 					</button>
-					<button className="tts-button" onClick={() => onSpeakClick(ttsWord || word)} title="Speak word">
+					<button className="seld-btn seld-btn-secondary seld-btn-icon-circle tts-button" onClick={() => onSpeakClick(ttsWord || word)} title="Speak word">
 						<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
 							<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
 							<path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
@@ -487,7 +487,7 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 								<div style={{ display: "flex", gap: "8px", opacity: 0.8, transform: "scale(0.85)" }}>
 									{showExplorerLink && (
 										<button
-											className="explorer-link-button"
+											className="seld-btn seld-btn-secondary seld-btn-icon-circle explorer-link-button"
 											onClick={() => onExplorerClick?.(block.headword)}
 											title="Show in Dictionary Explorer"
 										>
@@ -498,7 +498,7 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 										</button>
 									)}
 									<button
-										className={`favorite-button ${(favoritesList && favoritesList.includes(block.headword)) ? "active" : ""}`}
+										className={`seld-btn seld-btn-secondary seld-btn-icon-circle favorite-button ${(favoritesList && favoritesList.includes(block.headword)) ? "active" : ""}`}
 										onClick={() => onToggleFavorite?.(block.headword)}
 										title={(favoritesList && favoritesList.includes(block.headword)) ? "Remove from Favorites" : "Add to Favorites"}
 									>
@@ -506,13 +506,13 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 											<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
 										</svg>
 									</button>
-									<button className="copy-button" onClick={() => onCopyClick(block.headword, block.homographDefinitions)} title="Copy entry">
+									<button className="seld-btn seld-btn-secondary seld-btn-icon-circle copy-button" onClick={() => onCopyClick(block.headword, block.homographDefinitions)} title="Copy entry">
 										<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
 											<path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
 											<rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
 										</svg>
 									</button>
-									<button className="tts-button" onClick={() => onSpeakClick(block.headword)} title="Speak word">
+									<button className="seld-btn seld-btn-secondary seld-btn-icon-circle tts-button" onClick={() => onSpeakClick(block.headword)} title="Speak word">
 										<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
 											<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
 											<path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>

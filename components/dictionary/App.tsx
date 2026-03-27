@@ -546,19 +546,19 @@ export default function DictionaryApp() {
 		<div className={`dict-explorer seld-theme-vars ${themeClass}`} style={{ "--font-size-percent": `${fontSize}%` } as any}>
 			<aside className="dict-sidebar">
 				<div className="dict-tabs" ref={tabsRef}>
-					<button data-tippy-content="Browse" className={`dict-tab ${view === "browse" ? "active" : ""}`} onClick={() => setView("browse")}>
+					<button data-tippy-content="Browse" className={`seld-btn seld-btn-ghost dict-tab ${view === "browse" ? "active" : ""}`} onClick={() => setView("browse")}>
 						<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 6C12 6 13.6875 5 16.5 5C19.3125 5 21 6 21 6V19C21 19 19.3125 18 16.5 18C13.6875 18 12 19 12 19V6Z" /><path d="M3 6C3 6 4.6875 5 7.5 5C10.3125 5 12 6 12 6V19C12 19 10.3125 18 7.5 18C4.6875 18 3 19 3 19V6Z" /></svg>
 					</button>
-					<button data-tippy-content="Search" className={`dict-tab ${view === "search" ? "active" : ""}`} onClick={() => setView("search")}>
+					<button data-tippy-content="Search" className={`seld-btn seld-btn-ghost dict-tab ${view === "search" ? "active" : ""}`} onClick={() => setView("search")}>
 						<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
 					</button>
-					<button data-tippy-content="Favorites" className={`dict-tab ${view === "favorites" ? "active" : ""}`} onClick={() => setView("favorites")}>
+					<button data-tippy-content="Favorites" className={`seld-btn seld-btn-ghost dict-tab ${view === "favorites" ? "active" : ""}`} onClick={() => setView("favorites")}>
 						<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
 					</button>
-					<button data-tippy-content="History" className={`dict-tab ${view === "history" ? "active" : ""}`} onClick={() => setView("history")}>
+					<button data-tippy-content="History" className={`seld-btn seld-btn-ghost dict-tab ${view === "history" ? "active" : ""}`} onClick={() => setView("history")}>
 						<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
 					</button>
-					<button data-tippy-content="Settings" className={`dict-tab ${view === "settings" ? "active" : ""}`} onClick={() => setView("settings")}>
+					<button data-tippy-content="Settings" className={`seld-btn seld-btn-ghost dict-tab ${view === "settings" ? "active" : ""}`} onClick={() => setView("settings")}>
 						<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
 					</button>
 				</div>
@@ -568,7 +568,7 @@ export default function DictionaryApp() {
 						<div className="browse-panel">
 							<div className="alphabet-grid">
 								{primaryLetters.map(letter => (
-									<button key={letter} className={`alphabet-btn ${selectedLetter === letter ? "active" : ""}`} onClick={() => handleLetterClick(letter)}>{letter}</button>
+									<button key={letter} className={`seld-btn seld-btn-secondary alphabet-btn ${selectedLetter === letter ? "active" : ""}`} onClick={() => handleLetterClick(letter)}>{letter}</button>
 								))}
 							</div>
 
@@ -577,7 +577,7 @@ export default function DictionaryApp() {
 									<div className="secondary-label">Form: {selectedLetter}…</div>
 									<div className="secondary-grid">
 										{secondaryPrefixes.map(prefix => (
-											<button key={prefix} className={`secondary-btn ${selectedPrefix === prefix ? "active" : ""}`} onClick={() => handlePrefixClick(prefix)}>{prefix}</button>
+											<button key={prefix} className={`seld-btn seld-btn-ghost secondary-btn ${selectedPrefix === prefix ? "active" : ""}`} onClick={() => handlePrefixClick(prefix)}>{prefix}</button>
 										))}
 									</div>
 								</div>
@@ -590,7 +590,7 @@ export default function DictionaryApp() {
 										{tertiaryPrefixes.map(t => (
 											<button
 												key={t}
-												className={`secondary-btn ${selectedTertiaryPrefix === t ? "active" : ""}`}
+												className={`seld-btn seld-btn-ghost secondary-btn ${selectedTertiaryPrefix === t ? "active" : ""}`}
 												onClick={() => handleTertiaryClick(t)}
 											>
 												{t}
@@ -616,8 +616,8 @@ export default function DictionaryApp() {
 							/>
 							<input type="text" className="dict-search-input" placeholder="Search..." value={searchQuery} onChange={e => { setSearchQuery(e.target.value); setFallbackSearchQuery(""); }} autoFocus />
 							<div className="search-scope-toggle">
-								<button className={`scope-btn ${searchScope === "headwords" ? "active" : ""}`} onClick={() => setSearchScope("headwords")}>Headwords</button>
-								<button className={`scope-btn ${searchScope === "fulltext" ? "active" : ""}`} onClick={() => setSearchScope("fulltext")}>Full Text</button>
+								<button className={`seld-btn seld-btn-secondary scope-btn ${searchScope === "headwords" ? "active" : ""}`} onClick={() => setSearchScope("headwords")}>Headwords</button>
+								<button className={`seld-btn seld-btn-secondary scope-btn ${searchScope === "fulltext" ? "active" : ""}`} onClick={() => setSearchScope("fulltext")}>Full Text</button>
 							</div>
 							<div className="search-results-list custom-scroll">
 								{searchResults.map((entry, idx) => (

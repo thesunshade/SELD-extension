@@ -59,7 +59,7 @@ export function HistoryNav({
   return (
     <div className="history-nav">
       <button
-        className="history-btn"
+        className="seld-btn seld-btn-secondary history-btn"
         onClick={onGoBack}
         disabled={historyIndex.current <= 0}
         title="Go back"
@@ -67,7 +67,7 @@ export function HistoryNav({
         &lt;
       </button>
       <button
-        className="history-btn"
+        className="seld-btn seld-btn-secondary history-btn"
         onClick={onGoForward}
         disabled={historyIndex.current >= history.length - 1}
         title="Go forward"
@@ -75,7 +75,7 @@ export function HistoryNav({
         &gt;
       </button>
       <button
-        className="history-btn"
+        className="seld-btn seld-btn-secondary history-btn"
         ref={toggleBtnRef}
         onClick={() => setShowDropdown(prev => !prev)}
         disabled={history.length === 0}
@@ -96,10 +96,10 @@ export function HistoryNav({
             ))}
           </div>
           <div className="history-dropdown-footer">
-            <button className="history-dropdown-btn" onClick={handleClear} title="Clear History">
+            <button className="seld-btn seld-btn-secondary history-dropdown-btn" onClick={handleClear} title="Clear History">
               Clear
             </button>
-            <button className="history-dropdown-btn" onClick={handleDownload} title="Download History">
+            <button className="seld-btn seld-btn-secondary history-dropdown-btn" onClick={handleDownload} title="Download History">
               Download
             </button>
           </div>

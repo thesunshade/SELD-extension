@@ -7,27 +7,14 @@
 }
 
 :is(#seld-sidebar-root, .dict-explorer) .history-btn {
-  background: var(--bg-color);
-  border: 1px solid var(--border-color);
-  color: var(--text-primary);
-  border-radius: 6px;
+  /* Extends .seld-btn.seld-btn-secondary */
   padding: 0.4em 0.7em;
-  cursor: pointer;
   font-size: 0.85em;
-  font-weight: 600;
   line-height: 1;
-  transition: all 0.2s ease;
-}
-
-:is(#seld-sidebar-root, .dict-explorer) .history-btn:hover:not(:disabled) {
-  background: var(--accent);
-  color: var(--accent-fg);
-  border-color: var(--accent);
 }
 
 :is(#seld-sidebar-root, .dict-explorer) .history-btn:disabled {
   opacity: 0.3;
-  cursor: default;
 }
 
 :is(#seld-sidebar-root, .dict-explorer) .history-dropdown {
@@ -75,21 +62,9 @@
 
 :is(#seld-sidebar-root, .dict-explorer) .history-dropdown-btn {
   flex: 1;
-  background: var(--bg-color);
-  border: 1px solid var(--border-color);
-  color: var(--text-primary);
-  border-radius: 6px;
+  /* Extends .seld-btn.seld-btn-secondary */
   padding: 0.35em 0.6em;
-  cursor: pointer;
   font-size: 0.8em;
-  font-weight: 600;
   line-height: 1;
-  transition: all 0.2s ease;
   text-align: center;
-}
-
-:is(#seld-sidebar-root, .dict-explorer) .history-dropdown-btn:hover {
-  background: var(--accent);
-  color: var(--accent-fg);
-  border-color: var(--accent);
 }

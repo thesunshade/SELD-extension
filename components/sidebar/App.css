@@ -148,41 +148,12 @@
 }
 
 #seld-sidebar-root .header-action-btn {
-  background: var(--bg-color);
-  border: 1px solid var(--border-color);
-  color: var(--text-primary);
-  border-radius: 6px;
-  padding: 0.4em 0.8em;
-  cursor: pointer;
+  /* Extends .seld-btn.seld-btn-secondary */
   font-size: 0.8em;
-  font-weight: 500;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 220ms ease, box-shadow 220ms ease;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 
 #seld-sidebar-root .header-action-btn:hover {
-  background: var(--accent-bg);
-  border-color: var(--accent);
-  color: var(--accent);
   transform: scale(1.03);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.10);
-}
-
-#seld-sidebar-root .header-action-btn.active {
-  background: var(--accent);
-  color: var(--accent-fg);
-  border-color: var(--accent);
-}
-
-#seld-sidebar-root .header-action-btn.icon-only {
-  width: 32px;
-  height: 32px;
-  padding: 0;
-  border-radius: 50%;
 }
 
 #seld-sidebar-root .header-action-btn.icon-only svg {
@@ -228,21 +199,8 @@
   right: 8px;
   top: 50%;
   transform: translateY(-50%);
-  background: transparent;
-  border: none;
-  padding: 2px;
   color: var(--text-secondary);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  transition: color 0.15s ease, background 0.15s ease;
-}
-
-#seld-sidebar-root .search-copy-btn:hover {
-  color: var(--accent);
-  background: var(--accent-bg);
+  padding: 2px;
 }
 
 #seld-sidebar-root .search-input:focus {
@@ -344,37 +302,7 @@
 #seld-sidebar-root .copy-button,
 #seld-sidebar-root .favorite-button,
 #seld-sidebar-root .explorer-link-button {
-  background: var(--bg-color);
-  border: 1px solid var(--border-color);
-  color: var(--text-primary);
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  flex-shrink: 0;
-}
-
-#seld-sidebar-root .tts-button svg,
-#seld-sidebar-root .copy-button svg,
-#seld-sidebar-root .favorite-button svg,
-#seld-sidebar-root .explorer-link-button svg {
-  width: 18px;
-  height: 18px;
-  flex-shrink: 0;
-}
-
-#seld-sidebar-root .tts-button:hover,
-#seld-sidebar-root .copy-button:hover,
-#seld-sidebar-root .favorite-button:hover,
-#seld-sidebar-root .explorer-link-button:hover {
-  background: var(--accent-bg);
-  color: var(--accent);
-  border-color: var(--accent);
-  transform: scale(1.05);
+  /* Handled by .seld-btn-icon-circle */
 }
 
 #seld-sidebar-root .definition-content {
@@ -439,50 +367,11 @@
 #seld-sidebar-root .suggest-link-btn {
   display: inline-block;
   margin-top: 8px;
-  padding: 8px 16px;
-  background: var(--accent);
-  color: var(--accent-fg);
-  border-radius: 8px;
-  font-size: 0.9em;
-  font-weight: 500;
-  text-decoration: none;
   font-style: normal;
-  transition: all 0.2s ease;
-}
-
-#seld-sidebar-root .suggest-link-btn:hover {
-  background: var(--accent-hover);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 #seld-sidebar-root .report-button {
-  background: var(--bg-color);
-  border: 1px solid var(--border-color);
-  color: var(--text-primary);
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-decoration: none;
-  flex-shrink: 0;
-}
-
-#seld-sidebar-root .report-button svg {
-  width: 18px;
-  height: 18px;
-  flex-shrink: 0;
-}
-
-#seld-sidebar-root .report-button:hover {
-  background: var(--accent-bg);
-  color: var(--accent);
-  border-color: var(--accent);
-  transform: scale(1.05);
+  /* Handled by .seld-btn-icon-circle */
 }
 
 #seld-sidebar-root .slider-value {

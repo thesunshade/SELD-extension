@@ -11,6 +11,8 @@
 	--accent-bg-darker: rgba(15, 23, 42, 0.2);
 	--input-bg: #ffffff;
 	--font-multiplier: 1;
+	--btn-radius: 6px;
+	--btn-transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .seld-theme-vars.dark-theme,
@@ -27,6 +29,8 @@
 	--accent-bg: rgba(248, 250, 252, 0.1);
 	--accent-bg-darker: rgba(248, 250, 252, 0.2);
 	--input-bg: #0f172a;
+	--btn-radius: 6px;
+	--btn-transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* High contrast */
@@ -94,3 +98,107 @@
 	background-color: rgba(128, 128, 128, 0.2) !important;
 	border-radius: 4px;
 }
+
+/* ============================================================
+   SELD Base Button System (DRY)
+   ============================================================ */
+
+.seld-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0.5em 1em;
+	border-radius: var(--btn-radius);
+	border: 1px solid transparent;
+	background: transparent;
+	color: var(--text-primary);
+	font-family: inherit;
+	font-size: 0.9em;
+	font-weight: 500;
+	cursor: pointer;
+	transition: var(--btn-transition);
+	user-select: none;
+	gap: 8px;
+	line-height: normal;
+	outline: none;
+	text-decoration: none;
+}
+
+/* Interaction States */
+.seld-btn:hover {
+	background: var(--accent-bg);
+}
+
+.seld-btn:active {
+	transform: scale(0.97);
+}
+
+.seld-btn:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+	pointer-events: none;
+}
+
+/* Variants */
+
+/* Primary: Solid accent background */
+.seld-btn-primary {
+	background: var(--accent);
+	color: var(--accent-fg);
+}
+
+.seld-btn-primary:hover {
+	background: var(--accent-hover);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Secondary: Bordered, light background */
+.seld-btn-secondary {
+	background: var(--bg-color);
+	border-color: var(--border-color);
+}
+
+.seld-btn-secondary:hover {
+	border-color: var(--accent);
+	color: var(--accent);
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Ghost: Transparent, subtle hover */
+.seld-btn-ghost {
+	background: transparent;
+	color: var(--text-secondary);
+}
+
+.seld-btn-ghost:hover {
+	background: var(--accent-bg);
+	color: var(--text-primary);
+}
+
+/* Icon Only (Circular) */
+.seld-btn-icon-circle {
+	width: 32px;
+	height: 32px;
+	padding: 0;
+	border-radius: 50%;
+	flex-shrink: 0;
+}
+
+.seld-btn-icon-circle svg {
+	width: 18px;
+	height: 18px;
+	flex-shrink: 0;
+}
+
+/* Pill Shape */
+.seld-btn-pill {
+	border-radius: 20px;
+	padding: 0.4em 1.2em;
+}
+
+/* Success/Active Highlight */
+.seld-btn.active {
+	background: var(--accent);
+	color: var(--accent-fg);
+	border-color: var(--accent);
+}
