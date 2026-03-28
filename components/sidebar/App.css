@@ -468,7 +468,7 @@
 
 #seld-sidebar-root .seld-transliteration {
   font-family: inherit;
-  font-style: italic;
+  /* font-style: italic; */
   color: var(--text-secondary);
 }
 

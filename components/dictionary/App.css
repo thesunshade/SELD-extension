@@ -421,11 +421,11 @@ body {
 	opacity: 0.6;
 }
 
-.seld-transliteration {
+/* .seld-transliteration {
 	font-family: inherit;
 	font-style: italic;
 	color: var(--text-secondary);
-}
+} */
 
 .examplescontents {
 	list-style-type: none;

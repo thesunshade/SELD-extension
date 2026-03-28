@@ -185,12 +185,6 @@ export const SettingsUI: React.FC<SettingsUIProps> = ({
             <span className="custom-checkbox"></span>
             <span className="checkbox-label">Override page Sinhala font</span>
           </label>
-        </div>
-      </div>
-
-      <div className="settings-group">
-        <label className="settings-label">Transliteration</label>
-        <div className="settings-control">
           <label className="checkbox-container">
             <input
               type="checkbox"

@@ -380,7 +380,7 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 				<div style={{ display: "flex", flexDirection: "column" }}>
 					<span>{highlightText(word)}</span>
 					{transliterateSinhala && /[\u0D80-\u0DFF]/.test(word || "") && (
-						<span className="seld-transliteration" style={{ fontSize: "0.6em", fontWeight: "normal", opacity: 0.8, marginTop: "2px" }}>
+						<span className="seld-transliteration" style={{ fontSize: "0.8em", fontWeight: "normal", opacity: 0.8, marginTop: "2px" }}>
 							{transliterateSinhalaTxt(word!)}
 						</span>
 					)}
@@ -413,15 +413,15 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 						</button>
 					)}
 					{definition.length === 1 && (
-					<button
-						className={`seld-btn seld-btn-secondary seld-btn-icon-circle favorite-button ${isFavorite || (favoritesList && favoritesList.includes(word!)) ? "active" : ""}`}
-						onClick={() => onToggleFavorite?.(word!)}
-						title={(isFavorite || (favoritesList && favoritesList.includes(word!))) ? "Remove from Favorites" : "Add to Favorites"}
-					>
-						<svg viewBox="0 0 24 24" width="18" height="18" fill={(isFavorite || (favoritesList && favoritesList.includes(word!))) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-							<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-						</svg>
-					</button>
+						<button
+							className={`seld-btn seld-btn-secondary seld-btn-icon-circle favorite-button ${isFavorite || (favoritesList && favoritesList.includes(word!)) ? "active" : ""}`}
+							onClick={() => onToggleFavorite?.(word!)}
+							title={(isFavorite || (favoritesList && favoritesList.includes(word!))) ? "Remove from Favorites" : "Add to Favorites"}
+						>
+							<svg viewBox="0 0 24 24" width="18" height="18" fill={(isFavorite || (favoritesList && favoritesList.includes(word!))) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+								<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+							</svg>
+						</button>
 					)}
 					<a
 						href={`https://jotform.com/260678150051452?q2_textbox0=${encodeURIComponent(word || "")}&q4_textbox2=${encodeURIComponent(window.location.href)}&existingDefinition=${encodeURIComponent(getFullEntryCopyData(word!, definition!).plainText)}`}
