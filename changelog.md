@@ -3,6 +3,7 @@
 # Change Log
 
 ## 0.3.1
+* Prioritize compound words
 
 ## 0.3.0 (2026-03-26)
 * add favoriting system
