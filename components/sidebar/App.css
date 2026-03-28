@@ -297,12 +297,12 @@
   margin-left: auto;
 }
 
-#seld-sidebar-root .tts-button,
+/* #seld-sidebar-root .tts-button,
 #seld-sidebar-root .copy-button,
 #seld-sidebar-root .favorite-button,
 #seld-sidebar-root .explorer-link-button {
-  /* Handled by .seld-btn-icon-circle */
-}
+   Handled by .seld-btn-icon-circle 
+} */
 
 #seld-sidebar-root .definition-content {
   font-size: 0.95em;
@@ -369,9 +369,9 @@
   font-style: normal;
 }
 
-#seld-sidebar-root .report-button {
-  /* Handled by .seld-btn-icon-circle */
-}
+/* #seld-sidebar-root .report-button {
+  Handled by .seld-btn-icon-circle 
+} */
 
 #seld-sidebar-root .slider-value {
   font-weight: 600;

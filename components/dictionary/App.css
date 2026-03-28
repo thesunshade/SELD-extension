@@ -361,16 +361,16 @@ body {
 	color: var(--text-primary);
 }
 
-.tts-button,
+/* .tts-button,
 .copy-button,
 .favorite-button,
 .explorer-link-button {
-	/* Handled by .seld-btn-icon-circle */
+	/* Handled by .seld-btn-icon-circle 
 }
 
 .report-button {
-	/* Handled by .seld-btn-icon-circle */
-}
+	/* Handled by .seld-btn-icon-circle 
+} */
 
 .definition-content {
 	font-size: 0.95em;
