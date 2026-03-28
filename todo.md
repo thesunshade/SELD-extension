@@ -16,6 +16,7 @@
 - [ ] compound verbs in definitions need to be clickable as a unit. like වන්දනා කරනවා.
 - [ ] add letter headers in dictionary browser
 - [ ] font size of definition is too big relative to the rest of the sidebar. See sccreenshots
+- [ ] it appears that `.seld-transliteration` style is in two places.
 
 ## Possible new features
 - [ ] grammar overview page that provides an interface for lists.xml data
