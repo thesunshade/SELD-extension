@@ -58,6 +58,7 @@ function App({ onClose }: AppProps) {
   const [favorites, setFavorites] = useState<string[]>([]);
 
 
+  const listRef = useRef<HTMLDivElement>(null);
   const isInitialized = useRef(false);
 
   // Sidebar State Notification
@@ -187,6 +188,13 @@ function App({ onClose }: AppProps) {
       selectedRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
   }, [selectedWord]);
+
+  // Scroll list to top when results change
+  useEffect(() => {
+    if (listRef.current) {
+      listRef.current.scrollTop = 0;
+    }
+  }, [results]);
 
   // Apply theme class to container
   const getThemeClass = () => {
@@ -609,7 +617,7 @@ function App({ onClose }: AppProps) {
             </div>
           </div>
           <div className="content-area">
-            <div className="headword-list custom-scroll dynamic-font" style={{ height: `${listHeight}%`, flex: "none" }}>
+            <div ref={listRef} className="headword-list custom-scroll dynamic-font" style={{ height: `${listHeight}%`, flex: "none" }}>
               {results.length > 0 ? (
                 results.map((entry, idx) => (
                   <div key={idx} ref={selectedWord === entry.word ? selectedRef : null} className={`headword-item ${selectedWord === entry.word ? "selected" : ""}`} onClick={() => handleSelectWord(entry.word, entry.originalQuery)}>
