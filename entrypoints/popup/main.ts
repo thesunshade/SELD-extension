@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				onHidden(instance) {
 					instance.destroy();
 				},
-				});
+			});
 
 			instance.show();
 
