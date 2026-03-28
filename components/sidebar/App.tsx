@@ -11,7 +11,7 @@ import { SettingsUI } from "../shared/SettingsUI";
 import { Theme } from "../shared/types";
 import { Highlighter } from "../shared/Highlighter";
 import { HistoryNav } from "../shared/HistoryNav";
-import { BUILD_INFO } from "../../utils/build-info";
+import { InfoUI } from "../shared/InfoUI";
 
 type View = "search" | "settings" | "info";
 
@@ -314,7 +314,7 @@ function App({ onClose }: AppProps) {
     }
 
     const fallbackMatches = await stardict.searchWords(sanitized, DEFAULT_SEARCH_LIMIT);
-    
+
     if (boosterExact) {
       const merged = [...boosterMatches];
       const seen = new Set(merged.map(m => m.word));
@@ -636,20 +636,20 @@ function App({ onClose }: AppProps) {
                   onWordClick={(word, fallbackWord) => {
                     setQuery(word);
                     if (fallbackWord) {
-                        handleSearch(word, fallbackWord);
+                      handleSearch(word, fallbackWord);
                     } else {
-                        handleSearch(word);
+                      handleSearch(word);
                     }
                   }}
                   onSpeakClick={handleSpeak}
                   onCopyClick={handleCopy}
-                   ttsWord={selectedOriginalQuery || undefined}
-                   showExplorerLink={true}
-                   onExplorerClick={handleExplorerClick}
-                   isFavorite={favorites.includes(selectedWord!)}
-                   favoritesList={favorites}
-                   onToggleFavorite={handleToggleFavorite}
-                 />
+                  ttsWord={selectedOriginalQuery || undefined}
+                  showExplorerLink={true}
+                  onExplorerClick={handleExplorerClick}
+                  isFavorite={favorites.includes(selectedWord!)}
+                  favoritesList={favorites}
+                  onToggleFavorite={handleToggleFavorite}
+                />
               ) : !query ? (
                 <div className="empty-state">Highlight text or double click to look up</div>
               ) : results.length > 0 ? (
@@ -685,33 +685,7 @@ function App({ onClose }: AppProps) {
         />
       )}
 
-      {view === "info" && (
-        <div className="info-pane glassmorphism custom-scroll">
-          <h3>About SELD Dictionary</h3>
-          <p>Sinhala-English Learner's Dictionary (SELD).</p>
-          <p>Version: {BUILD_INFO.version}</p>
-          <p>Dictionary Date: {BUILD_INFO.dictionaryDate}</p>
-          <p>Entries: {BUILD_INFO.entryCount.toLocaleString()}</p>
-          <p>Double click or select words to look up.</p>
-          <p>Text to speech provided by Google.</p>
-          <details>
-            <summary>Pages to try</summary>
-            <p>The following pages have good coverage in the SELD</p>
-            <ul className="test-sites">
-              <li>
-                <a rel="noreferrer" target="_blank" href="https://mahamegha.lk/2022/04/23/sirapa-wandanawa/">
-                  සිරිපා වන්දනාවේ ගිය ගැමි කවියෝ
-                </a>
-              </li>
-              <li>
-                <a rel="noreferrer" target="_blank" href="https://tripitaka.online/sutta/7478">
-                  අංගුත්තර නිකාය තික නිපාතෝ 3.1.1.1.{" "}
-                </a>
-              </li>
-            </ul>
-          </details>
-        </div>
-      )}
+      {view === "info" && <InfoUI />}
       {showToast && <div className="dict-toast">{toastMessage}</div>}
     </div>
   );

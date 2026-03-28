@@ -380,14 +380,7 @@
   font-size: 0.9em;
 }
 
-#seld-sidebar-root .info-pane {
-  padding: 1.2em;
-  font-size: 0.9em;
-  line-height: 1.5;
-  flex: 1;
-  overflow-y: auto;
-  min-height: 0;
-}
+
 
 #seld-sidebar-root .custom-scroll::-webkit-scrollbar {
   width: 6px;
@@ -452,14 +445,7 @@
   }
 }
 
-#seld-sidebar-root .test-sites {
-  list-style: disk;
-}
 
-#seld-sidebar-root .test-sites li a {
-  color: var(--text-primary) !important;
-  text-decoration: underline !important;
-}
 
 #seld-sidebar-root .synthesized-header {
   color: var(--text-primary) !important;

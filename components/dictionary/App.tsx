@@ -11,9 +11,10 @@ import { WordListUI } from "../shared/WordListUI";
 import { Theme } from "../shared/types";
 import { Highlighter } from "../shared/Highlighter";
 import { HistoryNav } from "../shared/HistoryNav";
+import { InfoUI } from "../shared/InfoUI";
 import "./App.css";
 
-type ViewTab = "browse" | "search" | "favorites" | "history" | "settings";
+type ViewTab = "browse" | "search" | "favorites" | "history" | "settings" | "info";
 type SearchScope = "headwords" | "fulltext";
 
 const ITEM_HEIGHT = 140;
@@ -281,7 +282,7 @@ export default function DictionaryApp() {
 				setView("browse");
 				// Clear the word param so it doesn't jump back on settings/search toggle
 				window.history.replaceState({}, document.title, window.location.pathname);
-				
+
 				setTimeout(() => {
 					jumpToPrefix(word, false, index);
 				}, 100);
@@ -335,7 +336,7 @@ export default function DictionaryApp() {
 			const bMatches = searchScope === "headwords"
 				? await stardict.searchWords(bSanitized, 5)
 				: await stardict.searchFullText(bSanitized, 5);
-			
+
 			boosterExact = bMatches.find(m => m.word.toLowerCase() === bSanitized.toLowerCase()) || bMatches.find(m => m.isSynthesizedMatch);
 			if (boosterExact) {
 				boosterMatches = bMatches;
@@ -558,6 +559,12 @@ export default function DictionaryApp() {
 					<button data-tippy-content="History" className={`seld-btn seld-btn-ghost dict-tab ${view === "history" ? "active" : ""}`} onClick={() => setView("history")}>
 						<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
 					</button>
+					<button data-tippy-content="Info" className={`seld-btn seld-btn-ghost dict-tab ${view === "info" ? "active" : ""}`} onClick={() => setView("info")}>
+						<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
+							<path fill="currentColor" d="M12 10.75a.75.75 0 0 1 .75.75v5a.75.75 0 1 1-1.5 0v-5a.75.75 0 0 1 .75-.75M12 9a1 1 0 1 0 0-2a1 1 0 0 0 0 2" />
+							<path fill="currentColor" fill-rule="evenodd" d="M7.317 3.769a42.5 42.5 0 0 1 9.366 0c1.827.204 3.302 1.642 3.516 3.48c.37 3.156.37 6.346 0 9.503c-.215 1.836-1.69 3.275-3.516 3.48a42.5 42.5 0 0 1-9.366 0c-1.827-.205-3.302-1.644-3.516-3.48a41 41 0 0 1 0-9.504c.214-1.837 1.69-3.275 3.516-3.48m9.2 1.49a41 41 0 0 0-9.034 0A2.486 2.486 0 0 0 5.29 7.423a39.4 39.4 0 0 0 0 9.154a2.486 2.486 0 0 0 2.193 2.163c2.977.333 6.057.333 9.034 0a2.486 2.486 0 0 0 2.192-2.163a39.4 39.4 0 0 0 0-9.154a2.486 2.486 0 0 0-2.192-2.164" clip-rule="evenodd" />
+						</svg>
+					</button>
 					<button data-tippy-content="Settings" className={`seld-btn seld-btn-ghost dict-tab ${view === "settings" ? "active" : ""}`} onClick={() => setView("settings")}>
 						<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
 					</button>
@@ -671,9 +678,9 @@ export default function DictionaryApp() {
 								onItemClick={(word, idx) => jumpToPrefix(word, false, idx)}
 								onItemRemove={(word) => {
 									setHistory(prev => {
-									    const newHist = prev.filter(w => w !== word);
-									    browser.storage.local.set({ seldSearchHistory: newHist });
-									    return newHist;
+										const newHist = prev.filter(w => w !== word);
+										browser.storage.local.set({ seldSearchHistory: newHist });
+										return newHist;
 									});
 								}}
 								onFilteredItemsChange={setHistoryFiltered}
@@ -681,6 +688,8 @@ export default function DictionaryApp() {
 							/>
 						</div>
 					)}
+
+					{view === "info" && <InfoUI />}
 				</div>
 			</aside>
 
@@ -693,11 +702,11 @@ export default function DictionaryApp() {
 									? "Select a letter from the alphabet to browse entries."
 									: view === "favorites"
 										? "No matching favorites."
-									: view === "history"
-										? "No matching history entries."
-									: searchQuery.trim()
-										? "No matching entries found."
-										: "Type a search query to find entries."}
+										: view === "history"
+											? "No matching history entries."
+											: searchQuery.trim()
+												? "No matching entries found."
+												: "Type a search query to find entries."}
 							</div>
 						)}
 						{visibleEntries.map((entry, idx) => {
