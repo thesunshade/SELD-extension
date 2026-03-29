@@ -15,7 +15,6 @@
 - [ ] There should probably be some limit to the "distance" of fuzzy search results. If there are more than two variants, it's probaby not a good potential match.
 - [ ] single click or double click option
 - [ ] compound verbs in definitions need to be clickable as a unit. like වන්දනා කරනවා.
-- [ ] add letter headers in dictionary browser
 - [ ] font size of definition is too big relative to the rest of the sidebar. See sccreenshots
 - [ ] it appears that `.seld-transliteration` style is in two places.
 - [ ] the welcome page is currently being built at build time. This is probably not idea as it messes with versioning. Better to have the final changes to the page by dynamic at time of load.
@@ -23,7 +22,6 @@
 ## Possible new features
 - [ ] grammar overview page that provides an interface for lists.xml data
 - [ ] underline should be one of three options: off, bold, subtle
-- [ ] export words to Anki
 - [ ] links to other dictionaries
 - [ ] when word is not found, try to break into existing words
 
@@ -60,3 +58,5 @@
 - [x] add history browser to Dictionary Explorer
 - [x] headword button to open dictionary explorer browser (new tab or existing tab?)
 - [x] In the sidebar, if you are on settings or info, clicking a history item does not open search.
+- [ ] add letter headers in dictionary browser
+- [ ] export words to Anki
