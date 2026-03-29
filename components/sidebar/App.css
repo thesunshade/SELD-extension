@@ -136,14 +136,12 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: .4rem;
+  margin-bottom: 0rem;
 }
-
-
 
 #seld-sidebar-root .header-actions {
   display: flex;
-  gap: 8px;
+  gap: 4px;
 }
 
 #seld-sidebar-root .header-action-btn {
@@ -163,17 +161,23 @@
   background: var(--bg-panel);
   border: 1px solid var(--border-color);
   border-radius: 12px;
+  position: relative;
+  top: -3px;
 }
 
 #seld-sidebar-root .settings-panel {
   flex: 1;
   overflow-y: auto;
   min-height: 0;
+  position: relative;
+  top: -3px;
 }
 
 #seld-sidebar-root .search-section {
-  padding: 2px;
+  padding: 0 2px 2px 2px;
   flex-shrink: 0;
+  position: relative;
+  top: -3px;
 }
 
 #seld-sidebar-root .search-input {

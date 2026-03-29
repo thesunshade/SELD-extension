@@ -88,17 +88,7 @@ body {
 
 .dict-tab {
 	flex: 1;
-	/* Extends .seld-btn.seld-btn-ghost */
-	border-bottom: 2px solid transparent;
-	border-radius: 0;
-}
-
-.dict-tab:hover {
-	background: var(--accent-bg);
-}
-
-.dict-tab.active {
-	border-bottom-color: var(--accent);
+	/* Style handled by .seld-tab-folder in theme.css */
 }
 
 /* Sidebar Body */

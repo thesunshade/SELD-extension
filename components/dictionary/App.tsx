@@ -547,28 +547,29 @@ export default function DictionaryApp() {
 		<div className={`dict-explorer seld-theme-vars ${themeClass}`} style={{ "--font-size-percent": `${fontSize}%` } as any}>
 			<aside className="dict-sidebar">
 				<div className="dict-tabs" ref={tabsRef}>
-					<button data-tippy-content="Browse" className={`seld-btn seld-btn-ghost dict-tab ${view === "browse" ? "active" : ""}`} onClick={() => setView("browse")}>
+					<button data-tippy-content="Browse" className={`seld-btn seld-tab-folder dict-tab ${view === "browse" ? "active" : ""}`} onClick={() => setView("browse")}>
 						<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 6C12 6 13.6875 5 16.5 5C19.3125 5 21 6 21 6V19C21 19 19.3125 18 16.5 18C13.6875 18 12 19 12 19V6Z" /><path d="M3 6C3 6 4.6875 5 7.5 5C10.3125 5 12 6 12 6V19C12 19 10.3125 18 7.5 18C4.6875 18 3 19 3 19V6Z" /></svg>
 					</button>
-					<button data-tippy-content="Search" className={`seld-btn seld-btn-ghost dict-tab ${view === "search" ? "active" : ""}`} onClick={() => setView("search")}>
+					<button data-tippy-content="Search" className={`seld-btn seld-tab-folder dict-tab ${view === "search" ? "active" : ""}`} onClick={() => setView("search")}>
 						<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
 					</button>
-					<button data-tippy-content="Favorites" className={`seld-btn seld-btn-ghost dict-tab ${view === "favorites" ? "active" : ""}`} onClick={() => setView("favorites")}>
+					<button data-tippy-content="Favorites" className={`seld-btn seld-tab-folder dict-tab ${view === "favorites" ? "active" : ""}`} onClick={() => setView("favorites")}>
 						<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
 					</button>
-					<button data-tippy-content="History" className={`seld-btn seld-btn-ghost dict-tab ${view === "history" ? "active" : ""}`} onClick={() => setView("history")}>
+					<button data-tippy-content="History" className={`seld-btn seld-tab-folder dict-tab ${view === "history" ? "active" : ""}`} onClick={() => setView("history")}>
 						<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
 					</button>
-					<button data-tippy-content="Info" className={`seld-btn seld-btn-ghost dict-tab ${view === "info" ? "active" : ""}`} onClick={() => setView("info")}>
+					<button data-tippy-content="Info" className={`seld-btn seld-tab-folder dict-tab ${view === "info" ? "active" : ""}`} onClick={() => setView("info")}>
 						<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
 							<path fill="currentColor" d="M12 10.75a.75.75 0 0 1 .75.75v5a.75.75 0 1 1-1.5 0v-5a.75.75 0 0 1 .75-.75M12 9a1 1 0 1 0 0-2a1 1 0 0 0 0 2" />
 							<path fill="currentColor" fill-rule="evenodd" d="M7.317 3.769a42.5 42.5 0 0 1 9.366 0c1.827.204 3.302 1.642 3.516 3.48c.37 3.156.37 6.346 0 9.503c-.215 1.836-1.69 3.275-3.516 3.48a42.5 42.5 0 0 1-9.366 0c-1.827-.205-3.302-1.644-3.516-3.48a41 41 0 0 1 0-9.504c.214-1.837 1.69-3.275 3.516-3.48m9.2 1.49a41 41 0 0 0-9.034 0A2.486 2.486 0 0 0 5.29 7.423a39.4 39.4 0 0 0 0 9.154a2.486 2.486 0 0 0 2.193 2.163c2.977.333 6.057.333 9.034 0a2.486 2.486 0 0 0 2.192-2.163a39.4 39.4 0 0 0 0-9.154a2.486 2.486 0 0 0-2.192-2.164" clip-rule="evenodd" />
 						</svg>
 					</button>
-					<button data-tippy-content="Settings" className={`seld-btn seld-btn-ghost dict-tab ${view === "settings" ? "active" : ""}`} onClick={() => setView("settings")}>
+					<button data-tippy-content="Settings" className={`seld-btn seld-tab-folder dict-tab ${view === "settings" ? "active" : ""}`} onClick={() => setView("settings")}>
 						<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
 					</button>
 				</div>
+
 
 				<div className="dict-sidebar-body custom-scroll">
 					{view === "browse" && (

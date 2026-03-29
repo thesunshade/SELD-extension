@@ -201,4 +201,62 @@
 	background: var(--accent);
 	color: var(--accent-fg);
 	border-color: var(--accent);
-}
+}
+
+/* ============================================================
+   Folder Tab Aesthetic
+   ============================================================ */
+
+.seld-tab-folder {
+	border-radius: 10px 10px 0 0 !important;
+	border: 1px solid var(--border-color) !important;
+	border-bottom: none !important;
+	position: relative;
+	transition: none !important;
+	background: var(--accent-bg) !important;
+	color: var(--text-secondary) !important;
+	padding: 0 14px !important;
+	font-weight: 600 !important;
+	gap: 6px !important;
+	opacity: 0.8;
+	height: 35px !important; /* Compensates for the negative top shift of panels */
+	display: inline-flex !important;
+	align-items: center !important;
+	vertical-align: top;
+	overflow: visible !important;
+}
+
+.seld-tab-folder:hover {
+	background: var(--bg-panel) !important;
+	color: var(--text-primary) !important;
+	opacity: 1;
+}
+
+.seld-tab-folder.active {
+	background: var(--bg-panel) !important;
+	color: var(--text-primary) !important;
+	z-index: 5;
+	opacity: 1;
+}
+
+/* Connector to hide the container's bottom border on active tab */
+.seld-tab-folder.active::after {
+	content: '';
+	position: absolute;
+	bottom: -1px; /* Overlap exactly with the container's 1px border */
+	left: -1px;
+	right: -1px;
+	height: 2px;
+	background: var(--bg-panel);
+	z-index: 6;
+}
+
+/* Dark theme overrides for recessed look */
+.dark-theme .seld-tab-folder {
+	background: rgba(0, 0, 0, 0.25) !important;
+}
+
+.dark-theme .seld-tab-folder.active {
+	background: linear-gradient(to bottom, #1e293b, var(--bg-panel)) !important;
+}
+

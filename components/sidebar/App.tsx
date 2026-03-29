@@ -534,7 +534,7 @@ function App({ onClose }: AppProps) {
         />
         {!isResizingSidebar.current && sidebarWidth < 300 ? "" : "SELD"}
         <div className="header-actions">
-          <button className={`seld-btn seld-btn-secondary ${sidebarWidth < 400 ? "seld-btn-icon-circle" : ""} ${view === "search" ? "active" : ""}`} onClick={() => setView("search")} title="Search">
+          <button className={`seld-btn seld-tab-folder ${sidebarWidth < 400 ? "seld-btn-icon-circle" : ""} ${view === "search" ? "active" : ""}`} onClick={() => setView("search")} title="Search">
             {sidebarWidth < 400 ? (
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="11" cy="11" r="8"></circle>
@@ -544,7 +544,7 @@ function App({ onClose }: AppProps) {
               "Search"
             )}
           </button>
-          <button className={`seld-btn seld-btn-secondary ${sidebarWidth < 400 ? "seld-btn-icon-circle" : ""} ${view === "settings" ? "active" : ""}`} onClick={() => setView("settings")} title="Settings">
+          <button className={`seld-btn seld-tab-folder ${sidebarWidth < 400 ? "seld-btn-icon-circle" : ""} ${view === "settings" ? "active" : ""}`} onClick={() => setView("settings")} title="Settings">
             {sidebarWidth < 400 ? (
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="3"></circle>
@@ -554,7 +554,7 @@ function App({ onClose }: AppProps) {
               "Settings"
             )}
           </button>
-          <button className={`seld-btn seld-btn-secondary ${sidebarWidth < 400 ? "seld-btn-icon-circle" : ""} ${view === "info" ? "active" : ""}`} onClick={() => setView("info")} title="Info">
+          <button className={`seld-btn seld-tab-folder ${sidebarWidth < 400 ? "seld-btn-icon-circle" : ""} ${view === "info" ? "active" : ""}`} onClick={() => setView("info")} title="Info">
             {sidebarWidth < 400 ? (
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="11.5" cy="6" r="0.5" fill="currentColor"></circle>
@@ -566,6 +566,7 @@ function App({ onClose }: AppProps) {
               "Info"
             )}
           </button>
+
           {onClose && (
             <button className="seld-btn seld-btn-secondary seld-btn-icon-circle" onClick={onClose} title="Close Sidebar">
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
