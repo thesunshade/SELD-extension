@@ -142,6 +142,7 @@
 #seld-sidebar-root .header-actions {
   display: flex;
   gap: 4px;
+  padding-right: .5rem;
 }
 
 #seld-sidebar-root .header-action-btn {
