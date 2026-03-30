@@ -12,6 +12,7 @@
 
 
 ## Improvements
+- [ ] clicking on the sidebar text scale % should bring it back to 100%
 - [ ] There should probably be some limit to the "distance" of fuzzy search results. If there are more than two variants, it's probaby not a good potential match.
 - [ ] single click or double click option
 - [ ] compound verbs in definitions need to be clickable as a unit. like වන්දනා කරනවා.
