@@ -2,7 +2,9 @@
 
 # Change Log
 
-## 0.3.2 
+## 0.3.3 ()
+
+## 0.3.2  (2026-03-30)
 * Minor CSS improvements
 * update dictionary
 
