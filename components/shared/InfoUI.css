@@ -1,5 +1,5 @@
 .info-pane {
-  padding: 1.5em;
+  padding: .5em 1.5em 1.5em;
   font-size: 0.95em;
   line-height: 1.6;
   flex: 1;
@@ -13,10 +13,10 @@
 .info-pane h3 {
   font-size: 1.3em;
   font-weight: 700;
-  margin-bottom: 0.5em;
+  margin-bottom: 0em;
   color: var(--text-primary);
   border-bottom: 1px solid var(--border-color);
-  padding-bottom: 0.3em;
+  padding-bottom: 0em;
 }
 
 .info-pane p {

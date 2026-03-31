@@ -84,6 +84,7 @@ body {
 .dict-tabs {
 	display: flex;
 	border-bottom: 1px solid var(--border-color);
+	padding-top: 3px;
 }
 
 .dict-tab {
