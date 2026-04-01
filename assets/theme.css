@@ -1,6 +1,7 @@
 .seld-theme-vars {
 	--bg-color: #f8fafc;
 	--bg-panel: rgba(255, 255, 255);
+	--bg-tippy: #e9f2ff;
 	--text-primary: #0f172a;
 	--text-secondary: #475569;
 	--border-color: #e2e8f0;
@@ -19,7 +20,7 @@
 .dark-theme .seld-theme-vars {
 	--bg-color: #020617;
 	--bg-panel: rgb(15, 23, 42);
-	/*removed transparency*/
+	--bg-tippy: black;
 	--text-primary: #f6f8fa;
 	--text-secondary: #bfc8d4;
 	--border-color: #3c5379;
@@ -78,7 +79,7 @@
 
 /* Tippy styles inherited overrides */
 .tippy-box {
-	background-color: var(--bg-color) !important;
+	background-color: var(--bg-tippy) !important;
 	color: var(--text-primary) !important;
 	border: 1px solid var(--border-color);
 	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
@@ -87,7 +88,7 @@
 }
 
 .tippy-arrow {
-	color: var(--bg-color) !important;
+	color: var(--bg-tippy) !important;
 }
 
 .tippy-content {
@@ -100,7 +101,7 @@
 }
 
 /* ============================================================
-   SELD Base Button System (DRY)
+   SELD Base Button System
    ============================================================ */
 
 .seld-btn {
@@ -219,7 +220,8 @@
 	font-weight: 600 !important;
 	gap: 6px !important;
 	opacity: 0.8;
-	height: 35px !important; /* Compensates for the negative top shift of panels */
+	height: 35px !important;
+	/* Compensates for the negative top shift of panels */
 	display: inline-flex !important;
 	align-items: center !important;
 	vertical-align: top;
@@ -243,7 +245,8 @@
 .seld-tab-folder.active::after {
 	content: '';
 	position: absolute;
-	bottom: -1px; /* Overlap exactly with the container's 1px border */
+	bottom: -1px;
+	/* Overlap exactly with the container's 1px border */
 	left: -1px;
 	right: -1px;
 	height: 2px;
@@ -259,4 +262,3 @@
 .dark-theme .seld-tab-folder.active {
 	background: linear-gradient(to bottom, #1e293b, var(--bg-panel)) !important;
 }
-
