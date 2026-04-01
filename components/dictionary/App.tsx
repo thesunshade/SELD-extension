@@ -669,6 +669,7 @@ export default function DictionaryApp() {
 								onItemRemove={(word) => handleToggleFavorite(word)}
 								onFilteredItemsChange={setFavoritesFiltered}
 								emptyMessage="No favorites yet. Add some from the definition cards."
+								listType="favorites"
 							/>
 						</div>
 					)}
@@ -688,6 +689,7 @@ export default function DictionaryApp() {
 								}}
 								onFilteredItemsChange={setHistoryFiltered}
 								emptyMessage="No search history yet."
+								listType="history"
 							/>
 						</div>
 					)}

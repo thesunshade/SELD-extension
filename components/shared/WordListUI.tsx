@@ -13,6 +13,7 @@ interface WordListUIProps {
 	onItemRemove: (word: string) => void;
 	onFilteredItemsChange: (items: string[]) => void;
 	emptyMessage?: string;
+	listType?: string;
 }
 
 export const WordListUI: React.FC<WordListUIProps> = ({
@@ -21,7 +22,8 @@ export const WordListUI: React.FC<WordListUIProps> = ({
 	onItemClick,
 	onItemRemove,
 	onFilteredItemsChange,
-	emptyMessage = "No items found."
+	emptyMessage = "No items found.",
+	listType
 }) => {
 	const [searchQuery, setSearchQuery] = useState("");
 	const [sortMode, setSortMode] = useState<"date" | "alpha">("date");
@@ -87,7 +89,7 @@ export const WordListUI: React.FC<WordListUIProps> = ({
 				<input
 					type="text"
 					className="dict-search-input"
-					placeholder="Search list..."
+					placeholder={listType ? `Search ${listType} list...` : "Search list..."}
 					value={searchQuery}
 					onChange={e => setSearchQuery(e.target.value)}
 					style={{ flex: 1, margin: 0 }}
