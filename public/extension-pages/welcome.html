@@ -348,7 +348,7 @@
 		}
 
 		.changelog-content {
-			height: 15rem;
+			height: 10rem;
 			overflow-y: auto;
 			background: var(--accent-soft);
 			padding: 12px;
@@ -411,67 +411,13 @@
 			<!-- CHANGELOG_START -->
 			<details class="changelog-details">
 				<summary>Latest Changes</summary>
-				<div class="changelog-content"><h3>Change Log</h3>
-<h4>0.3.3 (2026-3-31)</h4>
-<ul>
-  <li>Dictionary update</li>
-  <li>Small CSS improvements</li>
-</ul>
-<h4>0.3.2  (2026-03-30)</h4>
-<ul>
-  <li>Minor CSS improvements</li>
-  <li>update dictionary</li>
-</ul>
-<h4>0.3.1 (2026-03-28)</h4>
-<ul>
-  <li>Prioritize compound words</li>
-</ul>
-<h4>0.3.0 (2026-03-26)</h4>
-<ul>
-  <li>add favoriting system</li>
-  <li>add history interface to search in Dictionary Explorer</li>
-  <li>Combine transliteration settings into one and refactor</li>
-  <li>update dictionary</li>
-</ul>
-<h4>0.2.2 (2026-03-23)</h4>
-<ul>
-  <li>add fuzzy search results, ignoring vowel markers</li>
-  <li>Add edit hotkey for Text Pad</li>
-  <li>Add button to open dictionary browser from any definition card</li>
-  <li>improve result highlighting in search</li>
-  <li>page specific favicons</li>
-  <li>Dev: add unit testing for search</li>
-  <li>update dictionary file</li>
-</ul>
-<h4>0.2.1 (2026-03-20)</h4>
-<ul>
-  <li>Add settings panel to dictionary explorer</li>
-  <li>various CSS fixes</li>
-  <li>change to binary search</li>
-  <li>Add dedicated scaling to texpad area</li>
-  <li>Add copy button to search input in sidebar</li>
-  <li>Add Ctrl + s to save textpad</li>
-  <li>Add abbreviation and term interface</li>
-  <li>Add enhanced history interface</li>
-</ul>
-<h4>0.1.1 (2026-03-14)</h4>
-<ul>
-  <li>tweak dictionary browser button sort order</li>
-  <li>fix css universal injection</li>
-</ul>
-<h4>0.0.3 (2026-03-12)</h4>
-<ul>
-  <li>SELD edition 2026-03-10</li>
-  <li>Add feedback forms</li>
-  <li>add install/update welcome page</li>
-  <li>improve html rendering</li>
-  <li>Add Text Pad so users can work with their own texts</li>
-  <li>Add dictionary viewer</li>
-  <li>Swap sidebar position</li>
-</ul></div>
-				<a href="https://github.com/thesunshade/SELD-extension/blob/main/changelog.md#experimental-sinhala-english-learners-dictionary-browser-extension"><span class="badge">View Full Changelog on GitHub 📃</span></a>
+				<div class="changelog-content" id="changelog-container">Loading latest changes...</div>
+				<a
+					href="https://github.com/thesunshade/SELD-extension/blob/main/changelog.md#experimental-sinhala-english-learners-dictionary-browser-extension"><span
+						class="badge">View Full Changelog on GitHub 📃</span></a>
 			</details>
-<!-- CHANGELOG_END -->
+			<script src="changelog-data.js"></script>
+			<!-- CHANGELOG_END -->
 		</div>
 
 		<div class="card">
