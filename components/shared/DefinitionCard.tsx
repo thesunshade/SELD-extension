@@ -56,7 +56,7 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 					return;
 				}
 
-				console.log("[Tippy] Initializing delegate on container:", containerRef.current);
+				// console.log("[Tippy] Initializing delegate on container:", containerRef.current);
 
 				const instances = delegate(containerRef.current, {
 					arrow: true,
@@ -142,7 +142,7 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 						svg.setAttribute('viewBox', '0 0 24 24');
 						svg.setAttribute('fill', 'none');
 						svg.setAttribute('stroke', 'currentColor');
-						svg.setAttribute('stroke-width', '2');
+						svg.setAttribute('strokeWidth', '2');
 
 						const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
 						path.setAttribute('d', 'M18 6L6 18M6 6l12 12');
@@ -478,71 +478,71 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 				) : (
 					definition.map((block, bIdx) => (
 						<div key={bIdx} className="synthesized-section" style={{ marginBottom: bIdx < definition.length - 1 ? "16px" : "0" }}>
-						{definition.length > 1 && (
-							<div className="synthesized-header">
-								<div style={{ display: "flex", flexDirection: "column" }}>
-									<span
-										className="synthesized-header-text"
-										onClick={() => {
-											onWordClick(block.headword);
-										}}
-										title="Search this word">
-										{highlightText(block.headword)}
-									</span>
-									{transliterateSinhala && /[\u0D80-\u0DFF]/.test(block.headword) && (
-										<span className="seld-transliteration" style={{ fontSize: "0.8em", fontWeight: "normal", opacity: 0.8, marginTop: "2px" }}>
-											{transliterateSinhalaTxt(block.headword)}
+							{definition.length > 1 && (
+								<div className="synthesized-header">
+									<div style={{ display: "flex", flexDirection: "column" }}>
+										<span
+											className="synthesized-header-text"
+											onClick={() => {
+												onWordClick(block.headword);
+											}}
+											title="Search this word">
+											{highlightText(block.headword)}
 										</span>
-									)}
-								</div>
-								<div style={{ display: "flex", gap: "8px", opacity: 0.8, transform: "scale(0.85)" }}>
-									{showExplorerLink && (
+										{transliterateSinhala && /[\u0D80-\u0DFF]/.test(block.headword) && (
+											<span className="seld-transliteration" style={{ fontSize: "0.8em", fontWeight: "normal", opacity: 0.8, marginTop: "2px" }}>
+												{transliterateSinhalaTxt(block.headword)}
+											</span>
+										)}
+									</div>
+									<div style={{ display: "flex", gap: "8px", opacity: 0.8, transform: "scale(0.85)" }}>
+										{showExplorerLink && (
+											<button
+												className="seld-btn seld-btn-secondary seld-btn-icon-circle explorer-link-button"
+												onClick={() => onExplorerClick?.(block.headword)}
+												title="Show in Dictionary Explorer"
+											>
+												<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+													<path d="M12 6C12 6 13.6875 5 16.5 5C19.3125 5 21 6 21 6V19C21 19 19.3125 18 16.5 18C13.6875 18 12 19 12 19V6Z" fill="currentColor" fillOpacity="0" strokeMiterlimit="10" />
+													<path d="M3 6C3 6 4.6875 5 7.5 5C10.3125 5 12 6 12 6V19C12 19 10.3125 18 7.5 18C4.6875 18 3 19 3 19V6Z" fill="currentColor" fillOpacity="0" strokeMiterlimit="10" />
+												</svg>
+											</button>
+										)}
 										<button
-											className="seld-btn seld-btn-secondary seld-btn-icon-circle explorer-link-button"
-											onClick={() => onExplorerClick?.(block.headword)}
-											title="Show in Dictionary Explorer"
+											className={`seld-btn seld-btn-secondary seld-btn-icon-circle favorite-button ${(favoritesList && favoritesList.includes(block.headword)) ? "active" : ""}`}
+											onClick={() => onToggleFavorite?.(block.headword)}
+											title={(favoritesList && favoritesList.includes(block.headword)) ? "Remove from Favorites" : "Add to Favorites"}
 										>
-											<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-												<path d="M12 6C12 6 13.6875 5 16.5 5C19.3125 5 21 6 21 6V19C21 19 19.3125 18 16.5 18C13.6875 18 12 19 12 19V6Z" fill="currentColor" fillOpacity="0" strokeMiterlimit="10" />
-												<path d="M3 6C3 6 4.6875 5 7.5 5C10.3125 5 12 6 12 6V19C12 19 10.3125 18 7.5 18C4.6875 18 3 19 3 19V6Z" fill="currentColor" fillOpacity="0" strokeMiterlimit="10" />
+											<svg viewBox="0 0 24 24" width="18" height="18" fill={(favoritesList && favoritesList.includes(block.headword)) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+												<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
 											</svg>
 										</button>
-									)}
-									<button
-										className={`seld-btn seld-btn-secondary seld-btn-icon-circle favorite-button ${(favoritesList && favoritesList.includes(block.headword)) ? "active" : ""}`}
-										onClick={() => onToggleFavorite?.(block.headword)}
-										title={(favoritesList && favoritesList.includes(block.headword)) ? "Remove from Favorites" : "Add to Favorites"}
-									>
-										<svg viewBox="0 0 24 24" width="18" height="18" fill={(favoritesList && favoritesList.includes(block.headword)) ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-											<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-										</svg>
-									</button>
-									<button className="seld-btn seld-btn-secondary seld-btn-icon-circle copy-button" onClick={() => onCopyClick(block.headword, block.homographDefinitions)} title="Copy entry">
-										<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-											<path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-											<rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-										</svg>
-									</button>
-									<button className="seld-btn seld-btn-secondary seld-btn-icon-circle tts-button" onClick={() => onSpeakClick(block.headword)} title="Speak word">
-										<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-											<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-											<path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-										</svg>
-									</button>
+										<button className="seld-btn seld-btn-secondary seld-btn-icon-circle copy-button" onClick={() => onCopyClick(block.headword, block.homographDefinitions)} title="Copy entry">
+											<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+												<path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+												<rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+											</svg>
+										</button>
+										<button className="seld-btn seld-btn-secondary seld-btn-icon-circle tts-button" onClick={() => onSpeakClick(block.headword)} title="Speak word">
+											<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+												<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+												<path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+											</svg>
+										</button>
+									</div>
 								</div>
-							</div>
-						)}
+							)}
 
-						{block.homographDefinitions.map((homograph, hIdx) => (
-							<div key={hIdx}>
-								{renderHtmlDefinition(homograph)}
-								{hIdx < block.homographDefinitions.length - 1 && <hr className="homograph-separator" style={{ margin: "8px 0" }} />}
-							</div>
-						))}
+							{block.homographDefinitions.map((homograph, hIdx) => (
+								<div key={hIdx}>
+									{renderHtmlDefinition(homograph)}
+									{hIdx < block.homographDefinitions.length - 1 && <hr className="homograph-separator" style={{ margin: "8px 0" }} />}
+								</div>
+							))}
 
-						{bIdx < definition.length - 1 && <hr style={{ margin: "16px 0", border: "none", borderTop: "2px dashed var(--border-color)" }} />}
-					</div>
-				)))}
+							{bIdx < definition.length - 1 && <hr style={{ margin: "16px 0", border: "none", borderTop: "2px dashed var(--border-color)" }} />}
+						</div>
+					)))}
 			</div>
 		</div>
 	);

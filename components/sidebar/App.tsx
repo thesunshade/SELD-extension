@@ -558,7 +558,7 @@ function App({ onClose }: AppProps) {
           </button>
           <button className={`seld-btn seld-tab-folder ${sidebarWidth < 400 ? "seld-btn-icon-circle" : ""} ${view === "info" ? "active" : ""}`} onClick={() => setView("info")} title="Info">
             {sidebarWidth < 400 ? (
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="11.5" cy="6" r="0.5" fill="currentColor"></circle>
                 <line x1="11.5" y1="11" x2="11.5" y2="19"></line>
                 <line x1="9.5" y1="11" x2="11.5" y2="11"></line>

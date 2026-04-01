@@ -54,7 +54,7 @@ class StarDictParser {
 
                 this.parseIndex();
                 this.isLoaded = true;
-                console.log('StarDict loaded. Words count:', this.indexList.length);
+                // console.log('StarDict loaded. Words count:', this.indexList.length);
             } catch (err) {
                 console.error('Failed to load StarDict dictionary:', err);
                 this.loadPromise = null; // Reset on failure
