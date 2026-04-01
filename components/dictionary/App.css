@@ -110,8 +110,9 @@ body {
 .alphabet-btn {
 	/* Extends .seld-btn.seld-btn-secondary */
 	font-family: 'Noto Sans Sinhala';
-	font-size: 1.0em;
+	font-size: 1.1em !important;
 	text-align: center;
+	padding: .2rem !important;
 }
 
 /* Secondary Filter */
@@ -133,14 +134,15 @@ body {
 
 .secondary-grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+	grid-template-columns: repeat(auto-fill, minmax(35px, 1fr));
 	gap: 2px;
 }
 
 .secondary-btn {
 	/* Extends .seld-btn.seld-btn-ghost */
 	font-family: 'Noto Sans Sinhala';
-	font-size: 1.2em;
+	font-size: 1.1em !important;
+	padding: .2rem !important;
 	border: 1px solid transparent;
 }
 
