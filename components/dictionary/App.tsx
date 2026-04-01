@@ -709,7 +709,7 @@ export default function DictionaryApp() {
 											? "No matching history entries."
 											: searchQuery.trim()
 												? (
-													<div className="flex flex-col items-center gap-2">
+													<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
 														<div>No matching entries found.</div>
 														<CarterFallbackLink searchTerm={searchQuery} />
 													</div>
