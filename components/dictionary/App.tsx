@@ -510,7 +510,8 @@ export default function DictionaryApp() {
 			for (const entry of visibleEntries) {
 				if (!newCache.has(entry.word)) {
 					const def = await stardict.getDefinition(entry.word);
-					if (def) { newCache.set(entry.word, def); changed = true; }
+					newCache.set(entry.word, def && def.length > 0 ? def : []);
+					changed = true;
 				}
 			}
 			if (changed) setDefinitionCache(new Map(newCache));
