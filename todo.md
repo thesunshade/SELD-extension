@@ -1,7 +1,6 @@
 ## Bugs
 - [ ] in a list of usage abbreviations, only the first is clickable
 - [ ] transltierations break when word is parsed. e.g. අහසෙහි ->අහස -ෙහි ahasa -ෙhi
-- [ ] term in පියාඹන්ට is not clickable
 - [ ] for suffix type headwords when the suffix starts with a dash and then a combining vowel, two non-breaking spaces should be inserted betweeen the vowel and the dash
 
 ## Search
@@ -62,3 +61,4 @@
 - [x] adding a new word to the search input should scroll the new results list to the top.
 - [x] ගොඩ නැගිල්ල doesn't seem to be in the lexicon
 - [x] ගොඩ නැගිල්ල has `Spelling Variant of ගොඩනැගිල්ල` but the word is not clickable.
+- [x] term in පියාඹන්ට is not clickable

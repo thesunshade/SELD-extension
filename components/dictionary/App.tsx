@@ -6,6 +6,7 @@ import { transliterateSinhala as transliterateSinhalaTxt } from "../../utils/tra
 import { getCopyText } from "../../utils/clipboard";
 import { browser } from "wxt/browser";
 import { DefinitionCard } from "../shared/DefinitionCard";
+import { CarterFallbackLink } from "../shared/CarterFallbackLink";
 import { SettingsUI } from "../shared/SettingsUI";
 import { WordListUI } from "../shared/WordListUI";
 import { Theme } from "../shared/types";
@@ -707,7 +708,12 @@ export default function DictionaryApp() {
 										: view === "history"
 											? "No matching history entries."
 											: searchQuery.trim()
-												? "No matching entries found."
+												? (
+													<div className="flex flex-col items-center gap-2">
+														<div>No matching entries found.</div>
+														<CarterFallbackLink searchTerm={searchQuery} />
+													</div>
+												)
 												: "Type a search query to find entries."}
 							</div>
 						)}

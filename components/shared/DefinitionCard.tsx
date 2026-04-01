@@ -6,6 +6,7 @@ import { StructuredDefinition } from "../../utils/stardict";
 import { transliterateSinhala as transliterateSinhalaTxt } from "../../utils/transliterate";
 import { getFullEntryCopyData } from "../../utils/clipboard";
 import { checkBloom } from "../../utils/bloom-data";
+import { CarterFallbackLink } from "./CarterFallbackLink";
 
 interface DefinitionCardProps {
 	word: string;
@@ -470,8 +471,9 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 			</h2>
 			<div className="definition-content">
 				{definition.length === 0 ? (
-					<div className="not-found-message" style={{ fontStyle: "italic", opacity: 0.8, padding: "8px 0" }}>
-						Not in the SELD
+					<div className="not-found-message" style={{ padding: "8px 0" }}>
+						<div style={{ fontStyle: "italic", opacity: 0.8 }}>Not in the SELD</div>
+						<CarterFallbackLink searchTerm={word} />
 					</div>
 				) : (
 					definition.map((block, bIdx) => (

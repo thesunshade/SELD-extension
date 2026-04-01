@@ -6,6 +6,8 @@ import { transliterateSinhala as transliterateSinhalaTxt } from "../../utils/tra
 import { browser } from "wxt/browser";
 import { getCopyText } from "../../utils/clipboard";
 import { DefinitionCard } from "../shared/DefinitionCard";
+import { CarterFallbackLink } from "../shared/CarterFallbackLink";
+
 
 import { SettingsUI } from "../shared/SettingsUI";
 import { Theme } from "../shared/types";
@@ -629,6 +631,7 @@ function App({ onClose }: AppProps) {
               ) : query.trim() ? (
                 <div className="no-results">
                   <div>No results found</div>
+                  <CarterFallbackLink searchTerm={query} />
                   <a href={`https://jotform.com/260678120991058?q2_textbox0=${encodeURIComponent(query)}&q4_textbox2=${encodeURIComponent(window.location.href)}`} target="_blank" rel="noopener noreferrer" className="seld-btn seld-btn-primary suggest-link-btn">
                     Suggest Definition
                   </a>
