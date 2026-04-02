@@ -63,13 +63,14 @@ export const SettingsUI: React.FC<SettingsUIProps> = ({
           ))}
           {sidebarPosition && setSidebarPosition && (
             <button
+
               className="seld-btn seld-btn-secondary seld-btn-icon-circle header-action-btn"
               onClick={() => {
                 const newPos = sidebarPosition === 'right' ? 'left' : 'right';
                 setSidebarPosition(newPos);
                 saveSetting("seldSidebarPosition", newPos);
               }}
-              title={`Move to ${sidebarPosition === 'right' ? 'left' : 'right'}`}
+              data-tippy-content={`Move this sidebar to ${sidebarPosition === 'right' ? 'left' : 'right'}`}
               style={{ marginLeft: '8px' }}
             >
               <svg
@@ -206,7 +207,7 @@ export const SettingsUI: React.FC<SettingsUIProps> = ({
       </div>
       <div className="settings-group">
         <label className="settings-label">Experimental</label>
-        <div className="settings-control">
+        <div data-tippy-content="Removes the page sidebar on specific sites when the Dictionary sidebar is open to improve useability. May cause unexpected results" className="settings-control">
           <label className="checkbox-container">
             <input
               type="checkbox"
@@ -220,7 +221,6 @@ export const SettingsUI: React.FC<SettingsUIProps> = ({
             <span className="custom-checkbox"></span>
             <span className="checkbox-label">Fix page layout for supported sites</span>
           </label>
-          <p className="settings-hint">Adjusts the page layout on known sites when the sidebar is open.</p>
         </div>
       </div>
     </div>

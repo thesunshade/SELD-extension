@@ -2,6 +2,12 @@
 
 # Change Log
 
+## 0.4.0 ()
+* add links to Carter online dictionary when term not found in SELD
+* Improve tool tip functionality
+* add custom overrides to remove onsite sidbars.
+* better handle history items not in dictionary
+
 ## 0.3.3 (2026-3-31)
 * Dictionary update
 * Small CSS improvements

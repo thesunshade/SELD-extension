@@ -32,6 +32,19 @@ export function useGlobalTooltips(
                 }
                 return document.body;
             },
+            onShow: (instance) => {
+                // Ensure dynamic React state changes to data-tippy-content are reflected
+                // since delegate instances cache their content on first hover.
+                const currentContent = instance.reference.getAttribute('data-tippy-content');
+                if (currentContent && currentContent !== instance.props.content) {
+                    instance.setContent(currentContent);
+                }
+                
+                // Allow custom options to override or extend onShow
+                if (options?.onShow) {
+                    options.onShow(instance);
+                }
+            },
             ...options
         });
 
