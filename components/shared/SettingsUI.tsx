@@ -175,7 +175,7 @@ export const SettingsUI: React.FC<SettingsUIProps> = ({
           </label>
 
           <label className="checkbox-container"
-            data-tippy-content="Automaticaly play the headword after clicking on word on the page. Experimental &#x1F9EA;"
+            data-tippy-content="Automatically play the headword after clicking on word on the page. Experimental &#x1F9EA;"
             data-tippy-allowhtml="true">
             <input
 
@@ -192,7 +192,7 @@ export const SettingsUI: React.FC<SettingsUIProps> = ({
           </label>
 
           <label className="checkbox-container"
-            data-tippy-content="Forces Noto Sans Sinhala on the current page. May cause unexpected results.">
+            data-tippy-content="Forces <em>Noto Sans Sinhala</em> font on the current page. May cause unexpected results." data-tippy-allowhtml="true">
             <input
               type="checkbox"
               checked={overrideSinhalaFont}
@@ -225,7 +225,7 @@ export const SettingsUI: React.FC<SettingsUIProps> = ({
       </div>
       <div className="settings-group">
         <label className="settings-label">Experimental</label>
-        <div data-tippy-content="Removes the page sidebar on specific sites when the Dictionary sidebar is open to improve useability. May cause unexpected results" className="settings-control">
+        <div data-tippy-content="Removes the page sidebar on specific sites when the Dictionary sidebar is open to improve usability. May cause unexpected results" className="settings-control">
           <label className="checkbox-container">
             <input
               type="checkbox"
