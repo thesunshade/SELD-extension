@@ -273,6 +273,19 @@
   background: var(--accent-bg-darker);
 }
 
+#seld-sidebar-root .entry-score {
+  font-size: 0.75em;
+  font-family: monospace;
+  opacity: 0.5;
+  margin-left: 8px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+#seld-sidebar-root .headword-item.selected .entry-score {
+  opacity: 0.8;
+}
+
 #seld-sidebar-root .definition-area {
   overflow-y: auto;
   border: 1px solid var(--border-color);

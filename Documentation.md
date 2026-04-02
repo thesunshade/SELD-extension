@@ -104,4 +104,25 @@ beforeEach(async () => {
 
 - **Always run the full suite**: Before submitting changes, run `npm test` to ensure no regressions in existing fuzzy or prefix logic.
 - **Mock realistic dictionary data**: Use the `createMockIdx` helper in tests to simulate various index scenarios (Exact, Prefix, Suffix).
-- **Verify Ranking**: When adding fuzzy cases, always assert the *order* of results, not just their presence.
+- **Verify Ranking**: When adding fuzzy cases, always assert the *order* of results, not just their presence.
+
+## Priority scoring
+
+
+1. Ensure you are running the extension in development mode (`npm run dev`).
+2. Search for a term in the sidebar.
+3. You should see scores like `P0`, `D1`, `V0.8`, etc., to the right of each result.
+4. When you build the extension for production (`npm run build`), these scores will be automatically omitted from the UI.
+
+
+The `P` (Priority) values correspond to:
+- `0`: Exact match
+- `1`: Suffix match
+- `2`: Prefix match
+- `3`: "Contains" match
+- `4`: Fuzzy exact match
+- `5`: Fuzzy prefix match
+
+D (Fuzzy Distance): Levenshtein distance for fuzzy matches.
+V (Vowel Score): Vowel similarity score (0.0 to 1.0).
+S (Suffix Count): Number of suffixes for synthesized matches.

@@ -53,13 +53,15 @@ export function levenshteinDistance(s1: string, s2: string): number {
 /**
  * Calculates a score for how well vowel modifiers match between two strings.
  * Assumes the strings match when normalized.
- * Returns the number of identical characters in the original strings.
+ * Returns a score between 0.0 and 1.0 based on identical characters.
  */
 export function vowelSimilarityScore(query: string, match: string): number {
     const queryChars = [...query];
     const matchChars = [...match];
-    let score = 0;
+    const maxLen = Math.max(queryChars.length, matchChars.length);
+    if (maxLen === 0) return 1.0;
     
+    let score = 0;
     const matchMap = new Map<string, number>();
     for (const char of matchChars) {
         matchMap.set(char, (matchMap.get(char) || 0) + 1);
@@ -71,5 +73,5 @@ export function vowelSimilarityScore(query: string, match: string): number {
             matchMap.set(char, matchMap.get(char)! - 1);
         }
     }
-    return score;
+    return score / maxLen;
 }

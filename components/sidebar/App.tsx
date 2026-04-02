@@ -631,9 +631,19 @@ function App({ onClose }: AppProps) {
             <div ref={listRef} className="headword-list custom-scroll dynamic-font" style={{ height: `${listHeight}%`, flex: "none" }}>
               {results.length > 0 ? (
                 results.map((entry, idx) => (
-                  <div key={idx} ref={selectedWord === entry.word ? selectedRef : null} className={`headword-item ${selectedWord === entry.word ? "selected" : ""}`} onClick={() => handleSelectWord(entry.word, entry.originalQuery)}>
-                    <Highlighter text={entry.word} searchTerm={query} />
-                    {transliterateSinhala && /[\u0D80-\u0DFF]/.test(entry.word) && <span className="seld-transliteration"> {transliterateSinhalaTxt(entry.word)}</span>}
+                  <div key={idx} ref={selectedWord === entry.word ? selectedRef : null} className={`headword-item ${selectedWord === entry.word ? "selected" : ""}`} onClick={() => handleSelectWord(entry.word, entry.originalQuery)} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      <Highlighter text={entry.word} searchTerm={query} />
+                      {transliterateSinhala && /[\u0D80-\u0DFF]/.test(entry.word) && <span className="seld-transliteration"> {transliterateSinhalaTxt(entry.word)}</span>}
+                    </div>
+                    {import.meta.env.DEV && (
+                      <span className="entry-score">
+                        {entry.matchPriority !== undefined && `P${entry.matchPriority}`}
+                        {entry.fuzzyDist !== undefined && ` D${entry.fuzzyDist}`}
+                        {entry.vowelScore !== undefined && ` V${entry.vowelScore.toFixed(1)}`}
+                        {entry.suffixCount !== undefined && ` S${entry.suffixCount}`}
+                      </span>
+                    )}
                   </div>
                 ))
               ) : query.trim() ? (
