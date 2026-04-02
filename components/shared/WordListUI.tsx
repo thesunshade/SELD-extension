@@ -1,7 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
-import tippy from "tippy.js";
-import "tippy.js/dist/border.css";
-import "tippy.js/dist/tippy.css";
+import React, { useState, useEffect } from "react";
 import { Highlighter } from "./Highlighter";
 import { transliterateSinhala as transliterateSinhalaTxt } from "../../utils/transliterate";
 import { DEFAULT_SEARCH_DEBOUNCE_MS } from "../../utils/constants";
@@ -28,22 +25,7 @@ export const WordListUI: React.FC<WordListUIProps> = ({
 	const [searchQuery, setSearchQuery] = useState("");
 	const [sortMode, setSortMode] = useState<"date" | "alpha">("date");
 	const [filteredWords, setFilteredWords] = useState<string[]>([]);
-	const sortBtnRef = useRef<HTMLButtonElement>(null);
 
-	const toggleSort = () => {
-		setSortMode(prev => prev === "date" ? "alpha" : "date");
-	};
-
-	useEffect(() => {
-		if (sortBtnRef.current) {
-			const instance = tippy(sortBtnRef.current, {
-				content: sortMode === "date" ? "Click to sort alphabetically" : "Click to sort by date added",
-				placement: "top",
-				animation: "fade",
-			});
-			return () => instance.destroy();
-		}
-	}, [sortMode]);
 
 	useEffect(() => {
 		let isActive = true;
@@ -95,10 +77,10 @@ export const WordListUI: React.FC<WordListUIProps> = ({
 					style={{ flex: 1, margin: 0 }}
 				/>
 				<button
-					ref={sortBtnRef}
-					onClick={toggleSort}
+					onClick={() => setSortMode(prev => prev === "date" ? "alpha" : "date")}
 					className="seld-btn seld-btn-secondary sort-toggle-btn"
 					style={{ minWidth: "40px", padding: "4px 8px" }}
+					data-tippy-content={sortMode === "date" ? "Click to sort alphabetically" : "Click to sort by date added"}
 				>
 					{sortMode === "date" ? (
 						<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -147,7 +129,7 @@ export const WordListUI: React.FC<WordListUIProps> = ({
 									e.stopPropagation();
 									onItemRemove(word);
 								}}
-								title="Remove"
+								data-tippy-content="Remove"
 							>
 								<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
 									<line x1="18" y1="6" x2="6" y2="18"></line>

@@ -63,7 +63,7 @@ export function HistoryNav({
         className="seld-btn seld-btn-secondary history-btn"
         onClick={onGoBack}
         disabled={historyIndex.current <= 0}
-        title="Go back"
+        data-tippy-content="Go back"
       >
         &lt;
       </button>
@@ -71,7 +71,7 @@ export function HistoryNav({
         className="seld-btn seld-btn-secondary history-btn"
         onClick={onGoForward}
         disabled={historyIndex.current >= history.length - 1}
-        title="Go forward"
+        data-tippy-content="Go forward"
       >
         &gt;
       </button>
@@ -80,7 +80,7 @@ export function HistoryNav({
         ref={toggleBtnRef}
         onClick={() => setShowDropdown(prev => !prev)}
         disabled={history.length === 0}
-        title="History"
+        data-tippy-content="History"
       >
         &#9662;
       </button>
@@ -97,10 +97,10 @@ export function HistoryNav({
             ))}
           </div>
           <div className="history-dropdown-footer">
-            <button className="seld-btn seld-btn-secondary history-dropdown-btn" onClick={handleClear} title="Clear History">
+            <button className="seld-btn seld-btn-secondary history-dropdown-btn" onClick={handleClear} data-tippy-content="Clear History">
               Clear
             </button>
-            <button className="seld-btn seld-btn-secondary history-dropdown-btn" onClick={handleDownload} title="Download History">
+            <button className="seld-btn seld-btn-secondary history-dropdown-btn" onClick={handleDownload} data-tippy-content="Download History">
               Download
             </button>
           </div>

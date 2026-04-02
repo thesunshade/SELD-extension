@@ -13,6 +13,7 @@ import { Theme } from "../shared/types";
 import { Highlighter } from "../shared/Highlighter";
 import { HistoryNav } from "../shared/HistoryNav";
 import { InfoUI } from "../shared/InfoUI";
+import { useGlobalTooltips } from "../shared/useGlobalTooltips";
 import "./App.css";
 
 type ViewTab = "browse" | "search" | "favorites" | "history" | "settings" | "info";
@@ -84,14 +85,8 @@ export default function DictionaryApp() {
 		}
 	}, [view]);
 
-	const tabsRef = useRef<HTMLDivElement>(null);
-	useEffect(() => {
-		let instance: any = null;
-		if (tabsRef.current) {
-			instance = delegate(tabsRef.current, { target: '[data-tippy-content]', animation: 'fade' });
-		}
-		return () => { if (instance) instance.destroy(); };
-	}, []);
+	const appRef = useRef<HTMLDivElement>(null);
+	useGlobalTooltips(appRef);
 
 	// --- Helpers ---
 	const getEffectiveWord = (word: string) => word.startsWith("-") ? word.slice(1) : word;
@@ -546,9 +541,9 @@ export default function DictionaryApp() {
 		: (theme === "dark" ? "dark-theme" : "light-theme");
 
 	return (
-		<div className={`dict-explorer seld-theme-vars ${themeClass}`} style={{ "--font-size-percent": `${fontSize}%` } as any}>
+		<div ref={appRef} className={`dict-explorer seld-theme-vars ${themeClass}`} style={{ "--font-size-percent": `${fontSize}%` } as any}>
 			<aside className="dict-sidebar">
-				<div className="dict-tabs" ref={tabsRef}>
+				<div className="dict-tabs">
 					<button data-tippy-content="Browse" className={`seld-btn seld-tab-folder dict-tab ${view === "browse" ? "active" : ""}`} onClick={() => setView("browse")}>
 						<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 6C12 6 13.6875 5 16.5 5C19.3125 5 21 6 21 6V19C21 19 19.3125 18 16.5 18C13.6875 18 12 19 12 19V6Z" /><path d="M3 6C3 6 4.6875 5 7.5 5C10.3125 5 12 6 12 6V19C12 19 10.3125 18 7.5 18C4.6875 18 3 19 3 19V6Z" /></svg>
 					</button>

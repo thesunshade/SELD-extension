@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { browser } from 'wxt/browser';
-import tippy from 'tippy.js';
-import 'tippy.js/dist/border.css';
-import 'tippy.js/dist/tippy.css';
+import { useGlobalTooltips } from '../shared/useGlobalTooltips';
 import './TextPadApp.css';
 
 export default function TextPadApp() {
@@ -76,17 +74,9 @@ export default function TextPadApp() {
 		return () => mediaQuery.removeEventListener("change", handler);
 	}, []);
 
-	useEffect(() => {
-		const isMac = /Mac/.test(navigator.userAgent);
-		const modifier = isMac ? '⌘' : 'Ctrl';
-		const tip = tippy('.textpad-btn.primary', {
-			content: mode === 'EDIT' ? `${modifier}+S to Save` : `${modifier}+E to Edit`,
-			placement: 'bottom',
-			delay: [500, 0],
-			appendTo: () => containerRef.current || document.body,
-		});
-		return () => tip.forEach(t => t.destroy());
-	}, [mode]);
+	useGlobalTooltips(containerRef);
+	const isMac = /Mac/.test(navigator.userAgent);
+	const modifier = isMac ? '⌘' : 'Ctrl';
 
 	const handleSaveEdit = () => {
 		if (modeRef.current === 'EDIT') {
@@ -137,7 +127,7 @@ export default function TextPadApp() {
 						</button>
 					</div>
 
-					<button onClick={handleSaveEdit} className="textpad-btn primary">
+					<button onClick={handleSaveEdit} className="textpad-btn primary" data-tippy-content={mode === 'EDIT' ? `${modifier}+S to Save` : `${modifier}+E to Edit`}>
 						{mode === 'EDIT' ? 'SAVE' : 'EDIT'}
 					</button>
 					<button onClick={handleClear} className="textpad-btn danger">

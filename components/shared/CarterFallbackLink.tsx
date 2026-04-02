@@ -1,7 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
-import tippy from 'tippy.js';
-import 'tippy.js/dist/tippy.css';
-import 'tippy.js/dist/border.css';
+import React, { useEffect, useState } from 'react';
 import { checkCarterDictionary, getCarterUrl } from '../../utils/carter_fallback';
 
 interface CarterFallbackLinkProps {
@@ -11,7 +8,6 @@ interface CarterFallbackLinkProps {
 
 export const CarterFallbackLink: React.FC<CarterFallbackLinkProps> = ({ searchTerm, className = '' }) => {
     const [isFound, setIsFound] = useState(false);
-    const linkRef = useRef<HTMLAnchorElement>(null);
 
     useEffect(() => {
         let isMounted = true;
@@ -29,26 +25,7 @@ export const CarterFallbackLink: React.FC<CarterFallbackLinkProps> = ({ searchTe
         return () => { isMounted = false; };
     }, [searchTerm]);
 
-    useEffect(() => {
-        if (isFound && linkRef.current) {
-            const instance = tippy(linkRef.current, {
-                content: 'Online Charles Carter’s <em>A Sinhalese-English dictionary</em>, 1924.',
-                placement: 'top',
-                allowHTML: true,
-                theme: 'light-border',
-                appendTo: () => {
-                    const el = linkRef.current;
-                    if (el) {
-                        const root = el.closest('.seld-theme-vars');
-                        if (root) return root as HTMLElement;
-                    }
-                    return document.body;
-                }
-            });
 
-            return () => instance.destroy();
-        }
-    }, [isFound]);
 
     if (!isFound) return null;
 
@@ -75,11 +52,11 @@ export const CarterFallbackLink: React.FC<CarterFallbackLinkProps> = ({ searchTe
                 `}
             </style>
             <a
-                ref={linkRef}
                 href={getCarterUrl(searchTerm)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="carter-link"
+                data-tippy-content="Online Charles Carter’s <em>A Sinhalese-English dictionary</em>, 1924."
             >
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line>

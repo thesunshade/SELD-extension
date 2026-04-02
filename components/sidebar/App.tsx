@@ -14,6 +14,7 @@ import { Theme } from "../shared/types";
 import { Highlighter } from "../shared/Highlighter";
 import { HistoryNav } from "../shared/HistoryNav";
 import { InfoUI } from "../shared/InfoUI";
+import { useGlobalTooltips } from "../shared/useGlobalTooltips";
 
 type View = "search" | "settings" | "info";
 
@@ -74,10 +75,14 @@ function App({ onClose }: AppProps) {
     };
   }, []);
 
+  const appRef = useRef<HTMLDivElement>(null);
+  useGlobalTooltips(appRef);
+
+  // Apply font override if enabled and sidebar is being opened
+
   // Dictionary Highlight Logic
   useEffect(() => {
     let isActive = true;
-
     const handleHighlights = async () => {
       try {
         const uniqueWords = extractUniqueSinhalaWords();
@@ -511,6 +516,7 @@ function App({ onClose }: AppProps) {
   return (
     <div
       id="seld-sidebar-inner"
+      ref={appRef}
       className={`seld-sidebar-container seld-theme-vars ${themeClass} ${sidebarPosition === 'left' ? 'left-position' : ''}`}
       style={{
         "--font-size-percent": `${fontSize}%`,
@@ -538,7 +544,7 @@ function App({ onClose }: AppProps) {
         />
         {!isResizingSidebar.current && sidebarWidth < 300 ? "" : "SELD"}
         <div className="header-actions">
-          <button className={`seld-btn seld-tab-folder ${sidebarWidth < 400 ? "seld-btn-icon-circle" : ""} ${view === "search" ? "active" : ""}`} onClick={() => setView("search")} title="Search">
+          <button className={`seld-btn seld-tab-folder ${sidebarWidth < 400 ? "seld-btn-icon-circle" : ""} ${view === "search" ? "active" : ""}`} onClick={() => setView("search")} data-tippy-content="Search">
             {sidebarWidth < 400 ? (
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="11" cy="11" r="8"></circle>
@@ -548,7 +554,7 @@ function App({ onClose }: AppProps) {
               "Search"
             )}
           </button>
-          <button className={`seld-btn seld-tab-folder ${sidebarWidth < 400 ? "seld-btn-icon-circle" : ""} ${view === "settings" ? "active" : ""}`} onClick={() => setView("settings")} title="Settings">
+          <button className={`seld-btn seld-tab-folder ${sidebarWidth < 400 ? "seld-btn-icon-circle" : ""} ${view === "settings" ? "active" : ""}`} onClick={() => setView("settings")} data-tippy-content="Settings">
             {sidebarWidth < 400 ? (
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="3"></circle>
@@ -558,7 +564,7 @@ function App({ onClose }: AppProps) {
               "Settings"
             )}
           </button>
-          <button className={`seld-btn seld-tab-folder ${sidebarWidth < 400 ? "seld-btn-icon-circle" : ""} ${view === "info" ? "active" : ""}`} onClick={() => setView("info")} title="Info">
+          <button className={`seld-btn seld-tab-folder ${sidebarWidth < 400 ? "seld-btn-icon-circle" : ""} ${view === "info" ? "active" : ""}`} onClick={() => setView("info")} data-tippy-content="Info">
             {sidebarWidth < 400 ? (
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="11.5" cy="6" r="0.5" fill="currentColor"></circle>
@@ -572,7 +578,7 @@ function App({ onClose }: AppProps) {
           </button>
 
           {onClose && (
-            <button className="seld-btn seld-btn-secondary seld-btn-icon-circle" onClick={onClose} title="Close Sidebar">
+            <button className="seld-btn seld-btn-secondary seld-btn-icon-circle" onClick={onClose} data-tippy-content="Close Sidebar">
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -599,7 +605,7 @@ function App({ onClose }: AppProps) {
               {query && (
                 <button
                   className="seld-btn seld-btn-ghost seld-btn-icon-circle search-copy-btn"
-                  title="Copy search text"
+                  data-tippy-content="Copy search text"
                   onClick={async () => {
                     try {
                       await navigator.clipboard.writeText(query);
