@@ -17,12 +17,12 @@
 ## Possible new features
 - [ ] grammar overview page that provides an interface for lists.xml data
 - [ ] underline should be one of three options: off, bold, subtle
-- [ ] links to other dictionaries
 - [ ] when word is not found, try to break into existing words
 
 
 ## On hold
 - [ ] homograph numbers need to be styled in synonym, component parts section. See වන්දනාමාන. It appears that these are not easily accessed.
+- [ ] links to other dictionaries
 
 
 ## done
