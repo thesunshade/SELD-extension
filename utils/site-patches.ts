@@ -1,6 +1,7 @@
 import mahameghaCSS from '../assets/site-patches/mahamegha.lk.css?raw';
 import redditCSS from '../assets/site-patches/reddit.com.css?raw';
 
+
 const SITE_PATCH_ID = 'seld-site-patch';
 
 /**
@@ -11,7 +12,8 @@ const SITE_PATCHES: Record<string, string> = {
     'mahamegha.lk': mahameghaCSS,
     'www.mahamegha.lk': mahameghaCSS,
     'reddit.com': redditCSS,
-    'www.reddit.com': redditCSS
+    'www.reddit.com': redditCSS,
+
 };
 
 /**

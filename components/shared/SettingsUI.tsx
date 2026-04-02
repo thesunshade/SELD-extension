@@ -49,7 +49,8 @@ export const SettingsUI: React.FC<SettingsUIProps> = ({
     <div className="settings-panel glassmorphism custom-scroll">
       <div className="settings-group">
         <label className="settings-label">Appearance</label>
-        <div className="settings-control-row">
+        <div className="settings-control-row"
+          data-tippy-content="“System” uses whatever your device has set as the default.">
           {(["system", "light", "dark"] as Theme[]).map(t => (
             <button
               key={t}
@@ -126,7 +127,16 @@ export const SettingsUI: React.FC<SettingsUIProps> = ({
               saveSetting("fontSize", val);
             }}
           />
-          <span className="slider-value">{fontSize}%</span>
+          <span
+            className="slider-value"
+            style={{ cursor: "pointer" }}
+            onClick={() => {
+              setFontSize(100);
+              saveSetting("fontSize", 100);
+            }}
+          >
+            {fontSize}%
+          </span>
         </div>
         <div className="dynamic-font" style={{ marginTop: "0.4em", color: "var(--text-primary)", textAlign: "center" }}>
           ෴ශබ්දකෝෂය෴
@@ -149,7 +159,8 @@ export const SettingsUI: React.FC<SettingsUIProps> = ({
             <span className="checkbox-label">Ctrl + click to look up</span>
           </label>
 
-          <label className="checkbox-container">
+          <label className="checkbox-container"
+            data-tippy-content="If a word is an exact match in the dictionary it will have an underline.">
             <input
               type="checkbox"
               checked={underlineDictionaryWords}
@@ -163,8 +174,11 @@ export const SettingsUI: React.FC<SettingsUIProps> = ({
             <span className="checkbox-label">Underline words in dictionary</span>
           </label>
 
-          <label className="checkbox-container">
+          <label className="checkbox-container"
+            data-tippy-content="Automaticaly play the headword after clicking on word on the page. Experimental &#x1F9EA;"
+            data-tippy-allowhtml="true">
             <input
+
               type="checkbox"
               checked={autoPlayTTS}
               onChange={e => {
@@ -177,7 +191,8 @@ export const SettingsUI: React.FC<SettingsUIProps> = ({
             <span className="checkbox-label">Auto-play TTS for matched words</span>
           </label>
 
-          <label className="checkbox-container">
+          <label className="checkbox-container"
+            data-tippy-content="Forces Noto Sans Sinhala on the current page. May cause unexpected results.">
             <input
               type="checkbox"
               checked={overrideSinhalaFont}
@@ -190,7 +205,10 @@ export const SettingsUI: React.FC<SettingsUIProps> = ({
             <span className="custom-checkbox"></span>
             <span className="checkbox-label">Override page Sinhala font</span>
           </label>
-          <label className="checkbox-container">
+          <label className="checkbox-container"
+            data-tippy-content="Add transliteration of<br>Sinhala letters into the<br>international style. E.g.:<br>ඇ = æ<br>ඈ = ǣ<br>ට් = ṭ<br>ඨ් = ṭh<br>ත් = t<br>ථ් = th<br>ඳ් = n̆d<br>etc.<br>"
+            data-tippy-allowhtml="true"
+          >
             <input
               type="checkbox"
               checked={transliterateSinhala}
