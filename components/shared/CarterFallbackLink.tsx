@@ -32,8 +32,9 @@ export const CarterFallbackLink: React.FC<CarterFallbackLinkProps> = ({ searchTe
     useEffect(() => {
         if (isFound && linkRef.current) {
             const instance = tippy(linkRef.current, {
-                content: 'Online Carter Sinhala English Dictionary, University of Chicago',
+                content: 'Online Charles Carter’s <em>A Sinhalese-English dictionary</em>, 1924.',
                 placement: 'top',
+                allowHTML: true,
                 theme: 'light-border',
                 appendTo: () => {
                     const el = linkRef.current;
@@ -73,10 +74,10 @@ export const CarterFallbackLink: React.FC<CarterFallbackLinkProps> = ({ searchTe
                 }
                 `}
             </style>
-            <a 
+            <a
                 ref={linkRef}
-                href={getCarterUrl(searchTerm)} 
-                target="_blank" 
+                href={getCarterUrl(searchTerm)}
+                target="_blank"
                 rel="noopener noreferrer"
                 className="carter-link"
             >

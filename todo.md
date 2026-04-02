@@ -13,7 +13,6 @@
 - [ ] compound verbs in definitions need to be clickable as a unit. like වන්දනා කරනවා.
 - [ ] font size of definition is too big relative to the rest of the sidebar. See sccreenshots
 - [ ] it appears that `.seld-transliteration` style is in two places.
-- [ ] the welcome page is currently being built at build time. This is probably not idea as it messes with versioning. Better to have the final changes to the page by dynamic at time of load.
 
 ## Possible new features
 - [ ] grammar overview page that provides an interface for lists.xml data
@@ -62,3 +61,4 @@
 - [x] ගොඩ නැගිල්ල has `Spelling Variant of ගොඩනැගිල්ල` but the word is not clickable.
 - [x] term in පියාඹන්ට is not clickable
 - [x] in a list of usage abbreviations, only the first is clickable
+- [x] the welcome page is currently being built at build time. This is probably not idea as it messes with versioning. Better to have the final changes to the page by dynamic at time of load.

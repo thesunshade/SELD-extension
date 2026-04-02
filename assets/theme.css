@@ -1,7 +1,7 @@
 .seld-theme-vars {
 	--bg-color: #f8fafc;
 	--bg-panel: rgba(255, 255, 255);
-	--bg-tippy: #e9f2ff;
+	--bg-panel-secondary: #e9f2ff;
 	--text-primary: #0f172a;
 	--text-secondary: #475569;
 	--border-color: #e2e8f0;
@@ -20,7 +20,7 @@
 .dark-theme .seld-theme-vars {
 	--bg-color: #020617;
 	--bg-panel: rgb(15, 23, 42);
-	--bg-tippy: black;
+	--bg-panel-secondary: black;
 	--text-primary: #f6f8fa;
 	--text-secondary: #bfc8d4;
 	--border-color: #3c5379;
@@ -79,7 +79,7 @@
 
 /* Tippy styles inherited overrides */
 .tippy-box {
-	background-color: var(--bg-tippy) !important;
+	background-color: var(--bg-panel-secondary) !important;
 	color: var(--text-primary) !important;
 	border: 1px solid var(--border-color);
 	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
@@ -88,7 +88,7 @@
 }
 
 .tippy-arrow {
-	color: var(--bg-tippy) !important;
+	color: var(--bg-panel-secondary) !important;
 }
 
 .tippy-content {
