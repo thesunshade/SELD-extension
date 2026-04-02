@@ -19,6 +19,8 @@ interface SettingsUIProps {
   setOverrideSinhalaFont: (val: boolean) => void;
   transliterateSinhala: boolean;
   setTransliterateSinhala: (val: boolean) => void;
+  sitePatches: boolean;
+  setSitePatches: (val: boolean) => void;
   saveSetting: (key: string, value: any) => void;
 }
 
@@ -39,6 +41,8 @@ export const SettingsUI: React.FC<SettingsUIProps> = ({
   setOverrideSinhalaFont,
   transliterateSinhala,
   setTransliterateSinhala,
+  sitePatches,
+  setSitePatches,
   saveSetting,
 }) => {
   return (
@@ -198,6 +202,25 @@ export const SettingsUI: React.FC<SettingsUIProps> = ({
             <span className="custom-checkbox"></span>
             <span className="checkbox-label">Transliterate Sinhala</span>
           </label>
+        </div>
+      </div>
+      <div className="settings-group">
+        <label className="settings-label">Experimental</label>
+        <div className="settings-control">
+          <label className="checkbox-container">
+            <input
+              type="checkbox"
+              checked={sitePatches}
+              onChange={e => {
+                const val = e.target.checked;
+                setSitePatches(val);
+                saveSetting("seldSitePatches", val);
+              }}
+            />
+            <span className="custom-checkbox"></span>
+            <span className="checkbox-label">Fix page layout for supported sites</span>
+          </label>
+          <p className="settings-hint">Adjusts the page layout on known sites when the sidebar is open.</p>
         </div>
       </div>
     </div>

@@ -41,6 +41,7 @@ function App({ onClose }: AppProps) {
   // Transliteration settings
   const [transliterateSinhala, setTransliterateSinhala] = useState(false);
   const [sidebarPosition, setSidebarPosition] = useState<'left' | 'right'>('right');
+  const [sitePatches, setSitePatches] = useState(false);
 
   const autoPlayTTSRef = useRef(false);
   const [showToast, setShowToast] = useState(false);
@@ -119,6 +120,7 @@ function App({ onClose }: AppProps) {
       listHeight: v => setListHeight(v as number),
       transliterateSinhala: v => setTransliterateSinhala(v as boolean),
       seldSidebarPosition: v => setSidebarPosition(v as 'left' | 'right'),
+      seldSitePatches: v => setSitePatches(v as boolean),
       seldSearchHistory: v => {
         if (Array.isArray(v)) {
           setHistory(v);
@@ -693,6 +695,8 @@ function App({ onClose }: AppProps) {
           setOverrideSinhalaFont={setOverrideSinhalaFont}
           transliterateSinhala={transliterateSinhala}
           setTransliterateSinhala={setTransliterateSinhala}
+          sitePatches={sitePatches}
+          setSitePatches={setSitePatches}
           saveSetting={saveSetting}
         />
       )}

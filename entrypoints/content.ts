@@ -6,6 +6,7 @@ import { browser } from 'wxt/browser';
 import { setupSidebarEvents } from '../utils/selection-handler';
 import { createShadowRootUi } from 'wxt/client';
 import type { ContentScriptUi } from 'wxt/client';
+import { applySitePatch, removeSitePatch } from '../utils/site-patches';
 //
 // Import CSS normally - WXT will bundle these into a single content.css file
 import '../assets/theme.css';
@@ -31,7 +32,7 @@ export default defineContentScript({
             const link = document.createElement('link');
             link.id = STYLE_ID;
             link.rel = 'stylesheet';
-            link.href = browser.runtime.getURL('/content-scripts/content.css');
+            link.href = (browser.runtime.getURL as any)('/content-scripts/content.css');
             document.head.appendChild(link);
         };
 
@@ -46,6 +47,9 @@ export default defineContentScript({
 
             // Remove font override when sidebar is closed
             applyFontOverride(false);
+
+            // Always remove site patch on close (regardless of setting state)
+            removeSitePatch();
 
             // Remove host layout styles
             removeHostStyles();
@@ -107,6 +111,12 @@ export default defineContentScript({
 
             // Inject styles for host layout (push-aside)
             injectHostStyles();
+
+            // Apply site-specific CSS patch if the setting is enabled
+            const patchRes = await browser.storage.local.get('seldSitePatches');
+            if (patchRes.seldSitePatches) {
+                applySitePatch(location.hostname);
+            }
 
             // Create Shadow Root UI
             ui = await createShadowRootUi(ctx, {
@@ -178,6 +188,13 @@ export default defineContentScript({
                     const nextPosition = changes.seldSidebarPosition.newValue;
                     if (nextPosition === 'left' || nextPosition === 'right') {
                         updateSidebarPositionClass(nextPosition);
+                    }
+                }
+                if (changes.seldSitePatches && isSidebarOpen) {
+                    if (changes.seldSitePatches.newValue) {
+                        applySitePatch(location.hostname);
+                    } else {
+                        removeSitePatch();
                     }
                 }
             }

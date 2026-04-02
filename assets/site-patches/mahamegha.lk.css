@@ -1,0 +1,25 @@
+/* Site patch for mahamegha.lk
+ * Applied to the host page when the SELD sidebar is open.
+ * Replicates rules from the site's @media (max-width: 1024px) block
+ * that would normally fire when the viewport narrows, but won't because
+ * the sidebar uses a fixed overlay and does not reduce the viewport width.
+ */
+
+#seld-main-content #content-area {
+    display: flex !important;
+    flex-wrap: wrap !important;
+}
+
+/* Hide the sidebar column */
+.et_pb_extra_column_sidebar {
+    display: none !important;
+}
+
+/* Expand the main content column to full width */
+.et_pb_extra_column_main {
+    width: 100% !important;
+    max-width: 100% !important;
+    border-right: none !important;
+    /* Removes the vertical divider line */
+    min-width: 100% !important;
+}

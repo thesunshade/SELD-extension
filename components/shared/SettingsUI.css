@@ -150,6 +150,14 @@
   color: var(--text-primary);
 }
 
+.settings-hint {
+  margin: 0;
+  padding: 0;
+  font-size: 0.8em;
+  color: var(--text-secondary);
+  padding-left: calc(20px + 0.8em); /* indent to align with checkbox label text */
+}
+
 .glassmorphism {
   background: var(--bg-panel);
   backdrop-filter: blur(12px);

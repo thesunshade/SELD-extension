@@ -1,0 +1,6 @@
+/* Reddit.com */
+@media (min-width: 768px) {
+	.xs\:\[\&\.fixed-sidebar\]\:grid-cols-\[minmax\(0\,756px\)_minmax\(0\,316px\)\].fixed-sidebar {
+		grid-template-columns: inherit;
+	}
+}
