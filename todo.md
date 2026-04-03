@@ -7,7 +7,6 @@
 
 
 ## Improvements
-- [ ] clicking on the sidebar text scale % should bring it back to 100%
 - [ ] There should probably be some limit to the "distance" of fuzzy search results. If there are more than two variants, it's probaby not a good potential match.
 - [ ] single click or double click option
 - [ ] compound verbs in definitions need to be clickable as a unit. like වන්දනා කරනවා.
@@ -15,7 +14,7 @@
 - [ ] it appears that `.seld-transliteration` style is in two places.
 
 ## Possible new features
-- [ ] grammar overview page that provides an interface for lists.xml data
+- [ ] grammar overview page that provides an interface for lists.xml data, including an alphabet chart
 - [ ] underline should be one of three options: off, bold, subtle
 - [ ] when word is not found, try to break into existing words
 
@@ -62,3 +61,4 @@
 - [x] term in පියාඹන්ට is not clickable
 - [x] in a list of usage abbreviations, only the first is clickable
 - [x] the welcome page is currently being built at build time. This is probably not idea as it messes with versioning. Better to have the final changes to the page by dynamic at time of load.
+- [x] clicking on the sidebar text scale % should bring it back to 100%
