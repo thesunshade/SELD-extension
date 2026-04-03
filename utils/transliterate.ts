@@ -107,6 +107,8 @@ export function transliterateSinhala(text: string): string {
 			} else {
 				result += baseTranslit + "a";
 			}
+		} else if (diacriticMapping[char] !== undefined) {
+			result += diacriticMapping[char];
 		} else if (char === "ං") {
 			result += "ṃ";
 		} else if (char === "ඃ") {

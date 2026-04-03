@@ -1,5 +1,4 @@
 ## Bugs
-- [ ] transltierations break when word is parsed. e.g. අහසෙහි ->අහස -ෙහි ahasa -ෙhi
 - [ ] for suffix type headwords when the suffix starts with a dash and then a combining vowel, two non-breaking spaces should be inserted betweeen the vowel and the dash
 
 ## Search
@@ -62,3 +61,4 @@
 - [x] in a list of usage abbreviations, only the first is clickable
 - [x] the welcome page is currently being built at build time. This is probably not idea as it messes with versioning. Better to have the final changes to the page by dynamic at time of load.
 - [x] clicking on the sidebar text scale % should bring it back to 100%
+- [x] transltierations break when word is parsed. e.g. අහසෙහි ->අහස -ෙහි ahasa -ෙhi
