@@ -18,6 +18,8 @@ import { useGlobalTooltips } from "../shared/useGlobalTooltips";
 
 type View = "search" | "settings" | "info";
 
+const HEADER_BREAK_WIDTH = 450;
+
 interface AppProps {
   onClose?: () => void;
 }
@@ -544,8 +546,8 @@ function App({ onClose }: AppProps) {
         />
         {!isResizingSidebar.current && sidebarWidth < 300 ? "" : "SELD"}
         <div className="header-actions">
-          <button className={`seld-btn seld-tab-folder ${sidebarWidth < 400 ? "seld-btn-icon-circle" : ""} ${view === "search" ? "active" : ""}`} onClick={() => setView("search")} data-tippy-content="Search">
-            {sidebarWidth < 400 ? (
+          <button className={`seld-btn seld-tab-folder ${sidebarWidth < HEADER_BREAK_WIDTH ? "seld-btn-icon-circle" : ""} ${view === "search" ? "active" : ""}`} onClick={() => setView("search")} data-tippy-content="Search">
+            {sidebarWidth < HEADER_BREAK_WIDTH ? (
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="11" cy="11" r="8"></circle>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -554,8 +556,8 @@ function App({ onClose }: AppProps) {
               "Search"
             )}
           </button>
-          <button className={`seld-btn seld-tab-folder ${sidebarWidth < 400 ? "seld-btn-icon-circle" : ""} ${view === "settings" ? "active" : ""}`} onClick={() => setView("settings")} data-tippy-content="Settings">
-            {sidebarWidth < 400 ? (
+          <button className={`seld-btn seld-tab-folder ${sidebarWidth < HEADER_BREAK_WIDTH ? "seld-btn-icon-circle" : ""} ${view === "settings" ? "active" : ""}`} onClick={() => setView("settings")} data-tippy-content="Settings">
+            {sidebarWidth < HEADER_BREAK_WIDTH ? (
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="3"></circle>
                 <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
@@ -564,8 +566,8 @@ function App({ onClose }: AppProps) {
               "Settings"
             )}
           </button>
-          <button className={`seld-btn seld-tab-folder ${sidebarWidth < 400 ? "seld-btn-icon-circle" : ""} ${view === "info" ? "active" : ""}`} onClick={() => setView("info")} data-tippy-content="Info">
-            {sidebarWidth < 400 ? (
+          <button className={`seld-btn seld-tab-folder ${sidebarWidth < HEADER_BREAK_WIDTH ? "seld-btn-icon-circle" : ""} ${view === "info" ? "active" : ""}`} onClick={() => setView("info")} data-tippy-content="Info">
+            {sidebarWidth < HEADER_BREAK_WIDTH ? (
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="11.5" cy="6" r="0.5" fill="currentColor"></circle>
                 <line x1="11.5" y1="11" x2="11.5" y2="19"></line>

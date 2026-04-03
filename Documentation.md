@@ -126,3 +126,11 @@ The `P` (Priority) values correspond to:
 D (Fuzzy Distance): Levenshtein distance for fuzzy matches.
 V (Vowel Score): Vowel similarity score (0.0 to 1.0).
 S (Suffix Count): Number of suffixes for synthesized matches.
+
+
+## Adding new website overrides
+
+1. Write css
+1. place css in file in assets\site-patches
+1. add into utils\site-patches.ts
+1. add to tooltip on components\shared\SettingsUI.tsx

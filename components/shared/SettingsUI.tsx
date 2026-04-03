@@ -225,7 +225,8 @@ export const SettingsUI: React.FC<SettingsUIProps> = ({
       </div>
       <div className="settings-group">
         <label className="settings-label">Experimental</label>
-        <div data-tippy-content="Removes the page sidebar on specific sites when the Dictionary sidebar is open to improve usability. May cause unexpected results" className="settings-control">
+        <div data-tippy-content="Removes the page sidebar on the following sites when the Dictionary sidebar is open to improve usability. May cause unexpected results.<br>• wikipedia.org<br>• mahamegha.lk<br>• reddit.com" className="settings-control"
+          data-tippy-allowhtml="true">
           <label className="checkbox-container">
             <input
               type="checkbox"

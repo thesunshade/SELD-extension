@@ -1,0 +1,8 @@
+    .vector-column-end,
+    .vector-column-start {
+    	display: none
+    }
+
+    .mw-page-container-inner {
+    	display: initial
+    }

@@ -1,30 +1,31 @@
 import mahameghaCSS from '../assets/site-patches/mahamegha.lk.css?raw';
 import redditCSS from '../assets/site-patches/reddit.com.css?raw';
-
+import wikipediaCSS from '../assets/site-patches/wikipedia.org.css?raw';
 
 const SITE_PATCH_ID = 'seld-site-patch';
 
 /**
- * A map of hostname (or hostname suffix) to the CSS string to inject.
- * To add a new site: import its CSS file with ?raw and add an entry here.
+ * A map of base hostnames to the CSS string to inject.
  */
 const SITE_PATCHES: Record<string, string> = {
     'mahamegha.lk': mahameghaCSS,
-    'www.mahamegha.lk': mahameghaCSS,
     'reddit.com': redditCSS,
-    'www.reddit.com': redditCSS,
-
+    'wikipedia.org': wikipediaCSS,
 };
 
 /**
- * Injects the site-specific CSS patch for the given hostname into document.head.
- * Does nothing if no patch is registered for the hostname.
+ * Injects the site-specific CSS patch.
+ * It matches the hostname or any parent domain (e.g., en.wikipedia.org matches wikipedia.org).
  */
 export function applySitePatch(hostname: string): void {
     // Always clean up first to avoid duplicates
     removeSitePatch();
 
-    const css = SITE_PATCHES[hostname];
+    const match = Object.keys(SITE_PATCHES).find(key =>
+        hostname === key || hostname.endsWith('.' + key)
+    );
+
+    const css = match ? SITE_PATCHES[match] : null;
     if (!css) return;
 
     const style = document.createElement('style');
@@ -34,8 +35,7 @@ export function applySitePatch(hostname: string): void {
 }
 
 /**
- * Removes the injected site CSS patch from document.head, if present.
- * Safe to call even if no patch was injected.
+ * Removes the injected site CSS patch from document.head.
  */
 export function removeSitePatch(): void {
     document.getElementById(SITE_PATCH_ID)?.remove();
