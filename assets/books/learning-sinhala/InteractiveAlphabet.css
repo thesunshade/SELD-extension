@@ -1,0 +1,51 @@
+.vowel-modifier-grid {
+	margin-top: 2rem;
+}
+
+.vowel-buttons {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	justify-content: center;
+	margin-bottom: 3rem;
+}
+
+/* .vowel-buttons .seld-btn {
+	min-width: 4.5rem;
+	padding: 0.8rem;
+} */
+
+.consonant-container {
+	display: flex;
+	justify-content: center;
+	overflow-x: auto;
+	padding-bottom: 2rem;
+}
+
+.consonant-container table {
+	border-collapse: collapse;
+	width: auto;
+}
+
+/* Transliteration cells */
+.consonant-container .translit-cell {
+	padding: 8px 0 0 12px;
+	text-align: left;
+	font-size: 0.9em;
+	color: var(--text-secondary);
+	width: 2.5rem;
+}
+
+/* Sinhala script cells */
+.consonant-container .sinhala-cell {
+	/* padding: 8px 12px 8px 4px; */
+	text-align: left;
+	width: 3rem;
+}
+
+
+
+/* Ensure font consistency */
+.vowel-modifier-grid .sinhala {
+	font-family: "Noto Sans", "Noto Sans Sinhala" !important;
+}
