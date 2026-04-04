@@ -1,25 +1,26 @@
 import { useEffect } from 'react';
-import tippy, { delegate } from 'tippy.js';
+import tippy, { delegate, followCursor } from 'tippy.js'; // 1. Import the plugin
 import 'tippy.js/dist/tippy.css';
 import 'tippy.js/dist/border.css';
 
-/**
- * Options used across global tooltips for consistency.
- */
 export const DEFAULT_TIPPY_OPTIONS = {
     animation: 'fade',
     arrow: true,
     delay: [500, 10] as [number, number],
     theme: 'light-border',
+    // 2. Add the plugin and set the behavior
+    plugins: [followCursor],
+    followCursor: 'horizontal',
+    // Ensure placement is 'top' or 'bottom' to pin it to the element's edge
+    placement: 'top',
 };
-
 /**
  * Manually scans a container for elements with `data-tippy-content` and initializes tooltips on them.
  * Use this for dynamically injected content that isn't covered by a persistent delegate.
  */
 export function scanForTooltips(container: HTMLElement | null, options?: any) {
     if (!container) return;
-    
+
     // Find all potential tooltip targets
     const targets = Array.from(container.querySelectorAll('[data-tippy-content]'));
     if (targets.length === 0) return;
@@ -67,7 +68,7 @@ export function useGlobalTooltips(
                 if (currentContent && currentContent !== instance.props.content) {
                     instance.setContent(currentContent);
                 }
-                
+
                 // Allow custom options to override or extend onShow
                 if (options?.onShow) {
                     options.onShow(instance);
