@@ -31,17 +31,26 @@ export default function LibraryLayout({ books }: LibraryLayoutProps) {
   useEffect(() => {
     // Initial load
     browser.storage.local.get(['seldSidebarVisible', 'seldSidebarPosition', 'sidebarWidth']).then(res => {
-      if (res.seldSidebarVisible !== undefined) setIsSidebarVisible(res.seldSidebarVisible);
-      if (res.seldSidebarPosition) setSidebarPosition(res.seldSidebarPosition);
-      if (res.sidebarWidth) setSidebarWidth(res.sidebarWidth);
+      if (res.seldSidebarVisible !== undefined) setIsSidebarVisible(!!res.seldSidebarVisible);
+      if (res.seldSidebarPosition === 'left' || res.seldSidebarPosition === 'right') {
+        setSidebarPosition(res.seldSidebarPosition as 'left' | 'right');
+      }
+      if (typeof res.sidebarWidth === 'number') setSidebarWidth(res.sidebarWidth);
     });
 
     // Listen for changes
     const handleStorageChange = (changes: Record<string, any>, namespace: string) => {
       if (namespace === 'local') {
-        if (changes.seldSidebarVisible) setIsSidebarVisible(changes.seldSidebarVisible.newValue);
-        if (changes.seldSidebarPosition) setSidebarPosition(changes.seldSidebarPosition.newValue);
-        if (changes.sidebarWidth) setSidebarWidth(changes.sidebarWidth.newValue);
+        if (changes.seldSidebarVisible) setIsSidebarVisible(!!changes.seldSidebarVisible.newValue);
+        if (changes.seldSidebarPosition) {
+          const val = changes.seldSidebarPosition.newValue;
+          if (val === 'left' || val === 'right') {
+            setSidebarPosition(val as 'left' | 'right');
+          }
+        }
+        if (changes.sidebarWidth && typeof changes.sidebarWidth.newValue === 'number') {
+          setSidebarWidth(changes.sidebarWidth.newValue);
+        }
       }
     };
 
