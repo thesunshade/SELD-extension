@@ -7,6 +7,14 @@ interface Vowel {
   diacritic: string;
 }
 
+interface Modifier {
+  id: string;
+  label: string;
+  sinhala: string;
+  suffix: string;
+  diacritic: string;
+}
+
 interface Consonant {
   trans: string;
   sinhala: string;
@@ -35,6 +43,11 @@ const VOWELS: Vowel[] = [
   { trans: 'o', sinhala: 'ඔ', suffix: 'o', diacritic: '\u0DDC' },
   { trans: 'ō', sinhala: 'ඕ', suffix: 'ō', diacritic: '\u0DDD' },
   { trans: 'au', sinhala: 'ඖ', suffix: 'au', diacritic: '\u0DDE' },
+];
+
+const MODIFIERS: Modifier[] = [
+  { id: 'yanshaya', label: 'ya', sinhala: '්‍ය', suffix: 'y', diacritic: '\u0DCA\u200D\u0DBA' },
+  { id: 'rakaranshaya', label: 'ra', sinhala: '්‍ර', suffix: 'r', diacritic: '\u0DCA\u200D\u0DBB' },
 ];
 
 const GROUPS: ConsonantGroup[] = [
@@ -84,27 +97,54 @@ const GROUPS: ConsonantGroup[] = [
 
 export default function VowelModifierGrid() {
   const [selectedVowel, setSelectedVowel] = useState<Vowel>(VOWELS[1]); // Default to 'a'
+  const [activeModifier, setActiveModifier] = useState<Modifier | null>(null);
+
+  const toggleModifier = (mod: Modifier) => {
+    setActiveModifier(activeModifier?.id === mod.id ? null : mod);
+  };
 
   const renderTranslit = (c: Consonant) => {
-    return c.trans + (selectedVowel.suffix);
+    if (c.trans === 'r' && activeModifier?.id === 'rakaranshaya') return '';
+    return c.trans + (activeModifier ? activeModifier.suffix : '') + selectedVowel.suffix;
   };
 
   const renderSinhala = (c: Consonant) => {
-    return c.sinhala + selectedVowel.diacritic;
+    if (c.trans === 'r' && activeModifier?.id === 'rakaranshaya') return '';
+    return c.sinhala + (activeModifier ? activeModifier.diacritic : '') + selectedVowel.diacritic;
   };
 
   return (
     <div className="vowel-modifier-grid">
-      <div className="vowel-buttons">
-        {VOWELS.map((v) => (
-          <button
-            key={v.trans}
-            className={`seld-btn seld-btn-secondary sinhala ${selectedVowel.trans === v.trans ? 'active' : ''}`}
-            onClick={() => setSelectedVowel(v)}
-          >
-            {v.trans} {v.sinhala}
-          </button>
-        ))}
+      <div className="interaction-area">
+        <div className="vowel-section">
+
+          <div className="vowel-buttons">
+            {VOWELS.map((v) => (
+              <button
+                key={v.trans}
+                className={`seld-btn seld-btn-secondary sinhala ${selectedVowel.trans === v.trans ? 'active' : ''}`}
+                onClick={() => setSelectedVowel(v)}
+              >
+                {v.trans} {v.sinhala}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="modifier-section">
+
+          <div className="modifier-buttons">
+            {MODIFIERS.map((m) => (
+              <button
+                key={m.id}
+                className={`seld-btn seld-btn-secondary sinhala ${activeModifier?.id === m.id ? 'active' : ''}`}
+                onClick={() => toggleModifier(m)}
+              >
+                {m.label} {m.sinhala}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       <div className="consonant-container">
@@ -122,7 +162,6 @@ export default function VowelModifierGrid() {
                     </td>
                   </React.Fragment>
                 ))}
-                {/* Pad row if it has fewer than 6 consonants to maintain width consistency if needed */}
                 {Array.from({ length: 6 - group.consonants.length }).map((_, i) => (
                   <React.Fragment key={`pad-${i}`}>
                     <td></td>

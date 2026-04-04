@@ -117,7 +117,7 @@ body {
 
 .library-content-area {
   flex: 1;
-  padding: 40px;
+  padding: 10px 60px;
   overflow-y: auto;
   line-height: 1.6;
 }

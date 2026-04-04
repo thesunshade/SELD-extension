@@ -1,19 +1,43 @@
 .vowel-modifier-grid {
-	margin-top: 2rem;
+	margin-top: 0.5rem;
 }
 
-.vowel-buttons {
+.interaction-area {
+	display: flex;
+	flex-direction: column;
+	gap: 1.25rem;
+	margin-bottom: 2rem;
+	background: var(--bg-panel);
+	padding: 1rem;
+	border-radius: 12px;
+	border: 1px solid var(--border-color);
+}
+
+.vowel-section h3,
+.modifier-section h3 {
+	font-size: 0.8rem;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--text-secondary);
+	margin-bottom: 0.5rem;
+	margin-top: 0;
+	text-align: center;
+}
+
+.vowel-buttons,
+.modifier-buttons {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 10px;
+	gap: 8px;
 	justify-content: center;
-	margin-bottom: 3rem;
 }
 
-/* .vowel-buttons .seld-btn {
-	min-width: 4.5rem;
-	padding: 0.8rem;
-} */
+.vowel-buttons .seld-btn,
+.modifier-buttons .seld-btn {
+	min-width: 3.5rem;
+	padding: 0.4rem 0.6rem;
+
+}
 
 .consonant-container {
 	display: flex;
@@ -31,19 +55,16 @@
 .consonant-container .translit-cell {
 	padding: 8px 0 0 12px;
 	text-align: left;
-	font-size: 0.9em;
+	font-size: 1em;
 	color: var(--text-secondary);
-	width: 2.5rem;
+	width: 3.5rem;
 }
 
 /* Sinhala script cells */
 .consonant-container .sinhala-cell {
-	/* padding: 8px 12px 8px 4px; */
 	text-align: left;
-	width: 3rem;
+	width: 4.5rem;
 }
-
-
 
 /* Ensure font consistency */
 .vowel-modifier-grid .sinhala {
