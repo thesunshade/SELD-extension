@@ -1,0 +1,259 @@
+body {
+  margin: 0;
+}
+
+.library-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  overflow: hidden;
+  font-family: 'Noto Sans', system-ui, sans-serif;
+}
+
+.library-nav-area {
+  width: 250px;
+  min-width: 250px;
+  background-color: var(--bg-panel);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s ease;
+  z-index: 10;
+}
+
+.nav-hidden .library-nav-area {
+  width: 0;
+  min-width: 0;
+  border-right-color: transparent;
+  transform: translateX(-100%);
+}
+
+.library-nav-toggle {
+  position: absolute;
+  top: 15px;
+  z-index: 100;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.library-nav-header {
+  padding: 10px 20px;
+  font-weight: bold;
+  font-size: 1.2rem;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 60px;
+  box-sizing: border-box;
+}
+
+.library-nav-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.library-sidebar-toggle.active {
+  color: var(--accent-fg);
+  background-color: var(--accent);
+}
+
+.library-nav-content {
+  padding: 10px 0;
+}
+
+.library-nav-section {
+  margin-bottom: 15px;
+}
+
+.library-nav-title {
+  padding: 5px 20px;
+  font-size: 0.9em;
+  font-weight: bold;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.library-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  color: var(--text-primary);
+  text-decoration: none;
+  font-size: 0.95em;
+  transition: background-color 0.15s ease;
+}
+
+.library-nav-link:hover {
+  background-color: var(--accent-bg);
+}
+
+.library-nav-link.active {
+  background-color: var(--accent-bg-darker);
+  font-weight: 600;
+  border-left: 3px solid var(--accent);
+}
+
+.library-back-link {
+  color: var(--accent);
+  font-weight: 600;
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 10px;
+}
+
+.library-main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  height: 100%;
+}
+
+.library-content-area {
+  flex: 1;
+  padding: 40px;
+  overflow-y: auto;
+  line-height: 1.6;
+}
+
+.library-content-area h1,
+.library-content-area h2,
+.library-content-area h3 {
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+.library-content-area h1:first-child {
+  margin-top: 0;
+}
+
+.library-content-area p {
+  margin-bottom: 1em;
+}
+
+.library-content-area pre {
+  background-color: var(--bg-panel-secondary);
+  padding: 15px;
+  border-radius: var(--btn-radius);
+  overflow-x: auto;
+  margin-bottom: 1em;
+}
+
+.library-content-area code {
+  font-family: monospace;
+  background-color: var(--accent-bg);
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+/* The Bookshelf styles */
+.bookshelf-title {
+  font-size: 2rem;
+  margin-bottom: 10px;
+  font-weight: 800;
+}
+
+.bookshelf-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 25px;
+  margin-top: 30px;
+}
+
+.book-card {
+  background-color: var(--bg-panel);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  overflow: hidden;
+}
+
+.book-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  border-color: var(--accent);
+}
+
+.book-card-header {
+  padding: 20px;
+  background-color: var(--bg-panel-secondary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.book-card-header h3 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.book-card-body {
+  padding: 20px;
+  flex: 1;
+}
+
+.book-card-meta {
+  font-size: 0.85em;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  display: block;
+  font-weight: 600;
+}
+
+.book-card-description {
+  font-size: 0.95em;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.book-chapter-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.book-chapter-item {
+  font-size: 0.9em;
+  color: var(--text-secondary);
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.book-chapter-item:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.book-card-footer {
+  padding: 15px 20px;
+  border-top: 1px solid var(--border-color);
+  background-color: var(--bg-panel);
+}
+
+/* Sidebar integration refinements */
+#seld-sidebar-root {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  z-index: 5;
+}
+
+/* Ensure the sidebar's box-shadow doesn't overlap nav area toggles weirdly */
+#seld-sidebar-root .seld-sidebar-container {
+  box-shadow: none !important;
+  height: 100% !important;
+}

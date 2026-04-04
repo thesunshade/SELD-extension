@@ -134,3 +134,52 @@ S (Suffix Count): Number of suffixes for synthesized matches.
 1. place css in file in assets\site-patches
 1. add into utils\site-patches.ts
 1. add to tooltip on components\shared\SettingsUI.tsx
+
+
+## The Library & The Bookshelf
+1. 
+1. The Library is a documentation and book-viewing system built into the extension. It uses static discovery to automatically build a catalog of content.
+1. 
+1. ### 1. Adding a New Book
+1. 
+1. Create a new directory in `assets/books/[your-book-slug]/`.
+1. 
+1. Required files:
+1. - **`meta.json`**: Contains book metadata.
+1.   ```json
+1.   {
+1.     "title": "Your Book Title",
+1.     "description": "A brief summary of what this book covers."
+1.   }
+1.   ```
+1. - **Chapters**: Added as `.mdx`, `.tsx`, or `.html` files in the book directory.
+1. 
+1. Optional files:
+1. - **`book-theme.css`**: If present, this CSS will be automatically injected into the page when any chapter of this book is being read. Use it for book-specific styling overrides.
+1. 
+1. ### 2. Chapter Content Types
+1. 
+1. - **MDX (`.mdx`)**: Best for standard documentation. 
+1.   - Support React components.
+1.   - Define a title in frontmatter: `--- title: My Chapter ---`.
+1.   - Tooltips (`data-tippy-content`) are automatically supported.
+1. - **React (`.tsx`)**: Best for interactive tutorials or complex layouts.
+1.   - Export a default React component.
+1. - **HTML (`.html`)**: Best for legacy content or simple static pages.
+1.   - The raw HTML is rendered directly.
+1. 
+1. ### 3. How it Works (Architecture)
+1. 
+1. 1. **Discovery**: `utils/bookDiscovery.ts` uses Vite's `import.meta.glob` to find all files in `assets/books/` at build time. It organizes them into `BookEntry` and `ChapterEntry` objects.
+1. 1. **Routing**: The feature uses `HashRouter` (React Router v6).
+1.    - `/`: Displays **The Bookshelf** (a grid of all discovered books).
+1.    - `/:bookSlug/:chapterSlug`: Displays a specific chapter.
+1. 1. **Layout**: `LibraryLayout.tsx` hosts the **Navigation Area** (sidebar). The sidebar is context-aware: it only shows the Table of Contents when a specific book is active.
+1. 1. **Title Management**: `LibraryContent.tsx` dynamically updates `document.title` in the format: `Chapter | Book | Library`.
+1. 1. **Glossary/Tooltips**: Since content is rendered dynamically, we call `scanForTooltips` (from `useGlobalTooltips.ts`) whenever a chapter changes to ensure glossary tooltips apply to all compatible HTML tags.
+1. 
+1. ### 4. UI Customization
+1. 
+1. Styles for the library are located in `components/library/Library.css`. The system uses CSS variables from `assets/theme.css` for a consistent experience with the rest of the extension.
+1. 
+1. To toggle the navigation area, click the **hamburger/X** button at the top-left of the Library interface.

@@ -22,9 +22,10 @@ const HEADER_BREAK_WIDTH = 450;
 
 interface AppProps {
   onClose?: () => void;
+  inline?: boolean;
 }
 
-function App({ onClose }: AppProps) {
+function App({ onClose, inline }: AppProps) {
   const [view, setView] = useState<View>("search");
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<IndexEntry[]>([]);
@@ -522,14 +523,13 @@ function App({ onClose }: AppProps) {
       className={`seld-sidebar-container seld-theme-vars ${themeClass} ${sidebarPosition === 'left' ? 'left-position' : ''}`}
       style={{
         "--font-size-percent": `${fontSize}%`,
-        // Add these lines to handle the position dynamically
-        position: 'fixed',
-        top: 0,
-        [sidebarPosition]: 0, // This evaluates to either left: 0 or right: 0
-        [sidebarPosition === 'right' ? 'left' : 'right']: 'auto', // Resets the other side
+        position: inline ? 'relative' : 'fixed',
+        top: inline ? 'auto' : 0,
+        [sidebarPosition]: inline ? 'auto' : 0,
+        [sidebarPosition === 'right' ? 'left' : 'right']: 'auto',
         width: `${sidebarWidth}px`,
-        height: '100vh',
-        zIndex: 2147483647
+        height: inline ? '100%' : '100vh',
+        zIndex: inline ? 1 : 2147483647
       } as any}
     >
       <div className="sidebar-resize-handle" onMouseDown={startSidebarResizing}></div>

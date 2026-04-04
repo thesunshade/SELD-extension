@@ -1,0 +1,44 @@
+	:root {
+		--text-primary: #f6f8fa;
+		--text-secondary: #bfc8d4;
+		--bg-panel: rgb(15, 23, 42);
+	}
+
+	h1,
+	h2 {
+		font-family: "Noto Sans";
+	}
+
+	h1 {
+		font-size: 1.3rem;
+		text-align: center;
+		color: var(--text-primary);
+	}
+
+	h2 {
+		font-size: 1rem;
+		font-weight: bold;
+		margin-top: 10px;
+		margin-bottom: 2px;
+		text-align: left;
+		color: var(--text-secondary)
+	}
+
+	.sinhala {
+		font-family: "Noto Sans", "Noto Sans Sinhala";
+		font-size: 1.1rem;
+		color: var(--text-primary);
+	}
+
+	.sinhala td {
+		min-width: 6rem;
+	}
+
+	.sinhala.wide td {
+		width: 6rem;
+	}
+
+	.bottom-label {
+		font-size: .7rem;
+		color: var(--text-secondary) !important;
+	}

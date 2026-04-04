@@ -4,6 +4,37 @@ import 'tippy.js/dist/tippy.css';
 import 'tippy.js/dist/border.css';
 
 /**
+ * Options used across global tooltips for consistency.
+ */
+export const DEFAULT_TIPPY_OPTIONS = {
+    animation: 'fade',
+    arrow: true,
+    delay: [500, 10] as [number, number],
+    theme: 'light-border',
+};
+
+/**
+ * Manually scans a container for elements with `data-tippy-content` and initializes tooltips on them.
+ * Use this for dynamically injected content that isn't covered by a persistent delegate.
+ */
+export function scanForTooltips(container: HTMLElement | null, options?: any) {
+    if (!container) return;
+    
+    // Find all potential tooltip targets
+    const targets = Array.from(container.querySelectorAll('[data-tippy-content]'));
+    if (targets.length === 0) return;
+
+    tippy(targets, {
+        ...DEFAULT_TIPPY_OPTIONS,
+        appendTo: () => {
+            const root = container.closest('.seld-theme-vars');
+            return (root as HTMLElement) || document.body;
+        },
+        ...options
+    });
+}
+
+/**
  * A hook that applies Tippy.js tooltips globally to all descendants of a reference container
  * that have a `data-tippy-content` attribute.
  * This dramatically reduces DOM overhead compared to instantiating tooltips per element.
@@ -20,10 +51,7 @@ export function useGlobalTooltips(
 
         const instance = delegate(containerRef.current, {
             target: '[data-tippy-content]',
-            animation: 'fade',
-            arrow: true,
-            delay: [500, 10],
-            theme: 'light-border',
+            ...DEFAULT_TIPPY_OPTIONS,
             appendTo: () => {
                 const el = containerRef.current;
                 if (el) {

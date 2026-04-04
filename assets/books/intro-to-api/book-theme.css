@@ -1,0 +1,5 @@
+/* Book-specific CSS overrides */
+/* This will only be active when viewing this specific book */
+.docs-content-area h1 {
+  color: #c084fc;
+}

@@ -12,7 +12,7 @@ body {
 	padding: 16px;
 	background-color: var(--bg-color);
 	font-family: 'Noto Sans', BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-	width: 150px;
+	width: 500px;
 }
 
 #app {

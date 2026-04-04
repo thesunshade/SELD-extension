@@ -1,4 +1,7 @@
 import { defineConfig } from "wxt";
+import mdx from '@mdx-js/rollup';
+import remarkFrontmatter from 'remark-frontmatter';
+import remarkMdxFrontmatter from 'remark-mdx-frontmatter';
 
 // See https://wxt.dev/api/config.html
 export default defineConfig({
@@ -41,6 +44,11 @@ export default defineConfig({
     build: {
       assetsInlineLimit: 0,
     },
+    plugins: [
+      mdx({
+        remarkPlugins: [remarkFrontmatter, remarkMdxFrontmatter],
+      }),
+    ],
   }),
 
   srcDir: ".",
