@@ -1,0 +1,169 @@
+p.western {
+	font-family: "Noto Serif", serif;
+	font-size: 12pt;
+
+}
+
+p.cjk {
+	font-size: 12pt;
+
+	font-family: "Noto Sans Sinhala", sans-serif
+}
+
+p.ctl {
+	font-family: "Noto Sans Sinhala", sans-serif;
+	font-size: 12pt;
+
+}
+
+h1.western {
+	font-family: "Noto Serif", serif;
+	font-weight: bold;
+	font-size: 18pt;
+
+}
+
+h1.cjk {
+	font-size: 18pt;
+
+	font-weight: bold;
+	font-family: "Noto Sans Sinhala", sans-serif
+}
+
+h1.ctl {
+	font-family: "Noto Sans Sinhala", sans-serif;
+	font-size: 18pt;
+	;
+	font-weight: bold
+}
+
+h2.western {
+	font-family: "Noto Serif", serif;
+	font-weight: bold;
+	font-size: 16pt;
+
+}
+
+h2.cjk {
+	font-size: 16pt;
+
+	font-weight: bold;
+	font-family: "Noto Sans Sinhala", sans-serif
+}
+
+h2.ctl {
+	font-family: "Noto Sans Sinhala", sans-serif;
+	font-size: 16pt;
+	;
+	font-weight: bold
+}
+
+h3 {
+	orphans: 2;
+	text-align: left;
+	widows: 2;
+	margin-top: 0.36in;
+	margin-bottom: 0.08in;
+	border-top: none;
+	border-left: none;
+	border-right: none;
+	padding-top: 0in;
+	padding-bottom: 0.01in;
+	padding-left: 0in;
+	padding-right: 0in;
+	direction: ltr;
+	background: transparent;
+	page-break-after: avoid
+}
+
+h3.western {
+	font-family: "Noto Serif", serif;
+	font-size: 14pt;
+
+}
+
+h3.cjk {
+	font-size: 14pt;
+
+	font-family: "Noto Sans Sinhala", sans-serif
+}
+
+h3.ctl {
+	font-family: "Noto Sans Sinhala", sans-serif;
+	font-size: 14pt;
+
+}
+
+h4 {
+	orphans: 2;
+	text-align: left;
+	widows: 2;
+	margin-top: 0.08in;
+	margin-bottom: 0.08in;
+	direction: ltr;
+	background: transparent;
+	page-break-after: avoid
+}
+
+h4.western {
+	font-style: italic;
+	font-family: "Noto Serif", serif;
+	font-weight: bold;
+	font-size: 13pt;
+
+}
+
+h4.cjk {
+	font-size: 13pt;
+
+	font-family: "Noto Sans Sinhala", sans-serif;
+	font-style: italic;
+	font-weight: bold
+}
+
+h4.ctl {
+	font-family: "Noto Sans Sinhala", sans-serif;
+	font-size: 13pt;
+	;
+	font-style: italic;
+	font-weight: bold
+}
+
+p.speaker-western {
+	font-style: normal;
+	font-weight: bold;
+	text-decoration: none
+}
+
+p.speaker-cjk {
+	font-style: normal;
+	font-weight: bold;
+	text-decoration: none
+}
+
+p.speaker-ctl {
+	font-size: 10pt;
+	font-style: italic;
+	text-decoration: none
+}
+
+p.exercises-western {
+	font-family: "Noto Sans", sans-serif;
+	margin-bottom: 0.1in
+}
+
+p.exercises-cjk {
+	margin-bottom: 0.1in
+}
+
+p.exercises-ctl {
+	margin-bottom: 0.1in
+}
+
+p.exercise-headings {
+	font-weight: bold
+}
+
+p.subheads-simple {
+	font-weight: bold
+}

@@ -1,7 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { BookEntry } from '../../utils/bookDiscovery';
 import { scanForTooltips } from '../shared/useGlobalTooltips';
+
+// Module-level storage to persist scroll positions across navigations in the current session
+const scrollPositions = new Map<string, number>();
 
 interface LibraryContentProps {
   books: BookEntry[];
@@ -9,6 +12,7 @@ interface LibraryContentProps {
 
 export default function LibraryContent({ books }: LibraryContentProps) {
   const { bookSlug, chapterSlug } = useParams<{ bookSlug: string; chapterSlug: string }>();
+  const contentAreaRef = useRef<HTMLDivElement>(null);
 
   const currentBook = books.find(b => b.bookSlug === bookSlug);
   const currentChapter = currentBook?.chapters.find(c => c.slug === chapterSlug);
@@ -42,15 +46,32 @@ export default function LibraryContent({ books }: LibraryContentProps) {
     };
   }, [currentBook?.styleUrl, currentChapter?.styleUrl, currentBook?.bookSlug, currentChapter?.slug]);
 
-  // Handle Tippy re-initialization
+  // Real-time scroll capture to ensure we have the most accurate position before navigation
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    if (bookSlug && chapterSlug) {
+      const path = `${bookSlug}/${chapterSlug}`;
+      scrollPositions.set(path, e.currentTarget.scrollTop);
+    }
+  };
+
+  // Handle Tippy re-initialization and Scroll Restoration
   useEffect(() => {
-    if (currentChapter) {
+    const currentPath = `${bookSlug}/${chapterSlug}`;
+    const container = contentAreaRef.current;
+
+    if (currentChapter && container) {
       const timer = setTimeout(() => {
-        scanForTooltips(document.querySelector('.library-content-area') as HTMLElement);
-      }, 0);
+        // Restore scroll position after a short delay to ensure content height is calculated
+        const savedPos = scrollPositions.get(currentPath) || 0;
+        container.scrollTop = savedPos;
+        
+        // Also scan for tooltips
+        scanForTooltips(container);
+      }, 50); // 50ms is usually enough for most renders
+      
       return () => clearTimeout(timer);
     }
-  }, [currentChapter]);
+  }, [currentChapter, chapterSlug, bookSlug]);
 
   // Handle Page Title updates
   useEffect(() => {
@@ -67,7 +88,7 @@ export default function LibraryContent({ books }: LibraryContentProps) {
   // THE BOOKSHELF - Landing page state
   if (!bookSlug || !chapterSlug) {
     return (
-      <div className="library-content-area">
+      <div className="library-content-area" ref={contentAreaRef} onScroll={handleScroll}>
         <h1 className="bookshelf-title">The Bookshelf</h1>
         <p>Your portal to knowledge. Select a book to start exploring.</p>
         
@@ -96,7 +117,7 @@ export default function LibraryContent({ books }: LibraryContentProps) {
   // 404 STATE
   if (!currentChapter) {
     return (
-      <div className="library-content-area">
+      <div className="library-content-area" ref={contentAreaRef} onScroll={handleScroll}>
         <h1>404 - Chapter Not Found</h1>
         <p>The chapter "{chapterSlug}" was not found in the book "{currentBook?.bookTitle || bookSlug}".</p>
         <a href="#/" className="seld-btn seld-btn-secondary">Return to Bookshelf</a>
@@ -106,7 +127,7 @@ export default function LibraryContent({ books }: LibraryContentProps) {
 
   // CHAPTER CONTENT
   return (
-    <div className="library-content-area">
+    <div className="library-content-area" ref={contentAreaRef} onScroll={handleScroll}>
       {currentChapter.component ? (
         <currentChapter.component />
       ) : currentChapter.rawHtml ? (

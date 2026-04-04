@@ -26,9 +26,14 @@ const toStartCase = (str: string) => {
 };
 
 export function getBooks(): BookEntry[] {
-  // 1. Discover all content files (mdx, tsx, html)
-  // Vite injects these modules keyed by file path.
-  const contentModules = import.meta.glob('../assets/books/**/*.{mdx,tsx,html}', { eager: true });
+  // 1. Discover all content files
+  // MDX and TSX are imported as modules (default export is a React component)
+  const moduleModules = import.meta.glob('../assets/books/**/*.{mdx,tsx}', { eager: true });
+  // HTML files are imported as raw strings
+  const htmlModules = import.meta.glob('../assets/books/**/*.html', { query: '?raw', import: 'default', eager: true });
+  
+  // Combine all content modules
+  const contentModules = { ...moduleModules, ...htmlModules };
   
   // 2. Discover metadata files
   const metaModules = import.meta.glob('../assets/books/**/meta.json', { eager: true });
@@ -113,7 +118,8 @@ export function getBooks(): BookEntry[] {
     } else if (ext === 'tsx') {
       component = m.default;
     } else if (ext === 'html') {
-      rawHtml = m.default as string; // Vite imports .html as raw string by default
+      // With ?raw and import: 'default', m is the raw string itself
+      rawHtml = typeof module === 'string' ? module : m.default;
     }
 
     const book = booksMap.get(bookSlug) || {
