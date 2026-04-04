@@ -129,6 +129,10 @@ body {
   margin-bottom: 0.5em;
 }
 
+h1 {
+  font-size: 1.4rem;
+}
+
 .library-content-area h1:first-child {
   margin-top: 0;
 }
