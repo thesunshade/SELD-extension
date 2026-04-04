@@ -1,5 +1,4 @@
 ## Bugs
-- [ ] for suffix type headwords when the suffix starts with a dash and then a combining vowel, two non-breaking spaces should be inserted betweeen the vowel and the dash
 
 ## Search
 - [ ] particles should be treated like suffixes, e.g. ත්
@@ -51,8 +50,6 @@
 - [x] add history browser to Dictionary Explorer
 - [x] headword button to open dictionary explorer browser (new tab or existing tab?)
 - [x] In the sidebar, if you are on settings or info, clicking a history item does not open search.
-- [ ] add letter headers in dictionary browser
-- [ ] export words to Anki
 - [x] remove all transparent/glassmorphism backgrounds from elements, especially history drop down interface on search
 - [x] adding a new word to the search input should scroll the new results list to the top.
 - [x] ගොඩ නැගිල්ල doesn't seem to be in the lexicon
@@ -62,3 +59,4 @@
 - [x] the welcome page is currently being built at build time. This is probably not idea as it messes with versioning. Better to have the final changes to the page by dynamic at time of load.
 - [x] clicking on the sidebar text scale % should bring it back to 100%
 - [x] transltierations break when word is parsed. e.g. අහසෙහි ->අහස -ෙහි ahasa -ෙhi
+- [ ] for suffix type headwords when the suffix starts with a dash and then a combining vowel, two non-breaking spaces should be inserted betweeen the vowel and the dash MAYBE FIXED??
