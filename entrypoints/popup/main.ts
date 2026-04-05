@@ -2,6 +2,7 @@ import { browser } from 'wxt/browser';
 import tippy from 'tippy.js';
 import 'tippy.js/dist/tippy.css';
 import '../../assets/theme.css';
+import './style.css'
 
 document.addEventListener('DOMContentLoaded', () => {
 	const sidebarBtn = document.getElementById('open-sidebar');
