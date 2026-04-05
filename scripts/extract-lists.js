@@ -1,3 +1,5 @@
+// determines which parts of the lists.xml get turned into tooltips, etc
+
 import fs from 'fs';
 import path from 'path';
 import { XMLParser } from 'fast-xml-parser';

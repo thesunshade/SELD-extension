@@ -13,20 +13,20 @@ function getEntryCount() {
     if (!fs.existsSync(IDX_PATH)) {
         return 0;
     }
-    
+
     const buffer = fs.readFileSync(IDX_PATH);
     let count = 0;
     let i = 0;
-    
+
     while (i < buffer.length) {
         // Skip word string
         while (i < buffer.length && buffer[i] !== 0) {
             i++;
         }
         if (i >= buffer.length) break;
-        
+
         i++; // skip null terminator
-        
+
         // Skip 8 bytes of offset/length
         if (i + 8 <= buffer.length) {
             i += 8;
@@ -53,7 +53,7 @@ function generateBuildInfo() {
     // 3. Get entry count from SELD.idx
     const entryCount = getEntryCount();
 
-    const content = `// Auto-generated build information
+    const content = `// Auto-generated build information used on About panel
 export const BUILD_INFO = {
     version: "${version}",
     dictionaryDate: "${dictDate}",
