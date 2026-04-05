@@ -50,7 +50,7 @@ function App({ onClose, inline }: AppProps) {
   const autoPlayTTSRef = useRef(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
-  const [listHeight, setListHeight] = useState(15); // percentage
+  const [listHeight, setListHeight] = useState(25); // percentage
   const [sidebarWidth, setSidebarWidth] = useState(350);
   const selectedRef = useRef<HTMLDivElement>(null);
   const isResizingVertical = useRef(false);
