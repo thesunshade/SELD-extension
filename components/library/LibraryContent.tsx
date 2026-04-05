@@ -21,10 +21,10 @@ export default function LibraryContent({ books }: LibraryContentProps) {
   useEffect(() => {
     const bookStyleId = `library-style-book-${currentBook?.bookSlug}`;
     const chapterStyleId = `library-style-chapter-${currentBook?.bookSlug}-${currentChapter?.slug}`;
-    
+
     let bookStyleTag: HTMLStyleElement | null = null;
     let chapterStyleTag: HTMLStyleElement | null = null;
-    
+
     if (currentBook?.styleUrl) {
       bookStyleTag = document.createElement('style');
       bookStyleTag.id = bookStyleId;
@@ -64,11 +64,11 @@ export default function LibraryContent({ books }: LibraryContentProps) {
         // Restore scroll position after a short delay to ensure content height is calculated
         const savedPos = scrollPositions.get(currentPath) || 0;
         container.scrollTop = savedPos;
-        
+
         // Also scan for tooltips
         scanForTooltips(container);
       }, 50); // 50ms is usually enough for most renders
-      
+
       return () => clearTimeout(timer);
     }
   }, [currentChapter, chapterSlug, bookSlug]);
@@ -90,23 +90,25 @@ export default function LibraryContent({ books }: LibraryContentProps) {
     return (
       <div className="library-content-area" ref={contentAreaRef} onScroll={handleScroll}>
         <h1 className="bookshelf-title">The Bookshelf</h1>
-        <p>Your portal to knowledge. Select a book to start exploring.</p>
-        
+
         <div className="bookshelf-grid">
           {books.map(book => (
             <div key={book.bookSlug} className="book-card">
-              <div className="book-card-header">
-                <h3>{book.bookTitle}</h3>
-              </div>
-              <div className="book-card-body">
-                <span className="book-card-meta">{book.chapters.length} Chapters</span>
-                <p className="book-card-description">{book.description || 'No description available.'}</p>
-              </div>
-              <div className="book-card-footer">
-                <a href={`#/${book.chapters[0]?.path}`} className="seld-btn seld-btn-primary seld-btn-pill">
-                  Open Book
-                </a>
-              </div>
+              <a href={`#/${book.chapters[0]?.path}`}>
+                <div className="book-card-header">
+                  <h3>{book.bookTitle}</h3>
+                </div>
+                <div className="book-card-body">
+                  <p className="book-card-description">{book.description || 'No description available.'}</p>
+                  <span className="book-card-meta">{book.chapters.length} Chapters</span>
+
+                </div>
+                <div className="book-card-footer">
+                  <a href={`#/${book.chapters[0]?.path}`} className="seld-btn seld-btn-primary seld-btn-pill">
+                    Open Book
+                  </a>
+                </div>
+              </a>
             </div>
           ))}
         </div>
