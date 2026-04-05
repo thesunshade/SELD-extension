@@ -22,7 +22,7 @@ a:hover {
   background-color: var(--bg-color);
   color: var(--text-primary);
   overflow: hidden;
-  font-family: 'Noto Sans', system-ui, sans-serif;
+  font-family: 'Noto Sans', 'Noto Sans Sinhala', system-ui, sans-serif;
 }
 
 .library-nav-area {
@@ -52,6 +52,10 @@ a:hover {
 }
 
 .library-nav-header {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background-color: var(--bg-panel);
   padding: 10px 20px;
   font-weight: bold;
   font-size: 1.2rem;
