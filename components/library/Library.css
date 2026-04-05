@@ -2,6 +2,19 @@ body {
   margin: 0;
 }
 
+.frontmatter-center {
+  text-align: center;
+  margin: 2rem;
+}
+
+a {
+  color: var(--text-secondary)
+}
+
+a:hover {
+  color: var(--text-primary)
+}
+
 .library-container {
   display: flex;
   height: 100vh;
@@ -200,6 +213,14 @@ h1 {
 .book-card-header h3 {
   margin: 0;
   font-size: 1.15rem;
+  color: var(--text-primary);
+}
+
+.bookshelf-title img {
+  position: relative;
+  top: 12px;
+  /* or bottom: -2px */
+  padding-right: 1rem
 }
 
 .book-card-body {

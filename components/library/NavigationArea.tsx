@@ -32,7 +32,7 @@ export default function NavigationArea({ books, onToggleSidebar, isSidebarVisibl
               </svg>
             </button>
           )}
-          <span>The Library</span>
+          <span>Library</span>
         </div>
         <button
           className={`seld-btn seld-btn-ghost seld-btn-icon-circle library-sidebar-toggle ${isSidebarVisible ? 'active' : ''}`}

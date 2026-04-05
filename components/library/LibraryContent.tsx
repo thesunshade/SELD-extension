@@ -89,7 +89,7 @@ export default function LibraryContent({ books }: LibraryContentProps) {
   if (!bookSlug || !chapterSlug) {
     return (
       <div className="library-content-area" ref={contentAreaRef} onScroll={handleScroll}>
-        <h1 className="bookshelf-title">The Bookshelf</h1>
+        <h1 className="bookshelf-title"><img src="/library.png" width="56" />Bookshelf </h1>
 
         <div className="bookshelf-grid">
           {books.map(book => (
