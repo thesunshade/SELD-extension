@@ -1,5 +1,4 @@
-@import "~/assets/theme.css";
-
+@import "../../assets/theme.css";
 
 /* ─── Reset & Base ─── */
 *,
@@ -11,35 +10,12 @@
 }
 
 :root {
-	--bg: #f8fafc;
-	--bg-card: rgba(255, 255, 255, 0.85);
-	--text: #0f172a;
-	--text-sub: #475569;
-	--border: #e2e8f0;
-	--accent: #0f172a;
-	--accent-fg: #ffffff;
-	--accent-soft: rgba(15, 23, 42, 0.06);
-	--radius: 16px;
 	--shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
 }
 
-@media (prefers-color-scheme: dark) {
-	:root {
-		--bg: #020617;
-		--bg-card: rgba(15, 23, 42, 0.85);
-		--text: #f8fafc;
-		--text-sub: #94a3b8;
-		--border: #3c5379;
-		--accent: #f8fafc;
-		--accent-fg: #0f172a;
-		--accent-soft: rgba(248, 250, 252, 0.08);
-		--shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
-	}
-}
-
 body {
-	background: var(--bg);
-	color: var(--text);
+	background: var(--bg-color);
+	color: var(--text-primary);
 	line-height: 1.6;
 	min-height: 100vh;
 	display: flex;
@@ -48,7 +24,7 @@ body {
 }
 
 a {
-	color: var(--text);
+	color: var(--text-primary);
 }
 
 .container {
@@ -79,7 +55,7 @@ a {
 }
 
 .hero .subtitle {
-	color: var(--text-sub);
+	color: var(--text-secondary);
 	font-size: 1.05em;
 }
 
@@ -88,8 +64,8 @@ a {
 	margin-top: 12px;
 	padding: 4px 14px;
 	border-radius: 999px;
-	background: var(--accent-soft);
-	color: var(--text-sub);
+	background: var(--accent-bg);
+	color: var(--text-secondary);
 	font-size: 0.82em;
 	font-weight: 600;
 	letter-spacing: 0.02em;
@@ -97,11 +73,11 @@ a {
 
 /* ─── Cards ─── */
 .card {
-	background: var(--bg-card);
+	background: var(--bg-panel);
 	backdrop-filter: blur(12px);
 	-webkit-backdrop-filter: blur(12px);
-	border: 1px solid var(--border);
-	border-radius: var(--radius);
+	border: 1px solid var(--border-color);
+	border-radius: 15px;
 	padding: 28px 28px 24px;
 	margin-bottom: 20px;
 	box-shadow: var(--shadow);
@@ -146,7 +122,7 @@ a {
 	align-items: flex-start;
 	gap: 14px;
 	padding: 12px 0;
-	border-top: 1px solid var(--border);
+	border-top: 1px solid var(--border-color);
 }
 
 .steps li:first-child {
@@ -160,8 +136,8 @@ a {
 	width: 28px;
 	height: 28px;
 	border-radius: 50%;
-	background: var(--accent);
-	color: var(--accent-fg);
+	background: var(--accent-bg);
+	color: var(--text-primary);
 	font-size: 0.82em;
 	font-weight: 700;
 	display: flex;
@@ -180,7 +156,7 @@ a {
 }
 
 .steps li .detail {
-	color: var(--text-sub);
+	color: var(--text-secondary);
 	font-size: 0.92em;
 }
 
@@ -198,8 +174,8 @@ kbd {
 	display: inline-block;
 	padding: 2px 7px;
 	border-radius: 5px;
-	border: 1px solid var(--border);
-	background: var(--accent-soft);
+	border: 1px solid var(--border-color);
+	background: var(--accent-bg);
 	font-family: inherit;
 	font-size: 0.88em;
 	font-weight: 600;
@@ -225,23 +201,23 @@ kbd {
 	width: 8px;
 	height: 8px;
 	border-radius: 50%;
-	background: var(--accent);
+	background: var(--accent-bg);
 	flex-shrink: 0;
 }
 
 /* ─── Tip box ─── */
 .tip {
-	background: var(--accent-soft);
+	background: var(--accent-bg);
 	border-radius: 10px;
 	padding: 14px 18px;
 	font-size: 0.92em;
-	color: var(--text-sub);
+	color: var(--text-secondary);
 	margin-top: 16px;
 	line-height: 1.5;
 }
 
 .tip strong {
-	color: var(--text);
+	color: var(--text-primary);
 }
 
 /* ─── Animation ─── */
@@ -311,15 +287,18 @@ kbd {
 .changelog-details summary {
 	cursor: pointer;
 	font-weight: 600;
-	margin-bottom: 8px;
-	color: var(--text-sub);
+	margin: 8px auto;
+	color: var(--text-secondary);
 	font-size: 0.9em;
 	transition: color 0.2s;
 	list-style: none;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	gap: 8px;
+	/* gap: 8px; */
+	background-color: var(--accent-bg);
+	width: 9rem;
+	border-radius: 30px;
 }
 
 .changelog-details summary::-webkit-details-marker {
@@ -330,6 +309,7 @@ kbd {
 	content: "›";
 	font-size: 1.2em;
 	transition: transform 0.2s;
+	padding: 0 5px 0 0;
 }
 
 .changelog-details[open] summary::before {
@@ -337,29 +317,34 @@ kbd {
 }
 
 .changelog-details summary:hover {
-	color: var(--text);
+	color: var(--text-primary);
 }
 
 .changelog-content {
 	height: 10rem;
 	overflow-y: auto;
-	background: var(--accent-soft);
+	background: var(--accent-bg);
 	padding: 12px;
 	border-radius: 12px;
-	font-size: 0.85em;
 	margin-bottom: 12px;
-	border: 1px solid var(--border);
+	border: 1px solid var(--border-color);
 	text-align: left;
 	scrollbar-width: thin;
-	scrollbar-color: var(--border) transparent;
+	scrollbar-color: var(--border-color) transparent;
+
 }
+
+.changelog-content * {
+	font-family: monospace !important;
+}
+
 
 .changelog-content h3,
 .changelog-content h4 {
 	margin-top: 14px;
 	margin-bottom: 6px;
 	font-weight: 700;
-	color: var(--text);
+	color: var(--text-primary);
 }
 
 .changelog-content h3:first-child,
@@ -386,6 +371,6 @@ kbd {
 }
 
 .changelog-content::-webkit-scrollbar-thumb {
-	background-color: var(--border);
+	background-color: var(--border-color);
 	border-radius: 10px;
 }

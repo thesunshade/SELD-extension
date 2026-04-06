@@ -27,7 +27,6 @@ html {
 	font-family: "Noto Sans", "Noto Sans Sinhala", sans-serif
 }
 
-
 .seld-theme-vars {
 	--text-primary: #0f172a;
 	--text-secondary: #475569;
@@ -60,8 +59,6 @@ html {
 	--accent-bg: rgba(248, 250, 252, 0.1);
 	--accent-bg-darker: rgba(248, 250, 252, 0.2);
 	--input-bg: #0f172a;
-	--btn-radius: 6px;
-	--btn-transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* High contrast */

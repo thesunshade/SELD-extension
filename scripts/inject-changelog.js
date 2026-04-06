@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
 const CHANGELOG_PATH = path.join(ROOT, 'changelog.md');
-const WELCOME_HTML_PATH = path.join(ROOT, 'public/extension-pages/welcome.html');
+const WELCOME_HTML_PATH = path.join(ROOT, 'entrypoints/welcome/index.html');
 
 function escapeHtml(text) {
   return text
