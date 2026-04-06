@@ -1,0 +1,13 @@
+{
+  "title": "Intro to the SELD",
+  "description": "Frontmatter for the Sinhala-English Learners Dictionary",
+  "structure": [
+    {
+      "type": "section",
+      "title": "Part 1: The Basics"
+    },
+    "chapter1.mdx",
+    "Bibliography.mdx",
+    "Synonyms.tsx"
+  ]
+}

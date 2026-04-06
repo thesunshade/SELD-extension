@@ -1,3 +1,5 @@
+// used to mark words on the page that are exact matches in the dictionary
+
 export const SINHALA_REGEX = /[\u0D80-\u0DFF\u200D\u200C]+/g;
 
 const isInsideSidebar = (node: Node): boolean => {

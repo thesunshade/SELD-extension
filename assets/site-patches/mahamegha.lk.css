@@ -23,3 +23,8 @@
     /* Removes the vertical divider line */
     min-width: 100% !important;
 }
+
+/* hide TRENDING text because when the page is narrow, it intermittently adds new lines in the header, shifting layout */
+#et-trending-container {
+    display: none;
+}

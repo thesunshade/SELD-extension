@@ -134,3 +134,63 @@ S (Suffix Count): Number of suffixes for synthesized matches.
 1. place css in file in assets\site-patches
 1. add into utils\site-patches.ts
 1. add to tooltip on components\shared\SettingsUI.tsx
+
+
+## The Library & The Bookshelf
+
+The Library is a documentation and book-viewing system built into the extension. It uses static discovery to automatically build a catalog of content.
+
+### Adding a New Book
+
+Create a new directory in `assets/books/[your-book-slug]/`.
+
+Required files:
+- **`meta.json`**: Contains book metadata and optional explicit structure.
+  ```json
+  {
+    "title": "Your Book Title",
+    "description": "A brief summary...",
+    "structure": [
+      { "type": "section", "title": "Part 1: The Basics" },
+      "01_Introduction.html",
+      "02_Lesson1.html",
+      { "type": "section", "title": "Part 2: Advanced" },
+      "03_Lesson2.tsx"
+    ]
+  }
+  ```
+  *Note: If `structure` is present, it must include ALL files in the book directory.*
+- **Chapters**: Added as `.mdx`, `.tsx`, or `.html` files in the book directory.
+
+Optional files:
+- **`book-theme.css`**: If present, this CSS will be automatically injected into the page when any chapter of this book is being read. Use it for book-specific styling overrides.
+
+### 2. Chapter Content Types
+
+- **MDX (`.mdx`)**: Best for standard documentation. 
+  - Define a title in frontmatter: `--- title: My Chapter ---` (Required).
+- **React (`.tsx`)**: Best for interactive tutorials.
+  - Export a default React component.
+  - Export metadata with a title: `export const metadata = { title: "My Title" };` (Required).
+- **HTML (`.html`)**: Best for legacy content.
+  - Must contain a `<title>My Title</title>` tag inside the file (Required).
+
+### 3. How it Works (Architecture)
+
+**Discovery**: `utils/bookDiscovery.ts` uses Vite's `import.meta.glob` to find all files in `assets/books/` at build time. 
+
+1. **Title & Slug Extraction**: Titles are extracted from file contents. Slugs are generated dynamically from these titles (e.g., "Lesson 1" becomes `/lesson-1`).
+2. **Validation (Hard Fails)**: The system will throw an error if a file is missing a title, if two titles result in the same slug, or if a defined `structure` is missing any files.
+3. **Ordering**: If `meta.json` has a `structure`, that order is used. Otherwise, it falls back to natural alphanumeric sorting of filenames.
+1. **Routing**: The feature uses `HashRouter` (React Router v6).
+   - `/`: Displays **The Bookshelf** (a grid of all discovered books).
+   - `/:bookSlug/:chapterSlug`: Displays a specific chapter.
+1. **Layout**: `LibraryLayout.tsx` hosts the **Navigation Area** (sidebar). The sidebar is context-aware: it only shows the Table of Contents when a specific book is active.
+1. **Title Management**: `LibraryContent.tsx` dynamically updates `document.title` in the format: `Chapter | Book | Library`.
+1. **Glossary/Tooltips**: Since content is rendered dynamically, we call `scanForTooltips` (from `useGlobalTooltips.ts`) whenever a chapter changes to ensure glossary tooltips apply to all compatible HTML tags.
+
+### 4. UI Customization
+
+Styles for the library are located in `components/library/Library.css`. The system uses CSS variables from `assets/theme.css` for a consistent experience with the rest of the extension.
+
+To toggle the navigation area, click the **hamburger/X** button at the top-left of the Library interface.

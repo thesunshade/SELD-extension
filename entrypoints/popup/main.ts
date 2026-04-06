@@ -2,11 +2,13 @@ import { browser } from 'wxt/browser';
 import tippy from 'tippy.js';
 import 'tippy.js/dist/tippy.css';
 import '../../assets/theme.css';
+import './style.css'
 
 document.addEventListener('DOMContentLoaded', () => {
 	const sidebarBtn = document.getElementById('open-sidebar');
 	const textpadBtn = document.getElementById('open-text-pad');
 	const dictBtn = document.getElementById('dictionary-explorer');
+	const libraryBtn = document.getElementById('open-library');
 
 	const isRestrictedPage = (url?: string): boolean => {
 		if (!url) return true;
@@ -95,6 +97,13 @@ document.addEventListener('DOMContentLoaded', () => {
 	dictBtn?.addEventListener('click', () => {
 		browser.tabs.create({
 			url: browser.runtime.getURL('/dictionary.html'),
+		});
+		window.close();
+	});
+
+	libraryBtn?.addEventListener('click', () => {
+		browser.tabs.create({
+			url: browser.runtime.getURL('/library.html'),
 		});
 		window.close();
 	});
