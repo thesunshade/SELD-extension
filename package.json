@@ -1,14 +1,14 @@
 {
   "name": "seld-extension",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "type": "module",
   "description": "Sinhala-English Learners Dictionary Lookup Extension",
   "scripts": {
-    "predev": "node scripts/validate-books.js && node scripts/generate-build-info.js && node scripts/inject-changelog.js && node scripts/check-freshness.js && node scripts/extract-lists.js && node scripts/build-bloom.js && node scripts/build-carter.js && node scripts/run-tests-prompt.js",
+    "predev": "node scripts/validate-books.js && node scripts/generate-book-index.js && node scripts/generate-build-info.js && node scripts/inject-changelog.js && node scripts/check-freshness.js && node scripts/extract-lists.js && node scripts/build-bloom.js && node scripts/build-carter.js && node scripts/run-tests-prompt.js",
     "dev": "wxt",
-    "prebuild": "node scripts/validate-books.js && node scripts/generate-build-info.js && node scripts/inject-changelog.js && node scripts/check-freshness.js && node scripts/extract-lists.js && node scripts/build-bloom.js && node scripts/build-carter.js && node scripts/run-tests-prompt.js",
+    "prebuild": "node scripts/validate-books.js && node scripts/generate-book-index.js && node scripts/generate-build-info.js && node scripts/inject-changelog.js && node scripts/check-freshness.js && node scripts/extract-lists.js && node scripts/build-bloom.js && node scripts/build-carter.js && node scripts/run-tests-prompt.js",
     "build": "wxt build",
-    "prezip": "node scripts/generate-build-info.js && node scripts/inject-changelog.js && node scripts/check-freshness.js 24 && node scripts/extract-lists.js && node scripts/build-bloom.js && node scripts/build-carter.js",
+    "prezip": "node scripts/generate-book-index.js && node scripts/generate-build-info.js && node scripts/inject-changelog.js && node scripts/check-freshness.js 24 && node scripts/extract-lists.js && node scripts/build-bloom.js && node scripts/build-carter.js",
     "zip": "wxt zip",
     "compile": "tsc --noEmit",
     "test": "vitest run"

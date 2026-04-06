@@ -1,7 +1,10 @@
 import React, { useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useOutletContext } from 'react-router-dom';
 import { BookEntry } from '../../utils/bookDiscovery';
 import { scanForTooltips } from '../shared/useGlobalTooltips';
+import { LibrarySearchContext } from './LibraryLayout';
+import { browser } from 'wxt/browser';
+import SearchMatchNav from './SearchMatchNav';
 
 // Module-level storage to persist scroll positions across navigations in the current session
 const scrollPositions = new Map<string, number>();
@@ -12,7 +15,16 @@ interface LibraryContentProps {
 
 export default function LibraryContent({ books }: LibraryContentProps) {
   const { bookSlug, chapterSlug } = useParams<{ bookSlug: string; chapterSlug: string }>();
+  const { searchQuery } = useOutletContext<LibrarySearchContext>();
   const contentAreaRef = useRef<HTMLDivElement>(null);
+  
+  // Storage for last read chapters
+  const [lastChapters, setLastChapters] = React.useState<Record<string, string>>({});
+  const [currentMatchIndex, setCurrentMatchIndex] = React.useState(-1);
+  const [totalMatches, setTotalMatches] = React.useState(0);
+  const matchElements = useRef<HTMLElement[]>([]);
+  const lastNavRef = useRef({ book: '', chapter: '' });
+  const originalScrollPosRef = useRef<number | null>(null);
 
   const currentBook = books.find(b => b.bookSlug === bookSlug);
   const currentChapter = currentBook?.chapters.find(c => c.slug === chapterSlug);
@@ -54,7 +66,7 @@ export default function LibraryContent({ books }: LibraryContentProps) {
     }
   };
 
-  // Handle Tippy re-initialization and Scroll Restoration
+  // Handle Highlighting, Tippy re-initialization and Scroll Restoration
   useEffect(() => {
     const currentPath = `${bookSlug}/${chapterSlug}`;
     const container = contentAreaRef.current;
@@ -65,13 +77,91 @@ export default function LibraryContent({ books }: LibraryContentProps) {
         const savedPos = scrollPositions.get(currentPath) || 0;
         container.scrollTop = savedPos;
 
+        // Apply highlights if searching
+        if (searchQuery && searchQuery.trim().length > 1) {
+          applyHighlights(container, searchQuery.trim());
+          
+          // Find all matches
+          const matches = Array.from(container.querySelectorAll('.seld-content-highlight')) as HTMLElement[];
+          matchElements.current = matches;
+          setTotalMatches(matches.length);
+          
+          // Only auto-scroll if we just navigated to this chapter
+          const hasNavigated = lastNavRef.current.book !== bookSlug || lastNavRef.current.chapter !== chapterSlug;
+          if (matches.length > 0 && hasNavigated) {
+            scrollToMatch(0);
+          } else {
+            setCurrentMatchIndex(-1);
+            originalScrollPosRef.current = null; // Reset for new matching session
+          }
+          
+          // Update last navigation ref
+          lastNavRef.current = { book: bookSlug || '', chapter: chapterSlug || '' };
+        } else {
+          removeHighlights(container);
+          setTotalMatches(0);
+          setCurrentMatchIndex(-1);
+          matchElements.current = [];
+          originalScrollPosRef.current = null;
+        }
+
         // Also scan for tooltips
         scanForTooltips(container);
       }, 50); // 50ms is usually enough for most renders
 
       return () => clearTimeout(timer);
     }
-  }, [currentChapter, chapterSlug, bookSlug]);
+  }, [currentChapter, chapterSlug, bookSlug, searchQuery]);
+
+  const scrollToMatch = (index: number) => {
+    const container = contentAreaRef.current;
+    if (!container) return;
+
+    const matches = matchElements.current;
+
+    // Handle special "zero" state (return to original position)
+    if (index === -1) {
+       matches.forEach(m => m.classList.remove('seld-match-active'));
+       if (originalScrollPosRef.current !== null) {
+         container.scrollTo({ top: originalScrollPosRef.current, behavior: 'smooth' });
+       }
+       setCurrentMatchIndex(-1);
+       return;
+    }
+
+    if (matches.length === 0 || index < 0 || index >= matches.length) return;
+
+    // If we're moving from idle (-1) to a match, save the current scroll position
+    if (currentMatchIndex === -1 && originalScrollPosRef.current === null) {
+      originalScrollPosRef.current = container.scrollTop;
+    }
+
+    // Remove old active match
+    matches.forEach(m => m.classList.remove('seld-match-active'));
+
+    // Set new active match
+    const target = matches[index];
+    target.classList.add('seld-match-active');
+    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setCurrentMatchIndex(index);
+  };
+
+  const nextMatch = () => {
+    const nextIdx = (currentMatchIndex + 1) % totalMatches;
+    scrollToMatch(nextIdx);
+  };
+
+  const prevMatch = () => {
+    // If at first match (0), go back to original scroll position (-1)
+    if (currentMatchIndex === 0) {
+      scrollToMatch(-1);
+    } else if (currentMatchIndex === -1) {
+      // If at original position, go to last match
+      scrollToMatch(totalMatches - 1);
+    } else {
+      scrollToMatch(currentMatchIndex - 1);
+    }
+  };
 
   // Handle Page Title updates
   useEffect(() => {
@@ -84,6 +174,28 @@ export default function LibraryContent({ books }: LibraryContentProps) {
     }
   }, [bookSlug, chapterSlug, currentBook, currentChapter]);
 
+  // Handle Chapter Persistence
+  useEffect(() => {
+    if (bookSlug && chapterSlug && currentChapter) {
+      browser.storage.local.set({ [`library_last_${bookSlug}`]: chapterSlug });
+    }
+  }, [bookSlug, chapterSlug, currentChapter]);
+
+  // Handle Last Chapters Loading (for bookshelf)
+  useEffect(() => {
+    if (!bookSlug || !chapterSlug) {
+      const keys = books.map(b => `library_last_${b.bookSlug}`);
+      browser.storage.local.get(keys).then(res => {
+        const result: Record<string, string> = {};
+        Object.entries(res).forEach(([key, val]) => {
+          const slug = key.replace('library_last_', '');
+          result[slug] = val as string;
+        });
+        setLastChapters(result);
+      });
+    }
+  }, [bookSlug, chapterSlug, books]);
+
 
   // THE BOOKSHELF - Landing page state
   if (!bookSlug || !chapterSlug) {
@@ -93,8 +205,9 @@ export default function LibraryContent({ books }: LibraryContentProps) {
 
         <div className="bookshelf-grid">
           {books.map(book => {
+            const lastSlug = lastChapters[book.bookSlug];
             const firstChapter = book.chapters.find(c => !c.isSection);
-            const entryPath = firstChapter ? `#/${firstChapter.path}` : '#/';
+            const entryPath = lastSlug ? `#/${book.bookSlug}/${lastSlug}` : (firstChapter ? `#/${firstChapter.path}` : '#/');
             
             return (
               <div key={book.bookSlug} className="book-card">
@@ -104,11 +217,18 @@ export default function LibraryContent({ books }: LibraryContentProps) {
                   </div>
                   <div className="book-card-body">
                     <p className="book-card-description">{book.description || 'No description available.'}</p>
-                    <span className="book-card-meta">{book.chapters.filter(c => !c.isSection).length} Chapters</span>
+                    <div className="book-card-meta">
+                      <span>{book.chapters.filter(c => !c.isSection).length} Chapters</span>
+                      {lastSlug && (
+                        <span style={{ marginLeft: '10px', fontSize: '0.8em', opacity: 0.7 }}>
+                          • last read: "{book.chapters.find(c => c.slug === lastSlug)?.title || lastSlug}"
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <div className="book-card-footer">
                     <a href={entryPath} className="seld-btn seld-btn-primary seld-btn-pill">
-                      Open Book
+                      {lastSlug ? 'Continue Reading' : 'Open Book'}
                     </a>
                   </div>
                 </a>
@@ -139,6 +259,63 @@ export default function LibraryContent({ books }: LibraryContentProps) {
       ) : currentChapter.rawHtml ? (
         <div dangerouslySetInnerHTML={{ __html: currentChapter.rawHtml }} />
       ) : null}
+
+      {totalMatches > 0 && (
+        <SearchMatchNav 
+          currentIndex={currentMatchIndex}
+          totalCount={totalMatches}
+          onNext={nextMatch}
+          onPrev={prevMatch}
+        />
+      )}
     </div>
   );
+}
+
+/**
+ * Native DOM-based highlighting to avoid complex React rendering issues with markup.
+ */
+function applyHighlights(root: HTMLElement, query: string) {
+  removeHighlights(root);
+  if (!query) return;
+
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+  const nodes = [];
+  let node;
+  while ((node = walker.nextNode())) {
+    nodes.push(node);
+  }
+
+  const isEnglish = /^[a-zA-Z0-9\s.,!?-]+$/.test(query);
+  let regex: RegExp;
+
+  if (isEnglish) {
+    regex = new RegExp(`(${query})`, 'gi');
+  } else {
+    // Escape regex chars for Sinhala
+    const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    regex = new RegExp(`(${escaped})`, 'g');
+  }
+
+  nodes.forEach(textNode => {
+    const text = textNode.nodeValue || '';
+    if (regex.test(text)) {
+      const span = document.createElement('span');
+      span.className = 'seld-highlight-group';
+      span.innerHTML = text.replace(regex, '<mark class="seld-content-highlight">$1</mark>');
+      textNode.parentNode?.replaceChild(span, textNode);
+    }
+  });
+}
+
+function removeHighlights(root: HTMLElement) {
+  const highlighted = root.querySelectorAll('.seld-highlight-group');
+  highlighted.forEach(group => {
+    const parent = group.parentNode;
+    if (parent) {
+      const text = group.textContent || '';
+      const textNode = document.createTextNode(text);
+      parent.replaceChild(textNode, group);
+    }
+  });
 }

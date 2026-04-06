@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
 const CHANGELOG_PATH = path.join(ROOT, 'changelog.md');
-const WELCOME_HTML_PATH = path.join(ROOT, 'public/extension-pages/welcome.html');
+const WELCOME_HTML_PATH = path.join(ROOT, 'entrypoints/welcome/index.html');
 
 function escapeHtml(text) {
   return text
@@ -60,12 +60,12 @@ function run() {
 
   const changelog = fs.readFileSync(CHANGELOG_PATH, 'utf-8');
   const lines = changelog.split('\n');
-  
+
   // Skip first line
   const mdContent = lines.slice(1).join('\n').trim();
   const htmlContent = mdToHtml(mdContent);
 
-  const OUTPUT_JS_PATH = path.join(ROOT, 'public/extension-pages/changelog-data.js');
+  const OUTPUT_JS_PATH = path.join(ROOT, 'entrypoints/welcome/changelog-data.js');
 
   const jsContent = `document.addEventListener('DOMContentLoaded', function() {
   const container = document.getElementById('changelog-container');
@@ -73,7 +73,7 @@ function run() {
     container.innerHTML = \`${htmlContent.replace(/`/g, '\\`').replace(/\$/g, '$$$$')}\`;
   }
 });`;
-  
+
   fs.writeFileSync(OUTPUT_JS_PATH, jsContent, 'utf-8');
   console.log('✅ Generated dynamically loadable changelog-data.js');
 }

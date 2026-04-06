@@ -2,9 +2,11 @@
 
 # Change Log
 
+## 0.4.2 (2026-04-06)
+* Add search to library interface
+
 ## 0.4.1 (2026-04-05)
 * Add library interface
-
 
 ## 0.4.0 (2026-04-02)
 * add links to Carter online dictionary when term not found in SELD

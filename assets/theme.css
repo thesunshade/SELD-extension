@@ -1,9 +1,38 @@
+@font-face {
+	font-family: 'Noto Sans Sinhala';
+	src: url('~/assets/fonts/NotoSansSinhala-VariableFont_wdth,wght.ttf') format('truetype');
+	font-weight: 200 800;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'Noto Sans';
+	src: url('~/assets/fonts/NotoSans-VariableFont_wdth,wght.ttf') format('truetype');
+	font-weight: 200 800;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'Noto Sans';
+	src: url('~/assets/fonts/NotoSans-Italic-VariableFont_wdth,wght.ttf') format('truetype');
+	font-weight: 200 800;
+	font-style: italic;
+	font-display: swap;
+}
+
+body *,
+html {
+	font-family: "Noto Sans", "Noto Sans Sinhala", sans-serif
+}
+
 .seld-theme-vars {
+	--text-primary: #0f172a;
+	--text-secondary: #475569;
 	--bg-color: #f8fafc;
 	--bg-panel: rgba(255, 255, 255);
 	--bg-panel-secondary: #e9f2ff;
-	--text-primary: #0f172a;
-	--text-secondary: #475569;
 	--border-color: #e2e8f0;
 	--accent: #0f172a;
 	--accent-fg: #ffffff;
@@ -30,8 +59,6 @@
 	--accent-bg: rgba(248, 250, 252, 0.1);
 	--accent-bg-darker: rgba(248, 250, 252, 0.2);
 	--input-bg: #0f172a;
-	--btn-radius: 6px;
-	--btn-transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* High contrast */

@@ -65,8 +65,3 @@
 	text-align: left;
 	width: 4.5rem;
 }
-
-/* Ensure font consistency */
-.vowel-modifier-grid .sinhala {
-	font-family: "Noto Sans", "Noto Sans Sinhala" !important;
-}

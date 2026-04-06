@@ -1,36 +1,13 @@
 @import "../shared/SettingsUI.css";
 @import "../shared/HistoryNav.css";
+@import "~/assets/theme.css";
 
-@font-face {
-  font-family: 'Noto Sans Sinhala';
-  src: url('~/assets/fonts/NotoSansSinhala-VariableFont_wdth,wght.ttf') format('truetype');
-  font-weight: 200 800;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Noto Sans';
-  src: url('~/assets/fonts/NotoSans-VariableFont_wdth,wght.ttf') format('truetype');
-  font-weight: 200 800;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Noto Sans';
-  src: url('~/assets/fonts/NotoSans-Italic-VariableFont_wdth,wght.ttf') format('truetype');
-  font-weight: 200 800;
-  font-style: italic;
-  font-display: swap;
-}
 
 /* Base Reset */
 #seld-sidebar-root {
   all: initial;
   display: block;
   box-sizing: border-box;
-  font-family: 'Noto Sans', 'Noto Sans Sinhala', sans-serif;
   z-index: 2147483647;
 }
 
@@ -39,7 +16,6 @@
   #seld-sidebar-root *::before,
   #seld-sidebar-root *::after) {
   box-sizing: border-box;
-  font-family: 'Noto Sans', 'Noto Sans Sinhala', sans-serif;
   margin: 0;
   padding: 0;
   border: 0;
@@ -76,7 +52,6 @@
   display: inline-block;
   appearance: none;
   -webkit-appearance: none;
-  font-family: inherit;
   font-size: 100%;
   line-height: normal;
   background: transparent;
@@ -485,8 +460,6 @@
 }
 
 #seld-sidebar-root .seld-transliteration {
-  font-family: inherit;
-  /* font-style: italic; */
   color: var(--text-secondary);
 }
 
