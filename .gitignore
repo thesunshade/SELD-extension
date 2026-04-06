@@ -53,3 +53,4 @@ utils/bloom-data.ts
 public/SELD/SELD.dict
 school-outline-rounded.svg
 entrypoints/welcome/changelog-data.js
+public/book-index.json
