@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Welcome—Sinhala English Learner's Dictionary</title>
+	<link rel="icon" type="image/png" sizes="96x96" href="icon-96.png">
+	<link rel="stylesheet" href="welcome.css">
+
+</head>
+
+<body>
+
+	<div class="container">
+
+		<div class="hero">
+			<img src="../icon-128.png" alt="SELD icon">
+			<h1>Sinhala English Learner’s Dictionary</h1>
+			<p class="subtitle">You’re running the latest version!</p>
+			<p>&copy; 2026</p>
+			<!-- CHANGELOG_START -->
+			<details class="changelog-details">
+				<summary>Latest Changes</summary>
+				<div class="changelog-content" id="changelog-container">Loading latest changes...</div>
+				<a
+					href="https://github.com/thesunshade/SELD-extension/blob/main/changelog.md#experimental-sinhala-english-learners-dictionary-browser-extension"><span
+						class="badge">View Full Changelog on GitHub 📃</span></a>
+			</details>
+			<script src="changelog-data.js"></script>
+			<!-- CHANGELOG_END -->
+		</div>
+
+		<div class="card">
+			<h2><span class="icon">🚀</span> Getting Started</h2>
+			<ol class="steps">
+				<li>
+					<div class="step-content">
+						<strong>📌 Pin to your toolbar (optional)</strong>
+						<span class="detail">Click on the extension icon in your toolbar. Select “Pin to toolbar.” <a
+								href="#browser-specific-instructions">See browser specific instructions.</a></span>
+					</div>
+				</li>
+				<li>
+					<div class="step-content">
+						<strong>Open the Sidebar</strong>
+						<span class="detail">Click the SELD icon in your browser toolbar to toggle the dictionary
+							sidebar on any webpage.</span>
+					</div>
+				</li>
+				<li>
+					<div class="step-content">
+						<strong>Search for a Word</strong>
+						<span class="detail">Type a Sinhala headword into the search box. Results appear instantly as
+							you type.</span>
+					</div>
+				</li>
+				<li>
+					<div class="step-content">
+						<strong>View Definitions</strong>
+						<span class="detail">Select a word from the results list to see its full definition, examples,
+							and grammatical information.</span>
+					</div>
+				</li>
+			</ol>
+		</div>
+
+		<div class="card">
+			<h2><span class="icon">⚡</span> Quick Lookup</h2>
+			<ol class="steps">
+				<li>
+					<div class="step-content">
+						<strong>Ctrl + Click any Sinhala word</strong>
+						<span class="detail">Hold <kbd>Ctrl</kbd> (or <kbd>⌘ Cmd</kbd> on Mac) and click any Sinhala
+							word on a webpage to look it up instantly in the sidebar.</span>
+					</div>
+				</li>
+			</ol>
+			<div class="tip">
+				<strong>Tip:</strong> You can enable or disable <kbd>Ctrl</kbd>+Click lookup from the Settings panel
+				inside the sidebar.
+			</div>
+		</div>
+
+		<div class="card">
+			<h2><span class="icon">🔮</span> Features</h2>
+			<ul class="features">
+				<li><span class="dot"></span> Text-to-Speech — hear the pronunciation of any headword</li>
+				<li><span class="dot"></span> Copy Definitions — copy formatted definitions to your clipboard</li>
+				<li><span class="dot"></span> Dark Mode — automatically matches your system theme, or set manually</li>
+				<li><span class="dot"></span> Adjustable Font Size — scale text up or down to your preference</li>
+				<li><span class="dot"></span> Transliteration — view romanized versions of Sinhala text</li>
+				<li><span class="dot"></span> Report Errors — suggest missing words or report incorrect definitions</li>
+			</ul>
+		</div>
+
+		<div class="card">
+			<h2><span class="icon">⚙️</span> Customise</h2>
+			<ol class="steps">
+				<li>
+					<div class="step-content">
+						<strong>Open Settings</strong>
+						<span class="detail">Click the Settings button in the top-right corner of the
+							sidebar to adjust theme, font size, transliteration, and quick-lookup behaviour.</span>
+					</div>
+				</li>
+			</ol>
+			<div class="tip">
+				<strong>Note:</strong> Settings are synced across all your open tabs automatically.
+			</div>
+		</div>
+
+
+		<div class="card" id="browser-specific-instructions">
+			<h2>Browser specific instructions</h2>
+			<ul class="steps">
+				<li class="chrome-step">
+					<div class="step-content">
+						<strong>Chrome</strong>
+						<span class="detail"></span>
+						Click on the Extensions icon in your toolbar. Then select "Pin"
+						<img height=200 src="Chrome-Pin-screenshot.png">
+					</div>
+				</li>
+				<li class="firefox-step">
+					<div class="step-content">
+						<strong>FireFox</strong>
+						<span class="detail"></span>
+						<ol>
+							<li>Click on the Extensions icon in your toolbar.</li>
+							<li>Click the gear icon next to the extension.</li>
+							<li>Then select “Pin to toolbar.”</li>
+						</ol>
+						<img height=200 src="Firefox-Pin-screenshot.png">
+					</div>
+				</li>
+			</ul>
+		</div>
+
+		<div style="text-align: center;">Browser icons from Freepik</div>
+	</div>
+</body>
+
+</html>

@@ -4,11 +4,6 @@
 		--bg-panel: rgb(15, 23, 42);
 	}
 
-	h1,
-	h2 {
-		font-family: "Noto Sans";
-	}
-
 	h1 {
 		font-size: 1.3rem;
 		text-align: center;
@@ -25,7 +20,6 @@
 	}
 
 	.sinhala {
-		font-family: "Noto Sans", "Noto Sans Sinhala";
 		font-size: 1.1rem;
 		color: var(--text-primary);
 	}

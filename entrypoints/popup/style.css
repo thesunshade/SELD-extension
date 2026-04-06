@@ -7,7 +7,7 @@
 body {
 	background: var(--bg-color);
 	color: var(--text-primary);
-	font-family: 'Noto Sans', system-ui, sans-serif;
+	/* font-family: 'Noto Sans', system-ui, sans-serif; */
 	width: 275px;
 	overflow: hidden;
 }

@@ -1,3 +1,6 @@
+@import "~/assets/theme.css";
+
+
 body {
   margin: 0;
 }
@@ -22,7 +25,6 @@ a:hover {
   background-color: var(--bg-color);
   color: var(--text-primary);
   overflow: hidden;
-  font-family: 'Noto Sans', 'Noto Sans Sinhala', system-ui, sans-serif;
 }
 
 .library-nav-area {
@@ -183,12 +185,6 @@ h1 {
   margin-bottom: 1em;
 }
 
-.library-content-area code {
-  font-family: monospace;
-  background-color: var(--accent-bg);
-  padding: 2px 4px;
-  border-radius: 4px;
-}
 
 /* Floating Search Match Navigator */
 .library-search-match-nav {

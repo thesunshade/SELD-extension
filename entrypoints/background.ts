@@ -8,10 +8,11 @@ export default defineBackground(() => {
     browser.runtime.onInstalled.addListener(({ reason }) => {
         if (reason === 'install' || reason === 'update') {
             browser.tabs.create({
-                url: browser.runtime.getURL('/extension-pages/welcome.html'),
+                url: browser.runtime.getURL('/welcome.html'),
             });
         }
     });
+
 
     const isRestrictedPage = (url?: string): boolean => {
         if (!url) return true;
