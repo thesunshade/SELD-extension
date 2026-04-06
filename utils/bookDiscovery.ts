@@ -8,6 +8,7 @@ export interface ChapterEntry {
   rawHtml: string | null;
   styleUrl: string | null;
   order: number;
+  isSection?: boolean;
 }
 
 export interface BookEntry {
@@ -18,7 +19,18 @@ export interface BookEntry {
   description?: string;
 }
 
-// Convert a slug/filename to Start Case text
+// Convert a string to a URL-safe slug
+export const slugify = (text: string) => {
+  return text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/[^\p{L}\p{N}-]+/gu, '') // Allow letters, numbers, and hyphens (Unicode-aware)
+    .replace(/--+/g, '-');
+};
+
+// Convert a slug/filename to Start Case text (fallback only)
 const toStartCase = (str: string) => {
   return str
     .replace(/[-_]/g, ' ')
@@ -43,30 +55,30 @@ export function getBooks(): BookEntry[] {
   const styleModules = import.meta.glob('../assets/books/**/*.css', { query: '?url', import: 'default', eager: true });
 
   const booksMap = new Map<string, BookEntry>();
+  const bookMetas = new Map<string, any>();
 
   // Process metadata to initialize books
   Object.entries(metaModules).forEach(([path, module]) => {
-    // path looks like '../assets/books/intro-to-api/meta.json'
     const parts = path.split('/');
     const bookSlug = parts[parts.length - 2];
     const metaParams = (module as any).default || module;
-    const title = metaParams.title || toStartCase(bookSlug);
+    bookMetas.set(bookSlug, metaParams);
 
     booksMap.set(bookSlug, {
       bookSlug,
-      bookTitle: title,
+      bookTitle: metaParams.title || toStartCase(bookSlug),
       chapters: [],
       styleUrl: null,
       description: metaParams.description
     });
   });
 
-  // Temp map to store chapter-specific styles until we process chapters
+  // Temp map to store chapter-specific styles and found files
   const chapterStyles = new Map<string, string>();
+  const discoveredFilesByBook = new Map<string, Map<string, any>>(); // bookSlug -> filename -> module
 
   // Process style files
   Object.entries(styleModules).forEach(([path, url]) => {
-    // path looks like '../assets/books/intro-to-api/book-theme.css' or '../assets/books/intro-to-api/chapter1.css'
     const parts = path.split('/');
     const bookSlug = parts[parts.length - 2];
     const filename = parts[parts.length - 1];
@@ -79,49 +91,29 @@ export function getBooks(): BookEntry[] {
         styleUrl: null,
         description: ''
       };
-      
       book.styleUrl = url as string;
       booksMap.set(bookSlug, book);
     } else {
-      // Store chapter-specific style
       const chapterSlug = filename.replace('.css', '');
       chapterStyles.set(`${bookSlug}/${chapterSlug}`, url as string);
     }
   });
 
-  // Process chapters
+  // Group discovered content files by book
   Object.entries(contentModules).forEach(([path, module]) => {
-    // path looks like '../assets/books/intro-to-api/chapter1.mdx'
     const parts = path.split('/');
     const bookSlug = parts[parts.length - 2];
     const filename = parts[parts.length - 1];
     
-    // Remove extension
-    const extMatch = filename.match(/\.(mdx|tsx|html)$/);
-    if (!extMatch) return;
-    
-    const ext = extMatch[1];
-    const chapterSlug = filename.replace(`.${ext}`, '');
-    const m = module as any;
-    
-    let title = toStartCase(chapterSlug);
-    let component = null;
-    let rawHtml = null;
-
-    if (ext === 'mdx') {
-      // MDX compiled with @mdx-js/rollup acts as a React component on default export
-      component = m.default;
-      // remark/rehype frontmatter plugins expose the frontmatter property
-      if (m.frontmatter && m.frontmatter.title) {
-        title = m.frontmatter.title;
-      }
-    } else if (ext === 'tsx') {
-      component = m.default;
-    } else if (ext === 'html') {
-      // With ?raw and import: 'default', m is the raw string itself
-      rawHtml = typeof module === 'string' ? module : m.default;
+    if (!discoveredFilesByBook.has(bookSlug)) {
+      discoveredFilesByBook.set(bookSlug, new Map());
     }
+    discoveredFilesByBook.get(bookSlug)!.set(filename, module);
+  });
 
+  // Process each book
+  discoveredFilesByBook.forEach((filesMap, bookSlug) => {
+    const meta = bookMetas.get(bookSlug);
     const book = booksMap.get(bookSlug) || {
       bookSlug,
       bookTitle: toStartCase(bookSlug),
@@ -130,30 +122,93 @@ export function getBooks(): BookEntry[] {
       description: ''
     };
 
-    book.chapters.push({
-      slug: chapterSlug,
-      title,
-      path: `${bookSlug}/${chapterSlug}`,
-      component,
-      rawHtml,
-      styleUrl: chapterStyles.get(`${bookSlug}/${chapterSlug}`) || null,
-      order: book.chapters.length // Fallback ordering, you can add frontmatter order logic in future
+    const structure = meta?.structure as (string | { type: string; title: string })[] | undefined;
+    
+    // If structure is present, validate exhausitiveness
+    if (structure) {
+      const structureFiles = structure.filter(item => typeof item === 'string') as string[];
+      const discoveredFiles = Array.from(filesMap.keys());
+      
+      const missingInStructure = discoveredFiles.filter(f => !structureFiles.includes(f));
+      if (missingInStructure.length > 0) {
+        throw new Error(`Book "${bookSlug}" has structure defined, but is missing files: ${missingInStructure.join(', ')}`);
+      }
+      
+      const nonExistentInStructure = structureFiles.filter(f => !discoveredFiles.includes(f));
+      if (nonExistentInStructure.length > 0) {
+        throw new Error(`Book "${bookSlug}" structure references non-existent files: ${nonExistentInStructure.join(', ')}`);
+      }
+    }
+
+    // Process chapters based on structure or fallback to all discovered files
+    const sequence = structure || Array.from(filesMap.keys()).sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+    const usedSlugs = new Set<string>();
+
+    sequence.forEach((item, index) => {
+      if (typeof item !== 'string' && item.type === 'section') {
+        book.chapters.push({
+          slug: `section-${index}`,
+          title: item.title,
+          path: '',
+          component: null,
+          rawHtml: null,
+          styleUrl: null,
+          order: index,
+          isSection: true
+        });
+        return;
+      }
+
+      const filename = item as string;
+      const module = filesMap.get(filename);
+      if (!module) return;
+
+      const extMatch = filename.match(/\.(mdx|tsx|html)$/);
+      if (!extMatch) return;
+      const ext = extMatch[1];
+      const m = module as any;
+      const fileSlugBase = filename.replace(`.${ext}`, '');
+
+      let title = '';
+      let component = null;
+      let rawHtml = null;
+
+      if (ext === 'mdx') {
+        component = m.default;
+        title = m.frontmatter?.title;
+      } else if (ext === 'tsx') {
+        component = m.default;
+        title = m.metadata?.title;
+      } else if (ext === 'html') {
+        rawHtml = typeof module === 'string' ? module : m.default;
+        const match = (rawHtml as string).match(/<title>(.*?)<\/title>/i);
+        title = match ? match[1] : '';
+      }
+
+      if (!title) {
+        throw new Error(`File "${filename}" in book "${bookSlug}" is missing a title.`);
+      }
+
+      const slug = slugify(title);
+      if (usedSlugs.has(slug)) {
+        throw new Error(`Duplicate slug "${slug}" generated from title "${title}" in book "${bookSlug}". Titles must be unique.`);
+      }
+      usedSlugs.add(slug);
+
+      book.chapters.push({
+        slug,
+        title,
+        path: `${bookSlug}/${slug}`,
+        component,
+        rawHtml,
+        styleUrl: chapterStyles.get(`${bookSlug}/${fileSlugBase}`) || null,
+        order: index,
+      });
     });
 
     booksMap.set(bookSlug, book);
   });
 
-  // Ensure books and chapters are returned in a stable array
   const booksArray = Array.from(booksMap.values());
-  booksArray.forEach(book => {
-    // Basic sorting (could be enriched later based on explicit 'order' metadata if needed)
-    book.chapters.sort((a, b) => {
-       // Put index at top
-       if (a.slug === 'index' || a.slug === 'readme') return -1;
-       if (b.slug === 'index' || b.slug === 'readme') return 1;
-       return a.title.localeCompare(b.title);
-    });
-  });
-
   return booksArray.sort((a, b) => a.bookTitle.localeCompare(b.bookTitle));
 }

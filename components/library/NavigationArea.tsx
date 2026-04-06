@@ -51,13 +51,19 @@ export default function NavigationArea({ books, onToggleSidebar, isSidebarVisibl
             </NavLink>
             <div className="library-nav-title">{activeBook.bookTitle}</div>
             {activeBook.chapters.map(chapter => (
-              <NavLink
-                key={chapter.slug}
-                to={`/${chapter.path}`}
-                className={({ isActive }) => `library-nav-link ${isActive ? 'active' : ''}`}
-              >
-                {chapter.title}
-              </NavLink>
+              chapter.isSection ? (
+                <div key={chapter.slug} className="library-nav-section-title">
+                  {chapter.title}
+                </div>
+              ) : (
+                <NavLink
+                  key={chapter.slug}
+                  to={`/${chapter.path}`}
+                  className={({ isActive }) => `library-nav-link ${isActive ? 'active' : ''}`}
+                >
+                  {chapter.title}
+                </NavLink>
+              )
             ))}
           </div>
         ) : (

@@ -1,4 +1,11 @@
 {
   "title": "Learning Sinhala",
-  "description": "A beginner's guide to the Sinhala language, covering essential phrases, grammar basics, and vocabulary for daily conversation."
+  "description": "A beginner's guide to the Sinhala language, covering essential phrases, grammar basics, and vocabulary for daily conversation.",
+  "structure": [
+    "Alphabet.mdx",
+    "InteractiveAlphabet.mdx",
+    "PartsOfSpeech.tsx",
+    "Usage.tsx",
+    "Languages.tsx"
+  ]
 }

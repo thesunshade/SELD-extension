@@ -145,13 +145,21 @@ The Library is a documentation and book-viewing system built into the extension.
 Create a new directory in `assets/books/[your-book-slug]/`.
 
 Required files:
-- **`meta.json`**: Contains book metadata.
+- **`meta.json`**: Contains book metadata and optional explicit structure.
   ```json
   {
     "title": "Your Book Title",
-    "description": "A brief summary of what this book covers."
+    "description": "A brief summary...",
+    "structure": [
+      { "type": "section", "title": "Part 1: The Basics" },
+      "01_Introduction.html",
+      "02_Lesson1.html",
+      { "type": "section", "title": "Part 2: Advanced" },
+      "03_Lesson2.tsx"
+    ]
   }
   ```
+  *Note: If `structure` is present, it must include ALL files in the book directory.*
 - **Chapters**: Added as `.mdx`, `.tsx`, or `.html` files in the book directory.
 
 Optional files:
@@ -160,17 +168,20 @@ Optional files:
 ### 2. Chapter Content Types
 
 - **MDX (`.mdx`)**: Best for standard documentation. 
-  - Support React components.
-  - Define a title in frontmatter: `--- title: My Chapter ---`.
-  - Tooltips (`data-tippy-content`) are automatically supported.
-- **React (`.tsx`)**: Best for interactive tutorials or complex layouts.
+  - Define a title in frontmatter: `--- title: My Chapter ---` (Required).
+- **React (`.tsx`)**: Best for interactive tutorials.
   - Export a default React component.
-- **HTML (`.html`)**: Best for legacy content or simple static pages.
-  - The raw HTML is rendered directly.
+  - Export metadata with a title: `export const metadata = { title: "My Title" };` (Required).
+- **HTML (`.html`)**: Best for legacy content.
+  - Must contain a `<title>My Title</title>` tag inside the file (Required).
 
 ### 3. How it Works (Architecture)
 
-**Discovery**: `utils/bookDiscovery.ts` uses Vite's `import.meta.glob` to find all files in `assets/books/` at build time. It organizes them into `BookEntry` and `ChapterEntry` objects.
+**Discovery**: `utils/bookDiscovery.ts` uses Vite's `import.meta.glob` to find all files in `assets/books/` at build time. 
+
+1. **Title & Slug Extraction**: Titles are extracted from file contents. Slugs are generated dynamically from these titles (e.g., "Lesson 1" becomes `/lesson-1`).
+2. **Validation (Hard Fails)**: The system will throw an error if a file is missing a title, if two titles result in the same slug, or if a defined `structure` is missing any files.
+3. **Ordering**: If `meta.json` has a `structure`, that order is used. Otherwise, it falls back to natural alphanumeric sorting of filenames.
 1. **Routing**: The feature uses `HashRouter` (React Router v6).
    - `/`: Displays **The Bookshelf** (a grid of all discovered books).
    - `/:bookSlug/:chapterSlug`: Displays a specific chapter.

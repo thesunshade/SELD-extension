@@ -92,25 +92,29 @@ export default function LibraryContent({ books }: LibraryContentProps) {
         <h1 className="bookshelf-title"><img src="/library.png" width="56" />Bookshelf </h1>
 
         <div className="bookshelf-grid">
-          {books.map(book => (
-            <div key={book.bookSlug} className="book-card">
-              <a href={`#/${book.chapters[0]?.path}`}>
-                <div className="book-card-header">
-                  <h3>{book.bookTitle}</h3>
-                </div>
-                <div className="book-card-body">
-                  <p className="book-card-description">{book.description || 'No description available.'}</p>
-                  <span className="book-card-meta">{book.chapters.length} Chapters</span>
-
-                </div>
-                <div className="book-card-footer">
-                  <a href={`#/${book.chapters[0]?.path}`} className="seld-btn seld-btn-primary seld-btn-pill">
-                    Open Book
-                  </a>
-                </div>
-              </a>
-            </div>
-          ))}
+          {books.map(book => {
+            const firstChapter = book.chapters.find(c => !c.isSection);
+            const entryPath = firstChapter ? `#/${firstChapter.path}` : '#/';
+            
+            return (
+              <div key={book.bookSlug} className="book-card">
+                <a href={entryPath}>
+                  <div className="book-card-header">
+                    <h3>{book.bookTitle}</h3>
+                  </div>
+                  <div className="book-card-body">
+                    <p className="book-card-description">{book.description || 'No description available.'}</p>
+                    <span className="book-card-meta">{book.chapters.filter(c => !c.isSection).length} Chapters</span>
+                  </div>
+                  <div className="book-card-footer">
+                    <a href={entryPath} className="seld-btn seld-btn-primary seld-btn-pill">
+                      Open Book
+                    </a>
+                  </div>
+                </a>
+              </div>
+            );
+          })}
         </div>
       </div>
     );

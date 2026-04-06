@@ -1,7 +1,7 @@
 # Context Summary for Future Work
 Here is the condensed technical context you'll need for maintaining or extending The Library:
 
-*   **Discovery Logic**: Found in `utils/bookDiscovery.ts`. It uses Vite's `import.meta.glob` for a zero-config experience—just adding files to `assets/books/` is enough for them to appear (after a build/reload).
+*   **Discovery Logic**: Found in `utils/bookDiscovery.ts`. Titles are extracted from files (HTML `<title>`, MDX frontmatter, or TSX `metadata`). Slugs are generated dynamically from these titles. If a `meta.json` contains a `structure` array, it must exhaustively list all files in that directory.
 *   **Routing Hierarchy**: 
     -   Root (`/`) = **The Bookshelf** (Grid of cards).
     -   `/:bookSlug/:chapterSlug` = **Chapter View**.

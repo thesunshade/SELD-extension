@@ -1,6 +1,7 @@
 import React from 'react';
 
-// Using a named export inside the component or default export? We'll rely on the filename / meta for title in TSX, since it doesn't have frontmatter.
+
+export const metadata = { title: "My Title" };
 
 export default function AdvancedUsage() {
   return (
