@@ -96,7 +96,7 @@ a:hover {
 }
 
 .library-nav-section-title {
-  padding: 0 px 20px 5px 20px;
+  padding: 0px 20px 5px 15px;
   font-size: 0.75rem;
   font-weight: 800;
   color: var(--text-secondary);
@@ -250,9 +250,9 @@ h1 {
 
 /* Active Highlight Style */
 .seld-match-active {
-  background-color: var(--accent) !important;
-  color: white !important;
-  box-shadow: 0 0 0 2px var(--accent), 0 0 10px var(--accent) !important;
+  background-color: var(--bg-color) !important;
+  color: var(--text-primary) !important;
+  box-shadow: 0 0 0 1px var(--accent), 0 0 10px var(--accent) !important;
 }
 
 /* The Bookshelf styles */
@@ -478,7 +478,7 @@ h1 {
   color: var(--text-primary);
   font-weight: 600;
   padding: 0 2px;
-  border-radius: 2px;
+  border-radius: 1px;
 }
 
 .seld-content-highlight {
