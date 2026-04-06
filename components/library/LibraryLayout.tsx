@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom';
 import NavigationArea from './NavigationArea';
 import SidebarApp from '../sidebar/App';
 import { BookEntry } from '../../utils/bookDiscovery';
+import { SearchResult } from '../../utils/bookSearch';
 import { browser } from 'wxt/browser';
 import { setupSidebarEvents } from '../../utils/selection-handler';
 
@@ -16,6 +17,15 @@ interface LibraryLayoutProps {
   books: BookEntry[];
 }
 
+export interface LibrarySearchContext {
+  searchQuery: string;
+  setSearchQuery: (q: string) => void;
+  searchResults: SearchResult[];
+  setSearchResults: (r: SearchResult[]) => void;
+  searchScope: 'book' | 'all';
+  setSearchScope: (s: 'book' | 'all') => void;
+}
+
 /**
  * Shared layout for the Library system.
  * This component hosts the NavigationArea (sidebar) so that it resides
@@ -27,6 +37,11 @@ export default function LibraryLayout({ books }: LibraryLayoutProps) {
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
   const [sidebarPosition, setSidebarPosition] = useState<'left' | 'right'>('right');
   const [sidebarWidth, setSidebarWidth] = useState(350);
+
+  // Search State
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [searchScope, setSearchScope] = useState<'book' | 'all'>('book');
 
   useEffect(() => {
     // Initial load
@@ -108,6 +123,14 @@ export default function LibraryLayout({ books }: LibraryLayoutProps) {
         isSidebarVisible={isSidebarVisible} 
         isNavVisible={isNavVisible}
         onToggleNav={() => setIsNavVisible(false)}
+        searchState={{
+          query: searchQuery,
+          setQuery: setSearchQuery,
+          results: searchResults,
+          setResults: setSearchResults,
+          scope: searchScope,
+          setScope: setSearchScope
+        }}
       />
       
       {isSidebarVisible && sidebarPosition === 'left' && (
@@ -117,7 +140,14 @@ export default function LibraryLayout({ books }: LibraryLayoutProps) {
       )}
 
       <div className="library-main-content">
-        <Outlet />
+        <Outlet context={{
+          searchQuery,
+          setSearchQuery,
+          searchResults,
+          setSearchResults,
+          searchScope,
+          setSearchScope
+        } as LibrarySearchContext} />
       </div>
 
       {isSidebarVisible && sidebarPosition === 'right' && (
