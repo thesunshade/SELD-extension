@@ -12,7 +12,6 @@
 - [ ] it appears that `.seld-transliteration` style is in two places.
 
 ## Possible new features
-- [ ] grammar overview page that provides an interface for lists.xml data, including an alphabet chart
 - [ ] underline should be one of three options: off, bold, subtle
 - [ ] when word is not found, try to break into existing words
 
@@ -60,3 +59,4 @@
 - [x] clicking on the sidebar text scale % should bring it back to 100%
 - [x] transltierations break when word is parsed. e.g. අහසෙහි ->අහස -ෙහි ahasa -ෙhi
 - [ ] for suffix type headwords when the suffix starts with a dash and then a combining vowel, two non-breaking spaces should be inserted betweeen the vowel and the dash MAYBE FIXED??
+- [x] grammar overview page that provides an interface for lists.xml data, including an alphabet chart

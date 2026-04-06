@@ -2,6 +2,9 @@
 
 # Change Log
 
+## 0.4.3 (2026-04-06)
+* Refactoring and Welcome page improvement
+
 ## 0.4.2 (2026-04-06)
 * Add search to library interface
 
