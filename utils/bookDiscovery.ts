@@ -59,8 +59,10 @@ export function getBooks(): BookEntry[] {
 
   // Process metadata to initialize books
   Object.entries(metaModules).forEach(([path, module]) => {
-    const parts = path.split('/');
-    const bookSlug = parts[parts.length - 2];
+    const bookSlugMatch = path.match(/assets\/books\/([^/]+)/);
+    if (!bookSlugMatch) return;
+    const bookSlug = bookSlugMatch[1];
+    
     const metaParams = (module as any).default || module;
     bookMetas.set(bookSlug, metaParams);
 
@@ -79,9 +81,10 @@ export function getBooks(): BookEntry[] {
 
   // Process style files
   Object.entries(styleModules).forEach(([path, url]) => {
-    const parts = path.split('/');
-    const bookSlug = parts[parts.length - 2];
-    const filename = parts[parts.length - 1];
+    const bookSlugMatch = path.match(/assets\/books\/([^/]+)/);
+    if (!bookSlugMatch) return;
+    const bookSlug = bookSlugMatch[1];
+    const filename = path.split('/').pop()!;
     
     if (filename === 'book-theme.css') {
       const book = booksMap.get(bookSlug) || {
@@ -101,9 +104,10 @@ export function getBooks(): BookEntry[] {
 
   // Group discovered content files by book
   Object.entries(contentModules).forEach(([path, module]) => {
-    const parts = path.split('/');
-    const bookSlug = parts[parts.length - 2];
-    const filename = parts[parts.length - 1];
+    const bookSlugMatch = path.match(/assets\/books\/([^/]+)/);
+    if (!bookSlugMatch) return;
+    const bookSlug = bookSlugMatch[1];
+    const filename = path.split('/').pop()!;
     
     if (!discoveredFilesByBook.has(bookSlug)) {
       discoveredFilesByBook.set(bookSlug, new Map());

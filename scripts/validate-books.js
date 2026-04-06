@@ -50,7 +50,23 @@ function validate() {
       }
     }
 
-    const discoveredFiles = fs.readdirSync(bookPath).filter(f => /\.(html|mdx|tsx)$/.test(f));
+    const getFilesRecursively = (dir, baseDir = dir) => {
+      let results = [];
+      const list = fs.readdirSync(dir);
+      list.forEach(file => {
+        const filePath = path.join(dir, file);
+        const stat = fs.statSync(filePath);
+        if (stat && stat.isDirectory()) {
+          results = results.concat(getFilesRecursively(filePath, baseDir));
+        } else if (/\.(html|mdx|tsx)$/.test(file)) {
+          results.push(filePath);
+        }
+      });
+      return results;
+    };
+
+    const discoveredAbsolutePaths = getFilesRecursively(bookPath);
+    const discoveredFiles = discoveredAbsolutePaths.map(p => path.basename(p));
     const structure = meta.structure;
 
     // 1. Validate Structure Exhaustiveness
@@ -59,7 +75,7 @@ function validate() {
       
       const missingInStructure = discoveredFiles.filter(f => !structureFiles.includes(f));
       if (missingInStructure.length > 0) {
-        console.error(`❌ Book "${bookSlug}" has structure defined, but is missing files: ${missingInStructure.join(', ')}`);
+        console.error(`❌ Book "${bookSlug}" has structure defined, but is missing files in meta.json: ${missingInStructure.join(', ')}`);
         totalErrors++;
       }
 
@@ -72,8 +88,8 @@ function validate() {
 
     // 2. Validate Titles and Slugs
     const usedSlugs = new Set();
-    for (const filename of discoveredFiles) {
-      const filePath = path.join(bookPath, filename);
+    for (const filePath of discoveredAbsolutePaths) {
+      const filename = path.basename(filePath);
       const content = fs.readFileSync(filePath, 'utf-8');
       let title = '';
 

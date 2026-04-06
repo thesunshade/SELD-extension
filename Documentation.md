@@ -140,12 +140,22 @@ S (Suffix Count): Number of suffixes for synthesized matches.
 
 The Library is a documentation and book-viewing system built into the extension. It uses static discovery to automatically build a catalog of content.
 
-### Adding a New Book
+### Adding a New Book (Quick Start)
 
-Create a new directory in `assets/books/[your-book-slug]/`.
+The easiest way to create a new book is to use the included scaffolding script. It will create the directory structure, metadata, and chapter templates for you.
+
+```powershell
+python scripts/scaffold-book.py
+```
+
+### Adding a New Book (Manual)
+
+1. Create a new directory in `assets/books/[your-book-slug]/`.
+2. Create a `chapters/` subdirectory inside it.
+3. Add your content files (.mdx, .tsx, .html) and their corresponding .css files inside the `chapters/` folder.
 
 Required files:
-- **`meta.json`**: Contains book metadata and optional explicit structure.
+- **`meta.json`**: Contains book metadata and explicit structure. Place this at the **root** of your book's directory.
   ```json
   {
     "title": "Your Book Title",
@@ -153,17 +163,16 @@ Required files:
     "structure": [
       { "type": "section", "title": "Part 1: The Basics" },
       "01_Introduction.html",
-      "02_Lesson1.html",
+      "02_Lesson1.mdx",
       { "type": "section", "title": "Part 2: Advanced" },
       "03_Lesson2.tsx"
     ]
   }
   ```
-  *Note: If `structure` is present, it must include ALL files in the book directory.*
-- **Chapters**: Added as `.mdx`, `.tsx`, or `.html` files in the book directory.
+  *Note: Files in the `structure` array should be referenced by their filename only, even though they reside in the `chapters/` folder.*
 
 Optional files:
-- **`book-theme.css`**: If present, this CSS will be automatically injected into the page when any chapter of this book is being read. Use it for book-specific styling overrides.
+- **`book-theme.css`**: If present at the **root**, this CSS will be automatically injected into the page when any chapter of this book is being read.
 
 ### 2. Chapter Content Types
 

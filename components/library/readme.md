@@ -1,7 +1,7 @@
 # Context Summary for Future Work
 Here is the condensed technical context you'll need for maintaining or extending The Library:
 
-*   **Discovery Logic**: Found in `utils/bookDiscovery.ts`. Titles are extracted from files (HTML `<title>`, MDX frontmatter, or TSX `metadata`). Slugs are generated dynamically from these titles. If a `meta.json` contains a `structure` array, it must exhaustively list all files in that directory.
+*   **Discovery Logic**: Found in `utils/bookDiscovery.ts`. The system recursively scans each book folder in `assets/books/`. Chapters (MDX/TSX/HTML) and their local styles are stored in a `chapters/` sub-directory for better organization. Titles are extracted from files (HTML `<title>`, MDX frontmatter, or TSX `metadata`). Slugs are generated dynamically from these titles. If a `meta.json` contains a `structure` array, it should list filenames only, and the system will automatically locate them.
 *   **Routing Hierarchy**: 
     -   Root (`/`) = **The Bookshelf** (Grid of cards).
     -   `/:bookSlug/:chapterSlug` = **Chapter View**.
