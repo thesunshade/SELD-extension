@@ -46,7 +46,7 @@ export const SettingsUI: React.FC<SettingsUIProps> = ({
   saveSetting,
 }) => {
   return (
-    <div className="settings-panel glassmorphism custom-scroll">
+    <div className="settings-panel blur custom-scroll">
       <div className="settings-group">
         <label className="settings-label">Appearance</label>
         <div className="settings-control-row"

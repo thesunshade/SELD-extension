@@ -155,10 +155,11 @@
   padding: 0;
   font-size: 0.8em;
   color: var(--text-secondary);
-  padding-left: calc(20px + 0.8em); /* indent to align with checkbox label text */
+  padding-left: calc(20px + 0.8em);
+  /* indent to align with checkbox label text */
 }
 
-.glassmorphism {
+.blur {
   background: var(--bg-panel);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);

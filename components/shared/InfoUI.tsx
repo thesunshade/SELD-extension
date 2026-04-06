@@ -4,7 +4,7 @@ import "./InfoUI.css";
 
 export const InfoUI: React.FC = () => {
     return (
-        <div className="info-pane glassmorphism custom-scroll">
+        <div className="info-pane blur custom-scroll">
             <h3>About</h3>
             <p>The Sinhala-English Learner’s Dictionary (SELD) is an experimental draft of a dictionary targeted at English speakers learning Sinhala. Please report errors using the feedback button on each entry.</p>
 
