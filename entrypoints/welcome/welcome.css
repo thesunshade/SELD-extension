@@ -1,6 +1,5 @@
 @import "../../assets/theme.css";
 
-/* ─── Reset & Base ─── */
 *,
 *::before,
 *::after {
@@ -12,6 +11,8 @@
 :root {
 	--shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
 }
+
+
 
 body {
 	background: var(--bg-color);
@@ -278,7 +279,6 @@ kbd {
 	display: none;
 }
 
-/* ─── Changelog ─── */
 .changelog-details {
 	margin-top: 16px;
 	text-align: left;
