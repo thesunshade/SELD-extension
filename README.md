@@ -2,9 +2,15 @@
 
 SELD Extension is a Sinhala StarDict Dictionary browser extension built with React and [WXT](https://wxt.dev/) (Next-gen Web Extension Framework). 
 
-This guide will walk you through setting up the project locally, running the development browser, and building the extension for production. You don't need any prior knowledge of WXT to get started!
+To use the extension, here are links to install:
+
+* [Chrome](https://chromewebstore.google.com/detail/sinhala-english-learner%E2%80%99s/lahbjokgbeohbdhfnlojekfghdkbcfhd)
+* [FireFox](https://addons.mozilla.org/en-US/firefox/addon/sinhala-english-dictionary/)
+
 
 ## Prerequisites
+
+This guide will walk you through setting up the project locally, running the development browser, and building the extension for production. You don't need any prior knowledge of WXT to get started!
 
 Before you begin, ensure you have the following installed on your machine:
 - **[Node.js](https://nodejs.org/)** (v18 or higher recommended)
@@ -19,7 +25,7 @@ Follow these steps to set up your local development environment:
 Clone the project to your local machine:
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/thesunshade/SELD-extension.git
 cd SELD-extension
 ```
 
@@ -67,7 +73,7 @@ npm run build
 ```
 This will generate the compiled extension files inside the `.output` directory.
 
-### Create a Zip Archive (For Web Stores)
+### Create a Zip Archive For Chrome store
 
 To package the built extension into a `.zip` file for uploading to the Chrome Web Store:
 
@@ -76,7 +82,11 @@ npm run zip
 ```
 *(Alternatively, you can use `npx wxt zip -b chrome`)*
 
-### Firefox Source Code Review
+### Create a Zip Archive For Firefox Source Code Review
+
+```bash
+npm run zip -- -b firefox
+```
 
 When publishing to the Firefox Add-ons store, reviewers need to be able to rebuild the extension from the source code. To generate both the compiled extension `.zip` and the required `sources.zip` for Firefox review:
 

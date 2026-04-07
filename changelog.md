@@ -2,6 +2,8 @@
 
 # Change Log
 
+## 0.4.4
+
 ## 0.4.3 (2026-04-06)
 * Refactoring and Welcome page improvement
 
