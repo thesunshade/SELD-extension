@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from "react";
 import tippy, { delegate } from "tippy.js";
 import "tippy.js/dist/border.css";
 import "tippy.js/dist/tippy.css";
+import "./DefinitionCard.css";
 import { StructuredDefinition } from "../../utils/stardict";
 import { transliterateSinhala as transliterateSinhalaTxt } from "../../utils/transliterate";
 import { getFullEntryCopyData } from "../../utils/clipboard";

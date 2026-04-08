@@ -5,11 +5,12 @@
 
 
 ## Improvements
+- [ ] transliteration feature appears to inject inline css instead of using classes. This styling should probably be elevated to `theme.css`
+- [ ] `.dict-toast` needs to be DRY
 - [ ] There should probably be some limit to the "distance" of fuzzy search results. If there are more than two variants, it's probaby not a good potential match.
 - [ ] single click or double click option
 - [ ] compound verbs in definitions need to be clickable as a unit. like වන්දනා කරනවා.
 - [ ] font size of definition is too big relative to the rest of the sidebar. See sccreenshots
-- [ ] it appears that `.seld-transliteration` style is in two places.
 
 ## Possible new features
 - [ ] underline should be one of three options: off, bold, subtle
@@ -60,3 +61,4 @@
 - [x] transltierations break when word is parsed. e.g. අහසෙහි ->අහස -ෙහි ahasa -ෙhi
 - [ ] for suffix type headwords when the suffix starts with a dash and then a combining vowel, two non-breaking spaces should be inserted betweeen the vowel and the dash MAYBE FIXED??
 - [x] grammar overview page that provides an interface for lists.xml data, including an alphabet chart
+- [x] it appears that `.seld-transliteration` style is in two places.

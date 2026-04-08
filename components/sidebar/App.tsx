@@ -545,7 +545,7 @@ function App({ onClose, inline }: AppProps) {
           onDownload={downloadHistory}
         />
         {!isResizingSidebar.current && sidebarWidth < 300 ? "" : "SELD"}
-        <div className="header-actions">
+        <div className="sidebar-header-actions">
           <button className={`seld-btn seld-tab-folder ${sidebarWidth < HEADER_BREAK_WIDTH ? "seld-btn-icon-circle" : ""} ${view === "search" ? "active" : ""}`} onClick={() => setView("search")} data-tippy-content="Search">
             {sidebarWidth < HEADER_BREAK_WIDTH ? (
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -592,7 +592,7 @@ function App({ onClose, inline }: AppProps) {
 
       {view === "search" && (
         <>
-          <div className="search-section">
+          <div className="search-input-section">
             <div className="search-input-wrapper">
               <input
                 type="text"
@@ -629,11 +629,11 @@ function App({ onClose, inline }: AppProps) {
               )}
             </div>
           </div>
-          <div className="content-area">
-            <div ref={listRef} className="headword-list custom-scroll dynamic-font" style={{ height: `${listHeight}%`, flex: "none" }}>
+          <div className="sidebar-content-area">
+            <div ref={listRef} className="headword-result-list custom-scroll dynamic-font" style={{ height: `${listHeight}%`, flex: "none" }}>
               {results.length > 0 ? (
                 results.map((entry, idx) => (
-                  <div key={idx} ref={selectedWord === entry.word ? selectedRef : null} className={`headword-item ${selectedWord === entry.word ? "selected" : ""}`} onClick={() => handleSelectWord(entry.word, entry.originalQuery)} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div key={idx} ref={selectedWord === entry.word ? selectedRef : null} className={`headword-result-item ${selectedWord === entry.word ? "selected" : ""}`} onClick={() => handleSelectWord(entry.word, entry.originalQuery)} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       <Highlighter text={entry.word} searchTerm={query} />
                       {transliterateSinhala && /[\u0D80-\u0DFF]/.test(entry.word) && <span className="seld-transliteration"> {transliterateSinhalaTxt(entry.word)}</span>}
@@ -659,7 +659,7 @@ function App({ onClose, inline }: AppProps) {
               ) : null}
             </div>
             <div className="resize-divider" onMouseDown={startVerticalResizing}></div>
-            <div className="definition-area custom-scroll dynamic-font">
+            <div className="sidebar-definition-area custom-scroll dynamic-font">
               {definition ? (
                 <DefinitionCard
                   word={selectedWord!}

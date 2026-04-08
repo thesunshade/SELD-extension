@@ -335,7 +335,7 @@ kbd {
 }
 
 .changelog-content * {
-	font-family: monospace !important;
+	font-family: monospace;
 }
 
 

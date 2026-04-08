@@ -1,0 +1,112 @@
+ .definition-content {
+ 	font-size: 0.95em;
+ 	line-height: 1.6;
+ 	/* border: solid 2px green; */
+ }
+
+ .definition-box {
+ 	padding: 16px 20px;
+ 	/* border: rgb(131, 255, 154) solid 5px !important; */
+ }
+
+ .def-title {
+ 	display: flex;
+ 	flex-wrap: wrap-reverse;
+ 	gap: .7rem;
+ 	align-items: center;
+ 	justify-content: space-between;
+ 	margin: 0 0 0.8em 0;
+ 	font-size: 1.2em;
+ 	border-bottom: 1px solid var(--border-color);
+ 	padding-bottom: 0.5em;
+ 	color: var(--text-primary);
+ 	/* border: solid 3px rgb(221, 252, 47); */
+ }
+
+ .synthesized-header {
+ 	color: var(--text-primary) !important;
+ 	display: flex;
+ 	justify-content: space-between;
+ 	align-items: center;
+ 	font-weight: bold;
+ 	font-size: 1.2em;
+ 	margin-bottom: 8px;
+ 	margin-top: 4px;
+ }
+
+ .synthesized-header-text {
+ 	cursor: pointer;
+ }
+
+ .synthesized-header-text:hover {
+ 	text-decoration: underline;
+ }
+
+ .definitionorgloss {
+ 	font-weight: bold;
+ 	/* color: aquamarine !important; */
+ }
+
+ /* For some reason the below only applies to the dictionary browser, not the sidebar */
+ .partofspeech,
+ .usages {
+ 	opacity: .6;
+ }
+
+ /* It is possible this isn't being used, but it should be */
+ .seld-transliteration {
+ 	color: var(--text-secondary);
+ }
+
+ .homograph-separator {
+ 	border: 0;
+ 	border-top: 1px solid var(--border-color);
+ 	margin: 1.5em 0;
+ 	opacity: 0.6;
+ }
+
+ .variantformentrybackrefs,
+ .complexformentryrefs,
+ .lexsensereferences,
+ .minimallexreferences {
+ 	display: block !important;
+ 	opacity: .6;
+ }
+
+ .etymologies {
+ 	opacity: .6;
+ }
+
+ .definition-content ul {
+ 	margin: 0.5em 0;
+ 	padding-left: .5em;
+ 	list-style-type: none;
+ 	/* border: goldenrod dotted 3px; */
+ }
+
+ .definition-content li {
+ 	margin-bottom: 0.4em;
+ 	/* border: dashed 4px rgb(131, 131, 224) !important */
+ }
+
+ .examplescontents {
+ 	list-style-type: none;
+ 	padding-left: 0.0em;
+ 	padding-right: .4rem;
+ 	padding-top: .5em;
+ 	padding-bottom: .5em;
+ 	border-left: 2px solid var(--border-color);
+ 	margin: 0.8em 0;
+ 	background-color: #8383834f;
+ 	/* border: dashed orange 3px; */
+ }
+
+ .examplescontent {
+ 	margin-bottom: 0.6em;
+ 	/* color: pink !important; */
+ }
+
+ .examplescontent em.example {
+ 	font-style: normal;
+ 	/* color: red !important; */
+ }

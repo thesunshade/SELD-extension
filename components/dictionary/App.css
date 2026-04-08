@@ -1,8 +1,3 @@
-/* ============================================================
-   Dictionary Explorer – Full Page Layout
-   Uses the same theme variables from assets/theme.css
-   ============================================================ */
-
 @import "../shared/HistoryNav.css";
 @import "../../assets/theme.css";
 
@@ -22,7 +17,6 @@ body {
 	overflow: hidden;
 }
 
-/* ---- Main Layout ---- */
 .dict-explorer {
 	display: flex;
 	height: 100vh;
@@ -31,7 +25,6 @@ body {
 	color: var(--text-primary);
 }
 
-/* ---- Sidebar ---- */
 .dict-sidebar {
 	width: 350px;
 	min-width: 280px;
@@ -56,7 +49,6 @@ body {
 	color: var(--text-primary);
 }
 
-/* Tabs */
 .dict-tabs {
 	display: flex;
 	border-bottom: 1px solid var(--border-color);
@@ -90,7 +82,6 @@ body {
 	padding: .2rem !important;
 }
 
-/* Secondary Filter */
 .secondary-filter {
 	margin-bottom: 16px;
 	padding: 4px 8px 8px;
@@ -131,7 +122,6 @@ body {
 	padding: 8px 0;
 }
 
-/* ---- Search Panel ---- */
 .search-panel {
 	display: flex;
 	flex-direction: column;
@@ -203,7 +193,6 @@ body {
 	font-style: italic;
 }
 
-/* ---- Book View (Main Content) ---- */
 .dict-book-view {
 	flex: 1;
 	overflow-y: auto;
@@ -220,7 +209,7 @@ body {
 	font-size: var(--font-size-percent, 100%);
 }
 
-.book-entry-card {
+.dictionary-browser-entry-card {
 	margin-bottom: 12px;
 	border: 1px solid var(--border-color);
 	border-radius: 12px;
@@ -228,14 +217,19 @@ body {
 	backdrop-filter: blur(8px);
 	overflow: hidden;
 	transition: box-shadow 0.2s ease;
+	/* border: solid rgb(216, 37, 216) 2px; */
 }
 
-.book-entry-card:hover {
+.dictionary-browser-entry-card:hover {
 	box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 }
 
-.book-entry-card .definition-box {
-	padding: 16px 20px;
+/* ---- Card Highlight ---- */
+.dictionary-browser-entry-card.highlighted-card {
+	background-color: rgba(131, 131, 131, 0.1);
+	border-color: var(--accent);
+	box-shadow: 0 0 12px rgba(131, 131, 131, 0.2);
+	transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .dict-empty-state {
@@ -246,7 +240,6 @@ body {
 	font-style: italic;
 }
 
-/* Loading skeleton */
 .loading-card {
 	padding: 20px 24px;
 }
@@ -283,7 +276,6 @@ body {
 	color: var(--text-secondary);
 }
 
-/* ---- Toast ---- */
 .dict-toast {
 	position: fixed;
 	bottom: 24px;
@@ -313,46 +305,6 @@ body {
 	}
 }
 
-/* ---- Reused sidebar styles (definition content) ---- */
-.def-title {
-	display: flex;
-	align-items: center;
-	flex-wrap: wrap-reverse;
-	gap: .7rem;
-	justify-content: space-between;
-	margin: 0 0 0.8em 0;
-	font-size: 1.2em;
-	border-bottom: 1px solid var(--border-color);
-	padding-bottom: 0.5em;
-	color: var(--text-primary);
-}
-
-/* .tts-button,
-.copy-button,
-.favorite-button,
-.explorer-link-button {
-	/* Handled by .seld-btn-icon-circle 
-}
-
-.report-button {
-	/* Handled by .seld-btn-icon-circle 
-} */
-
-.definition-content {
-	font-size: 0.95em;
-	line-height: 1.7;
-}
-
-.definition-content ul {
-	margin: 0.5em 0;
-	padding-left: .5em;
-	list-style-type: none;
-}
-
-.definition-content li {
-	margin-bottom: 0.4em;
-}
-
 .clickable-word {
 	cursor: pointer;
 }
@@ -361,70 +313,6 @@ body {
 	text-decoration: underline;
 }
 
-.synthesized-header {
-	color: var(--text-primary) !important;
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	font-weight: bold;
-	font-size: 1.2em;
-	margin-bottom: 8px;
-	margin-top: 4px;
-}
-
-.synthesized-header-text {
-	cursor: pointer;
-}
-
-.synthesized-header-text:hover {
-	text-decoration: underline;
-}
-
-.homograph-separator {
-	border: 0;
-	border-top: 1px solid var(--border-color);
-	margin: 1.5em 0;
-	opacity: 0.6;
-}
-
-.examplescontents {
-	list-style-type: none;
-	padding-left: 0.0em;
-	padding-right: .4rem;
-	padding-top: .5em;
-	padding-bottom: .5em;
-	border-left: 2px solid var(--border-color);
-	margin: 0.8em 0;
-	background-color: #8383834f;
-}
-
-.examplescontent {
-	margin-bottom: 0.6em;
-	font-style: italic;
-}
-
-.partofspeech,
-.usages {
-	opacity: .6;
-}
-
-.variantformentrybackrefs,
-.complexformentryrefs,
-.lexsensereferences,
-.minimallexreferences {
-	display: block !important;
-	opacity: .6;
-}
-
-.etymologies {
-	opacity: .6;
-}
-
-.definitionorgloss {
-	font-weight: bold;
-}
-
-/* ---- Custom Scrollbar ---- */
 .custom-scroll::-webkit-scrollbar {
 	width: 6px;
 }
@@ -461,9 +349,6 @@ body {
 	}
 }
 
-
-/* Add these styles to the bottom of your existing App.css */
-
 .tertiary-filter {
 	margin-top: -12px;
 	/* Pull it closer to the secondary filter */
@@ -493,11 +378,3 @@ body {
 /* .dict-sidebar-body {
 	padding-bottom: 40px;
 } */
-
-/* ---- Card Highlight ---- */
-.book-entry-card.highlighted-card {
-	background-color: rgba(131, 131, 131, 0.1);
-	border-color: var(--accent);
-	box-shadow: 0 0 12px rgba(131, 131, 131, 0.2);
-	transition: background-color 0.3s ease, border-color 0.3s ease;
-}

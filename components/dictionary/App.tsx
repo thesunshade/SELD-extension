@@ -718,7 +718,7 @@ export default function DictionaryApp() {
 							const defs = definitionCache.get(entry.word);
 							const isHighlighted = entry.word === highlightedWord;
 							return (
-								<div key={`${entry.word}-${startIndex + idx}`} className={`book-entry-card ${isHighlighted ? "highlighted-card" : ""}`} style={{ minHeight: ITEM_HEIGHT }}>
+								<div key={`${entry.word}-${startIndex + idx}`} className={`dictionary-browser-entry-card ${isHighlighted ? "highlighted-card" : ""}`} style={{ minHeight: ITEM_HEIGHT }}>
 									{defs ? (
 										<DefinitionCard
 											word={entry.word}
