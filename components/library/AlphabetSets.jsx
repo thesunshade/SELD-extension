@@ -23,6 +23,13 @@ const AlphabetSets = () => {
 		obsolete: ['ඏ', 'ඐ', 'ඍ', 'ඎ', 'ඦ']
 	};
 
+	const descriptions = {
+		amiśra: "The Pure Sinhala Alphabet (අමිශ්‍ර සිංහල හෝඩිය) only contains letters needed to write pure Sinhala words.",
+		miśra: "The Mixed Sinhala Alphabet (මිශ්‍ර සිංහල හෝඩිය) includes additional characters used to write Sanskrit and Pali words.",
+		modern: "The Modern Sinhala Alphabet (නූතන සිංහල හෝඩිය) is the standard set used in contemporary writing and education.",
+		obsolete: "The Obsolete letters (අභාවයට ගිය අකුරු) are characters that are no longer in common use in the modern language."
+	};
+
 	const getCellClass = (content) => {
 		if (!content || content.trim() === "") return "";
 		const isMember = sets[activeSet].some(char => content.includes(char));
@@ -50,7 +57,7 @@ const AlphabetSets = () => {
 					))}
 				</div>
 				<div id="description" className='description'>
-					The Pure Sinhala Alphabet (අමිශ්‍ර සිංහල හෝඩිය) contains no letters used in other languages.
+					{descriptions[activeSet]}
 				</div>
 				<section className="chart-section">
 					<table>
