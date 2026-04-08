@@ -4,6 +4,7 @@
   "structure": [
     "Alphabet.mdx",
     "InteractiveAlphabet.mdx",
+    "AlphabetSets.mdx",
     "PartsOfSpeech.tsx",
     "Usage.tsx",
     "Languages.tsx"

@@ -7,6 +7,7 @@ export const DEFAULT_TIPPY_OPTIONS = {
     animation: 'fade',
     arrow: true,
     delay: [500, 10] as [number, number],
+    allowHTML: true,
     theme: 'light-border',
     // 2. Add the plugin and set the behavior
     plugins: [followCursor],

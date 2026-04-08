@@ -14,7 +14,6 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .npm/
-make-interfaces-feel-better
 
 # OS
 .DS_Store
@@ -31,9 +30,7 @@ dist/
 .agent
 .agents
 
-trash
 .old
-pastepad.html
 
 SELD.idx
 SELD.ifo
@@ -51,6 +48,5 @@ dev.log
 utils/build-info.ts
 utils/bloom-data.ts
 public/SELD/SELD.dict
-school-outline-rounded.svg
 entrypoints/welcome/changelog-data.js
 public/book-index.json

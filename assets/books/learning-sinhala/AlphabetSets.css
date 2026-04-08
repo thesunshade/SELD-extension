@@ -1,0 +1,82 @@
+.alphabet-container {
+	/* Explicitly set color to ensure text is visible in both modes */
+	background-color: var(--bg-color);
+	color: var(--text-primary);
+	min-height: 100vh;
+	padding: 40px 20px;
+	transition: background-color 0.3s ease;
+}
+
+.alphabet-chart {
+	max-width: 1000px;
+	margin: 0 auto;
+	background: var(--bg-panel);
+	padding: 30px;
+	border-radius: 12px;
+	border: 1px solid var(--border-color);
+	/* Soften shadow for dark mode */
+	box-shadow: 0 4px 25px rgba(0, 0, 0, 0.3);
+}
+
+.controls {
+	display: flex;
+	gap: 12px;
+	justify-content: center;
+	margin-bottom: 20px;
+	flex-wrap: wrap;
+}
+
+.description {
+	margin-bottom: 10px;
+}
+
+/* Fix for button visibility in dark mode */
+.controls .seld-btn-secondary {
+	background: var(--accent-bg);
+	color: var(--text-primary);
+	border-color: var(--border-color);
+}
+
+.controls .seld-btn-secondary.active {
+	background: var(--accent);
+	color: var(--accent-fg);
+}
+
+table {
+	margin: auto;
+	border-collapse: separate;
+	border-spacing: 4px;
+	/* margin-bottom: 20px; */
+}
+
+td,
+th {
+	padding: 4px 2px;
+	text-align: center;
+	/* border-radius: 6px; */
+	border: 1px solid var(--border-color);
+	color: var(--text-primary);
+}
+
+.de-emphasized {
+	opacity: 0.35;
+	filter: grayscale(1) blur(0.2px);
+	border-color: transparent;
+	width: 5rem;
+	transition: opacity 0.4s ease, filter 0.4s ease, background-color 0.4s ease, border-color 0.4s ease;
+}
+
+.emphasized {
+	opacity: 1;
+	background-color: var(--accent-bg);
+	border: 1px solid var(--accent);
+	color: var(--text-primary);
+	width: 5rem;
+	transition: opacity 0.4s ease, filter 0.4s ease, background-color 0.4s ease, border-color 0.4s ease;
+}
+
+/* Ensure the Sanyaka cell and others respect the theme */
+/* .sinhala td {
+	font-family: "Noto Sans Sinhala", sans-serif;
+	background-color: rgba(128, 128, 128, 0.05);
+} */
