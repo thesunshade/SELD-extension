@@ -1,7 +1,148 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import tippy from "tippy.js";
 import { Highlighter } from "./Highlighter";
 import { transliterateSinhala as transliterateSinhalaTxt } from "../../utils/transliterate";
 import { DEFAULT_SEARCH_DEBOUNCE_MS } from "../../utils/constants";
+import { stardict } from "../../utils/stardict";
+import { htmlToFormattedText } from "../../utils/styleTranslator";
+
+const DownloadListButton = ({ filteredWords, listType }: { filteredWords: string[], listType?: string }) => {
+	const btnRef = useRef<HTMLButtonElement>(null);
+	const [isDownloading, setIsDownloading] = useState(false);
+
+	useEffect(() => {
+		if (btnRef.current) {
+			const instance = tippy(btnRef.current, {
+				interactive: true,
+				trigger: 'click',
+				placement: 'bottom-end',
+				theme: 'light',
+				appendTo: () => {
+					const root = btnRef.current?.closest('.seld-theme-vars');
+					return (root as HTMLElement) || document.body;
+				},
+				onShow: (inst) => {
+					const openTippys = document.querySelectorAll('[data-tippy-root]');
+					openTippys.forEach(t => {
+						if (t !== inst.popper) {
+							(t as any)._tippy?.hide();
+						}
+					});
+
+					const container = document.createElement('div');
+					container.style.display = 'flex';
+					container.style.flexDirection = 'column';
+					container.style.gap = '4px';
+					container.style.padding = '6px';
+
+					const createOption = (label: string, type: number) => {
+						const btn = document.createElement('button');
+						btn.className = "seld-btn seld-btn-ghost";
+						btn.style.textAlign = "left";
+						btn.style.justifyContent = "flex-start";
+						btn.style.width = "100%";
+						btn.style.padding = "6px 12px";
+						btn.style.whiteSpace = "nowrap";
+						btn.textContent = label;
+						btn.onclick = () => {
+							handleDownload(type);
+							inst.hide();
+						};
+						return btn;
+					};
+
+					container.appendChild(createOption("Download as Plain Text", 1));
+					container.appendChild(createOption("Download as Markdown", 2));
+					container.appendChild(createOption("Download as TSV", 3));
+
+					inst.setContent(container);
+				}
+			});
+			return () => instance.destroy();
+		}
+	}, [filteredWords, listType]);
+
+	const handleDownload = async (type: number) => {
+		if (filteredWords.length === 0) return;
+		setIsDownloading(true);
+
+		try {
+			const lines: string[] = [];
+			
+			if (type === 3) {
+				lines.push(`Word\tDefinition`);
+			}
+
+			for (const word of filteredWords) {
+				const defBlocks = await stardict.getDefinition(word);
+				let definitionHtml = "";
+				if (defBlocks) {
+					if (defBlocks.length > 1) {
+						definitionHtml = defBlocks.map(b => {
+							const header = `<div style="font-weight: bold; font-size: 1.2em; margin-bottom: 8px; margin-top: 4px;">${b.headword}</div><br/>`;
+							const homographs = b.homographDefinitions.join("<hr/>");
+							return `${header}${homographs}`;
+						}).join("\n\n<hr/>\n\n");
+					} else if (defBlocks.length === 1) {
+						definitionHtml = defBlocks[0].homographDefinitions.join("\n\n<hr/>\n\n");
+					}
+				}
+
+				if (type === 1) { // Plain Text
+					const plainDef = htmlToFormattedText(definitionHtml, false);
+					lines.push(`${word}\n\n${plainDef}`);
+				} else if (type === 2) { // Markdown
+					const mdDef = htmlToFormattedText(definitionHtml, true);
+					lines.push(`${word}\n\n${mdDef}`);
+				} else if (type === 3) { // TSV
+					const plainDef = htmlToFormattedText(definitionHtml, false);
+					const sanitize = (str: string) => str.replace(/\t/g, ' ').replace(/\n/g, '\\n');
+					lines.push(`${sanitize(word)}\t${sanitize(plainDef)}`);
+				}
+			}
+
+			let finalContent = "";
+			let mimeType = "text/plain";
+			let ext = "txt";
+
+			if (type === 1 || type === 2) {
+				finalContent = lines.join("\n\n-----\n\n");
+			} else if (type === 3) {
+				finalContent = lines.join("\n");
+				mimeType = "text/tab-separated-values;charset=utf-8;";
+				ext = "tsv";
+			}
+
+			const blob = new Blob([finalContent], { type: mimeType });
+			const url = URL.createObjectURL(blob);
+			const a = document.createElement("a");
+			a.href = url;
+			a.download = `SELD_${listType?.toLowerCase() || 'export'}.${ext}`;
+			a.click();
+			setTimeout(() => URL.revokeObjectURL(url), 100);
+		} catch (error) {
+			console.error("Failed to generate download", error);
+		} finally {
+			setIsDownloading(false);
+		}
+	};
+
+	return (
+		<button
+			ref={btnRef}
+			title="Download List"
+			className="seld-btn seld-btn-secondary sort-toggle-btn"
+			style={{ minWidth: "40px", padding: "4px 8px", opacity: isDownloading ? 0.5 : 1 }}
+			disabled={isDownloading || filteredWords.length === 0}
+		>
+			<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+				<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+				<polyline points="7 10 12 15 17 10"></polyline>
+				<line x1="12" y1="15" x2="12" y2="3"></line>
+			</svg>
+		</button>
+	);
+};
 
 interface WordListUIProps {
 	items: string[]; // Expected in chronological order (oldest first)
@@ -76,6 +217,7 @@ export const WordListUI: React.FC<WordListUIProps> = ({
 					onChange={e => setSearchQuery(e.target.value)}
 					style={{ flex: 1, margin: 0 }}
 				/>
+				<DownloadListButton filteredWords={filteredWords} listType={listType} />
 				<button
 					onClick={() => setSortMode(prev => prev === "date" ? "alpha" : "date")}
 					className="seld-btn seld-btn-secondary sort-toggle-btn"

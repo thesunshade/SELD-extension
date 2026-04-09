@@ -33,6 +33,7 @@ export default function DictionaryApp() {
 	const [autoPlayTTS, setAutoPlayTTS] = useState(false);
 	const [overrideSinhalaFont, setOverrideSinhalaFont] = useState(false);
 	const [transliterateSinhala, setTransliterateSinhala] = useState(false);
+	const [sitePatches, setSitePatches] = useState(false);
 
 	// Browse state
 	const [allEntries, setAllEntries] = useState<IndexEntry[]>([]);
@@ -109,6 +110,7 @@ export default function DictionaryApp() {
 			seldAutoPlayTTS: v => setAutoPlayTTS(v as boolean),
 			seldOverrideSinhalaFont: v => setOverrideSinhalaFont(v as boolean),
 			transliterateSinhala: v => setTransliterateSinhala(v as boolean),
+			seldSitePatches: v => setSitePatches(v as boolean),
 			seldSearchHistory: v => {
 				if (Array.isArray(v)) {
 					setHistory(v);
@@ -649,6 +651,8 @@ export default function DictionaryApp() {
 							setOverrideSinhalaFont={setOverrideSinhalaFont}
 							transliterateSinhala={transliterateSinhala}
 							setTransliterateSinhala={setTransliterateSinhala}
+							sitePatches={sitePatches}
+							setSitePatches={setSitePatches}
 							saveSetting={saveSetting}
 						/>
 					)}
