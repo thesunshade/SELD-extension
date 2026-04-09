@@ -5,7 +5,7 @@ import "tippy.js/dist/tippy.css";
 import "./DefinitionCard.css";
 import { StructuredDefinition } from "../../utils/stardict";
 import { transliterateSinhala as transliterateSinhalaTxt } from "../../utils/transliterate";
-import { getFullEntryCopyData } from "../../utils/clipboard";
+import { htmlToFormattedText } from "../../utils/styleTranslator";
 import { checkBloom } from "../../utils/bloom-data";
 import { CarterFallbackLink } from "./CarterFallbackLink";
 
@@ -15,7 +15,7 @@ interface DefinitionCardProps {
 	transliterateSinhala: boolean;
 	onWordClick: (word: string, fallbackWord?: string) => void;
 	onSpeakClick: (word: string) => void;
-	onCopyClick: (targetWord: string, specificDefBlock?: string | string[]) => void;
+	onCopyClick: (copyData: { copyText: string; typeName: string }) => void;
 	ttsWord?: string;     // Original query for synthesized matches
 	searchQuery?: string;
 	showExplorerLink?: boolean;
@@ -24,6 +24,103 @@ interface DefinitionCardProps {
 	favoritesList?: string[];
 	onToggleFavorite?: (word: string) => void;
 }
+
+const CopyOptionsButton = ({ word, definitionHtml, onCopyClick }: { word: string, definitionHtml: string | string[], onCopyClick: (data: { copyText: string, typeName: string }) => void }) => {
+	const btnRef = useRef<HTMLButtonElement>(null);
+
+	const handleOptionClick = (type: number) => {
+		const joinedDef = Array.isArray(definitionHtml) ? definitionHtml.join("\n\n<hr/>\n\n") : definitionHtml;
+		const plainDef = htmlToFormattedText(joinedDef, false);
+		const mdDef = htmlToFormattedText(joinedDef, true);
+
+		switch (type) {
+			case 1:
+				onCopyClick({ copyText: word, typeName: "Headword Only (Plain)" });
+				break;
+			case 2:
+				onCopyClick({ copyText: plainDef, typeName: "Definition Only (Plain)" });
+				break;
+			case 3:
+				onCopyClick({ copyText: mdDef, typeName: "Definition Only (Markdown)" });
+				break;
+			case 4:
+				onCopyClick({ copyText: `${word}\n\n${plainDef}`, typeName: "Headword & Definition (Plain)" });
+				break;
+			case 5:
+				onCopyClick({ copyText: `${word}\n\n${mdDef}`, typeName: "Headword & Definition (Markdown)" });
+				break;
+		}
+	};
+
+	useEffect(() => {
+		if (btnRef.current) {
+			const instance = tippy(btnRef.current, {
+				interactive: true,
+				trigger: 'click',
+				placement: 'bottom-end',
+				theme: 'light',
+				appendTo: () => {
+					const root = btnRef.current?.closest('.seld-theme-vars');
+					return (root as HTMLElement) || document.body;
+				},
+				onShow: (inst) => {
+					// Hide global tooltips when this opens if any
+					const openTippys = document.querySelectorAll('[data-tippy-root]');
+					openTippys.forEach(t => {
+						if (t !== inst.popper) {
+							(t as any)._tippy?.hide();
+						}
+					});
+
+					// Construct the DOM nodes natively to avoid React unmout bugs inside Vanilla Tippy
+					const container = document.createElement('div');
+					container.style.display = 'flex';
+					container.style.flexDirection = 'column';
+					container.style.gap = '4px';
+					container.style.padding = '6px';
+
+					const createOption = (label: string, type: number) => {
+						const btn = document.createElement('button');
+						btn.className = "seld-btn seld-btn-ghost";
+						btn.style.textAlign = "left";
+						btn.style.justifyContent = "flex-start";
+						btn.style.width = "100%";
+						btn.style.padding = "6px 12px";
+						btn.style.whiteSpace = "nowrap";
+						btn.textContent = label;
+						btn.onclick = () => {
+							handleOptionClick(type);
+							inst.hide();
+						};
+						return btn;
+					};
+
+					container.appendChild(createOption("Headword Only (Plain)", 1));
+					container.appendChild(createOption("Definition Only (Plain)", 2));
+					container.appendChild(createOption("Definition Only (Markdown)", 3));
+					container.appendChild(createOption("Headword & Definition (Plain)", 4));
+					container.appendChild(createOption("Headword & Definition (Markdown)", 5));
+
+					inst.setContent(container);
+				}
+			});
+			return () => instance.destroy();
+		}
+	}, [word, definitionHtml, onCopyClick]);
+
+	return (
+		<button
+			ref={btnRef}
+			title="Copy Formatting Options"
+			className="seld-btn seld-btn-secondary seld-btn-icon-circle copy-button"
+		>
+			<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+				<path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+				<rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+			</svg>
+		</button>
+	);
+};
 
 export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 	word,
@@ -428,7 +525,7 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 					{definition.length > 0 && (
 						<>
 							<a
-								href={`https://jotform.com/260678150051452?q2_textbox0=${encodeURIComponent(word || "")}&q4_textbox2=${encodeURIComponent(window.location.href)}&existingDefinition=${encodeURIComponent(getFullEntryCopyData(word!, definition!).plainText)}`}
+								href={`https://jotform.com/260678150051452?q2_textbox0=${encodeURIComponent(word || "")}&q4_textbox2=${encodeURIComponent(window.location.href)}`}
 								target="_blank"
 								rel="noopener noreferrer"
 								className="seld-btn seld-btn-secondary seld-btn-icon-circle report-button"
@@ -439,27 +536,20 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 									<polyline points="22,6 12,13 2,6"></polyline>
 								</svg>
 							</a>
-							<button
-								className="seld-btn seld-btn-secondary seld-btn-icon-circle copy-button"
-								onClick={() => {
-									let allDefsHtml: string[] = [];
+							<CopyOptionsButton
+								word={word!}
+								definitionHtml={(() => {
 									if (definition.length > 1) {
-										allDefsHtml = definition.map(b => {
+										return definition.map(b => {
 											const header = `<div style="font-weight: bold; font-size: 1.2em; margin-bottom: 8px; margin-top: 4px;">${b.headword}</div><br/>`;
 											const homographs = b.homographDefinitions.join("<hr/>");
 											return `${header}${homographs}`;
 										});
-									} else if (definition.length === 1) {
-										allDefsHtml = definition[0].homographDefinitions;
 									}
-									onCopyClick(word!, allDefsHtml);
-								}}
-								data-tippy-content="Copy full entry">
-								<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-									<path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-									<rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-								</svg>
-							</button>
+									return definition[0].homographDefinitions;
+								})()}
+								onCopyClick={onCopyClick}
+							/>
 						</>
 					)}
 					<button className="seld-btn seld-btn-secondary seld-btn-icon-circle tts-button" onClick={() => onSpeakClick(ttsWord || word)} data-tippy-content="Speak word">
@@ -518,12 +608,11 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 												<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
 											</svg>
 										</button>
-										<button className="seld-btn seld-btn-secondary seld-btn-icon-circle copy-button" onClick={() => onCopyClick(block.headword, block.homographDefinitions)} data-tippy-content="Copy entry">
-											<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-												<path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-												<rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-											</svg>
-										</button>
+										<CopyOptionsButton
+											word={block.headword}
+											definitionHtml={block.homographDefinitions}
+											onCopyClick={onCopyClick}
+										/>
 										<button className="seld-btn seld-btn-secondary seld-btn-icon-circle tts-button" onClick={() => onSpeakClick(block.headword)} data-tippy-content="Speak word">
 											<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
 												<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>

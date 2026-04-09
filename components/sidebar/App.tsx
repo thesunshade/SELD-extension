@@ -4,7 +4,6 @@ import { DEFAULT_SEARCH_LIMIT, DEFAULT_SEARCH_DEBOUNCE_MS } from "../../utils/co
 import { extractUniqueSinhalaWords, applyHighlights } from "../../utils/dom-highlights";
 import { transliterateSinhala as transliterateSinhalaTxt } from "../../utils/transliterate";
 import { browser } from "wxt/browser";
-import { getCopyText } from "../../utils/clipboard";
 import { DefinitionCard } from "../shared/DefinitionCard";
 import { CarterFallbackLink } from "../shared/CarterFallbackLink";
 
@@ -431,24 +430,10 @@ function App({ onClose, inline }: AppProps) {
       .catch(e => console.error("Error communicating with background for TTS:", e));
   };
 
-  const handleCopy = async (targetWord: string, specificDefBlock?: string | string[]) => {
-    if (!targetWord || !specificDefBlock) return;
-
+  const handleCopy = async ({ copyText, typeName }: { copyText: string; typeName: string }) => {
     try {
-      const { htmlContent, plainText } = getCopyText(targetWord, specificDefBlock);
-
-      const blobHtml = new Blob([htmlContent], { type: "text/html" });
-      const blobText = new Blob([plainText], { type: "text/plain" });
-
-      const data = [
-        new ClipboardItem({
-          "text/html": blobHtml,
-          "text/plain": blobText,
-        }),
-      ];
-
-      await navigator.clipboard.write(data);
-      setToastMessage("Entry copied!");
+      await navigator.clipboard.writeText(copyText);
+      setToastMessage(`Copied: ${typeName}`);
       setShowToast(true);
       setTimeout(() => setShowToast(false), 2000);
     } catch (err) {

@@ -3,7 +3,6 @@ import tippy, { delegate } from "tippy.js";
 import { stardict, IndexEntry, StructuredDefinition } from "../../utils/stardict";
 import { DEFAULT_SEARCH_LIMIT, DEFAULT_SEARCH_DEBOUNCE_MS } from "../../utils/constants";
 import { transliterateSinhala as transliterateSinhalaTxt } from "../../utils/transliterate";
-import { getCopyText } from "../../utils/clipboard";
 import { browser } from "wxt/browser";
 import { DefinitionCard } from "../shared/DefinitionCard";
 import { CarterFallbackLink } from "../shared/CarterFallbackLink";
@@ -521,15 +520,14 @@ export default function DictionaryApp() {
 		});
 	};
 
-	const handleCopy = async (word: string, def: any) => {
-		const { htmlContent, plainText } = getCopyText(word, def);
-		await navigator.clipboard.write([
-			new ClipboardItem({
-				"text/html": new Blob([htmlContent], { type: "text/html" }),
-				"text/plain": new Blob([plainText], { type: "text/plain" })
-			})
-		]);
-		setToastMessage("Copied!"); setShowToast(true); setTimeout(() => setShowToast(false), 2000);
+	const handleCopy = async ({ copyText, typeName }: { copyText: string; typeName: string }) => {
+		try {
+			await navigator.clipboard.writeText(copyText);
+			setToastMessage(`Copied: ${typeName}`); setShowToast(true); setTimeout(() => setShowToast(false), 2000);
+		} catch (err) {
+			console.error("Failed to copy: ", err);
+			setToastMessage("Failed to copy"); setShowToast(true); setTimeout(() => setShowToast(false), 2000);
+		}
 	};
 
 	const saveSetting = (key: string, value: any) => {
