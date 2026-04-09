@@ -2,6 +2,7 @@
 
 ## Search
 - [ ] particles should be treated like suffixes, e.g. ත්
+- [ ] නාම පදයක් should be returning නාම පදය -ක්
 
 
 ## Improvements
