@@ -2,6 +2,8 @@ import { browser } from 'wxt/browser';
 import type { ContentScriptContext } from 'wxt/client';
 import { checkBloom } from './bloom-data';
 
+const MAX_SELECTION_LENGTH = 100;
+
 function getNGrams(text: string, offset: number): { clickedWord: string, potentialCompounds: string[] } {
 	// Need to identify the word at offset first.
 	const start = text.substring(0, offset).search(/[\u0D80-\u0DFFa-zA-Z\u200D\u200C]+$/);
@@ -64,6 +66,9 @@ export function setupSidebarEvents(
 		const selection = window.getSelection();
 		if (!selection || selection.rangeCount === 0) return;
 
+		const selectionText = selection.toString().trim();
+		if (selectionText.length > MAX_SELECTION_LENGTH) return;
+
 		const range = selection.getRangeAt(0);
 		const textNode = range.startContainer;
 		const offset = range.startOffset;
@@ -71,7 +76,7 @@ export function setupSidebarEvents(
 		// Fallback for non-text-node selections or complex ranges
 		if (!textNode || textNode.nodeType !== Node.TEXT_NODE) {
 			const text = selection.toString().trim();
-			if (text && text.length > 0 && text.length < 50) {
+			if (text && text.length > 0 && text.length < MAX_SELECTION_LENGTH) {
 				const now = Date.now();
 				if (now - lastQueryTime > 300) {
 					window.dispatchEvent(new CustomEvent('seld:search', { detail: text }));
@@ -151,7 +156,7 @@ export function setupSidebarEvents(
 				}
 			}
 
-			if (searchTarget && searchTarget.length < 50) {
+			if (searchTarget && searchTarget.length < MAX_SELECTION_LENGTH) {
 				if (!getIsSidebarOpen()) {
 					initSidebar();
 				}
