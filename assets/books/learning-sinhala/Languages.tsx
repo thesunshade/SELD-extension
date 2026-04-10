@@ -7,7 +7,7 @@ export const metadata = { title: "Languages" };
 export default function Languages() {
   return (
     <div>
-      <h2>Languages</h2>
+      <h1>Languages</h1>
       <p>As with all languages, Sinhala has vocabulary that comes from or is influenced by various languages</p>
       <AbbreviationsList language />
     </div>

@@ -7,7 +7,7 @@ import AbbreviationsList from '../../../components/library/AbbreviationsList';
 export default function Partofspeech() {
   return (
     <div>
-      <h2>Parts of Speech</h2>
+      <h1>Parts of Speech</h1>
       <p>Some parts of speech corrispond well to those found in English, e.g. noun, verb, adjective. However some terms are different from their English usage, e.g. infinitive.</p>
       <p>When viewing a definition, click on the abbreviation to see the explainations.</p>
       <AbbreviationsList partofspeech />

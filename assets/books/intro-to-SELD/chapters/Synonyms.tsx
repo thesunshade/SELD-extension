@@ -1,7 +1,7 @@
 import React from 'react';
 
 
-export const metadata = { title: "My Title" };
+export const metadata = { title: "Lexical Relations" };
 
 export default function AdvancedUsage() {
   return (
