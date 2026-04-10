@@ -1,12 +1,13 @@
+import { IS_MAJOR_UPDATE } from '@/utils/update-status';
 import { defineBackground } from 'wxt/sandbox';
 import { browser } from 'wxt/browser';
 
 export default defineBackground(() => {
     let explorerTabId: number | null = null;
 
-    // Open welcome page on install or update
+    // Open welcome page on install or major update
     browser.runtime.onInstalled.addListener(({ reason }) => {
-        if (reason === 'install' || reason === 'update') {
+        if (reason === 'install' || (reason === 'update' && IS_MAJOR_UPDATE)) {
             browser.tabs.create({
                 url: browser.runtime.getURL('/welcome.html'),
             });
