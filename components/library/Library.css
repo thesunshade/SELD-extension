@@ -252,9 +252,9 @@ h1 {
 }
 
 /* The Bookshelf styles */
-.bookshelf-title {
+.library-content-area h1.bookshelf-title {
   font-size: 2rem;
-  margin-bottom: 10px;
+  margin-bottom: 0px;
   font-weight: 800;
 }
 
@@ -287,7 +287,7 @@ h1 {
 }
 
 .book-card-header {
-  padding: 20px;
+  padding: 10px 10px 10px 20px;
   background-color: var(--bg-panel-secondary);
   border-bottom: 1px solid var(--border-color);
 }
@@ -313,7 +313,6 @@ h1 {
 .book-card-meta {
   font-size: 0.85em;
   color: var(--text-secondary);
-  margin-bottom: 12px;
   display: block;
   font-weight: 600;
 }
