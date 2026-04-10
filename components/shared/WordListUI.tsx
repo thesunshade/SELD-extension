@@ -51,6 +51,7 @@ const DownloadListButton = ({ filteredWords, listType }: { filteredWords: string
 						return btn;
 					};
 
+					container.appendChild(createOption("Download Headwords Only", 0));
 					container.appendChild(createOption("Download as Plain Text", 1));
 					container.appendChild(createOption("Download as Markdown", 2));
 					container.appendChild(createOption("Download as TSV", 3));
@@ -69,35 +70,39 @@ const DownloadListButton = ({ filteredWords, listType }: { filteredWords: string
 		try {
 			const lines: string[] = [];
 			
-			if (type === 3) {
-				lines.push(`Word\tDefinition`);
-			}
-
-			for (const word of filteredWords) {
-				const defBlocks = await stardict.getDefinition(word);
-				let definitionHtml = "";
-				if (defBlocks) {
-					if (defBlocks.length > 1) {
-						definitionHtml = defBlocks.map(b => {
-							const header = `<div style="font-weight: bold; font-size: 1.2em; margin-bottom: 8px; margin-top: 4px;">${b.headword}</div><br/>`;
-							const homographs = b.homographDefinitions.join("<hr/>");
-							return `${header}${homographs}`;
-						}).join("\n\n<hr/>\n\n");
-					} else if (defBlocks.length === 1) {
-						definitionHtml = defBlocks[0].homographDefinitions.join("\n\n<hr/>\n\n");
-					}
+			if (type === 0) {
+				lines.push(...filteredWords);
+			} else {
+				if (type === 3) {
+					lines.push(`Word\tDefinition`);
 				}
 
-				if (type === 1) { // Plain Text
-					const plainDef = htmlToFormattedText(definitionHtml, false);
-					lines.push(`${word}\n\n${plainDef}`);
-				} else if (type === 2) { // Markdown
-					const mdDef = htmlToFormattedText(definitionHtml, true);
-					lines.push(`${word}\n\n${mdDef}`);
-				} else if (type === 3) { // TSV
-					const plainDef = htmlToFormattedText(definitionHtml, false);
-					const sanitize = (str: string) => str.replace(/\t/g, ' ').replace(/\n/g, '\\n');
-					lines.push(`${sanitize(word)}\t${sanitize(plainDef)}`);
+				for (const word of filteredWords) {
+					const defBlocks = await stardict.getDefinition(word);
+					let definitionHtml = "";
+					if (defBlocks) {
+						if (defBlocks.length > 1) {
+							definitionHtml = defBlocks.map(b => {
+								const header = `<div style="font-weight: bold; font-size: 1.2em; margin-bottom: 8px; margin-top: 4px;">${b.headword}</div><br/>`;
+								const homographs = b.homographDefinitions.join("<hr/>");
+								return `${header}${homographs}`;
+							}).join("\n\n<hr/>\n\n");
+						} else if (defBlocks.length === 1) {
+							definitionHtml = defBlocks[0].homographDefinitions.join("\n\n<hr/>\n\n");
+						}
+					}
+
+					if (type === 1) { // Plain Text
+						const plainDef = htmlToFormattedText(definitionHtml, false);
+						lines.push(`${word}\n\n${plainDef}`);
+					} else if (type === 2) { // Markdown
+						const mdDef = htmlToFormattedText(definitionHtml, true);
+						lines.push(`${word}\n\n${mdDef}`);
+					} else if (type === 3) { // TSV
+						const plainDef = htmlToFormattedText(definitionHtml, false);
+						const sanitize = (str: string) => str.replace(/\t/g, ' ').replace(/\n/g, '\\n');
+						lines.push(`${sanitize(word)}\t${sanitize(plainDef)}`);
+					}
 				}
 			}
 
@@ -111,6 +116,8 @@ const DownloadListButton = ({ filteredWords, listType }: { filteredWords: string
 				finalContent = lines.join("\n");
 				mimeType = "text/tab-separated-values;charset=utf-8;";
 				ext = "tsv";
+			} else if (type === 0) {
+				finalContent = lines.join("\n");
 			}
 
 			const blob = new Blob([finalContent], { type: mimeType });
