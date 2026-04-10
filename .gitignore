@@ -50,3 +50,4 @@ utils/bloom-data.ts
 public/SELD/SELD.dict
 entrypoints/welcome/changelog-data.js
 public/book-index.json
+utils/update-status.ts
