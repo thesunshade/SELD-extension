@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { NavLink, useParams } from 'react-router-dom';
-import { BookEntry } from '../../utils/bookDiscovery';
+import { BookEntry, ChapterEntry } from '../../utils/bookDiscovery';
 import { bookSearch, SearchResult } from '../../utils/bookSearch';
 
 interface NavigationAreaProps {
@@ -17,6 +17,101 @@ interface NavigationAreaProps {
     scope: 'book' | 'all';
     setScope: (s: 'book' | 'all') => void;
   };
+}
+
+function ChapterNavItem({ 
+  chapter, 
+  activeChapterSlug 
+}: { 
+  chapter: ChapterEntry; 
+  activeChapterSlug?: string; 
+}) {
+  const isActive = chapter.slug === activeChapterSlug;
+  const [isExpanded, setIsExpanded] = useState(isActive);
+
+  useEffect(() => {
+    if (isActive) {
+      setIsExpanded(true);
+    }
+  }, [isActive]);
+
+  const toggleExpand = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsExpanded(!isExpanded);
+  };
+
+  const handleHeadingClick = (title: string, e: React.MouseEvent) => {
+    if (isActive) {
+      e.preventDefault();
+      const h2s = document.querySelectorAll('.library-content-area h2');
+      const target = Array.from(h2s).find(h => h.textContent?.replace(/\s+/g, ' ').trim() === title);
+      target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  return (
+    <div className="library-nav-chapter-group">
+      <div style={{ position: 'relative', display: 'flex' }}>
+        <NavLink
+          to={`/${chapter.path}`}
+          className={({ isActive }) => `library-nav-link ${isActive ? 'active' : ''}`}
+          style={{ flexGrow: 1, paddingRight: chapter.headings?.length ? '2.5rem' : undefined }}
+        >
+          {chapter.title}
+        </NavLink>
+        {chapter.headings && chapter.headings.length > 0 && (
+          <button
+            onClick={toggleExpand}
+            style={{
+              position: 'absolute',
+              right: '8px',
+              top: '50%',
+              transform: `translateY(-50%) rotate(${isExpanded ? 90 : 0}deg)`,
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              color: 'inherit',
+              opacity: 0.6,
+              padding: '4px',
+              transition: 'transform 0.2s',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+            title={isExpanded ? "Collapse Headings" : "Expand Headings"}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
+        )}
+      </div>
+      {isExpanded && chapter.headings && chapter.headings.length > 0 && (
+        <div className="library-nav-headings-list" style={{ paddingLeft: '1.5rem', marginBottom: '4px' }}>
+          {chapter.headings.map((heading, idx) => (
+            <NavLink
+              key={`${chapter.slug}-h-${idx}`}
+              to={`/${chapter.path}?goto=${encodeURIComponent(heading.title)}`}
+              onClick={(e) => handleHeadingClick(heading.title, e)}
+              className="library-nav-heading-link"
+              style={{
+                display: 'block',
+                padding: '6px 8px',
+                fontSize: '0.85em',
+                color: 'inherit',
+                opacity: 0.7,
+                textDecoration: 'none',
+                lineHeight: '1.3',
+                borderLeft: '1px solid currentColor',
+                marginLeft: '4px'
+              }}
+            >
+              • {heading.title}
+            </NavLink>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default function NavigationArea({
@@ -177,13 +272,11 @@ export default function NavigationArea({
                     {chapter.title}
                   </div>
                 ) : (
-                  <NavLink
-                    key={chapter.slug}
-                    to={`/${chapter.path}`}
-                    className={({ isActive }) => `library-nav-link ${isActive ? 'active' : ''}`}
-                  >
-                    {chapter.title}
-                  </NavLink>
+                  <ChapterNavItem 
+                    key={chapter.slug} 
+                    chapter={chapter} 
+                    activeChapterSlug={chapterSlug} 
+                  />
                 )
               ))}
             </div>

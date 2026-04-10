@@ -1,5 +1,9 @@
 import React from 'react';
 
+export interface Heading {
+  title: string;
+}
+
 export interface ChapterEntry {
   slug: string;
   title: string;
@@ -9,6 +13,7 @@ export interface ChapterEntry {
   styleUrl: string | null;
   order: number;
   isSection?: boolean;
+  headings?: Heading[];
 }
 
 export interface BookEntry {
@@ -44,6 +49,10 @@ export function getBooks(): BookEntry[] {
   // HTML files are imported as raw strings
   const htmlModules = import.meta.glob('../assets/books/**/*.html', { query: '?raw', import: 'default', eager: true });
   
+  // Also import raw content for MDX and TSX to extract headers without parsing DOM
+  const rawMdxModules = import.meta.glob('../assets/books/**/*.mdx', { query: '?raw', import: 'default', eager: true });
+  const rawTsxModules = import.meta.glob('../assets/books/**/*.tsx', { query: '?raw', import: 'default', eager: true });
+
   // Combine all content modules
   const contentModules = { ...moduleModules, ...htmlModules };
   
@@ -112,7 +121,8 @@ export function getBooks(): BookEntry[] {
     if (!discoveredFilesByBook.has(bookSlug)) {
       discoveredFilesByBook.set(bookSlug, new Map());
     }
-    discoveredFilesByBook.get(bookSlug)!.set(filename, module);
+    // Store module and original path so we can resolve raw content using the full path
+    discoveredFilesByBook.get(bookSlug)!.set(filename, { module, originalPath: path });
   });
 
   // Process each book
@@ -164,9 +174,10 @@ export function getBooks(): BookEntry[] {
       }
 
       const filename = item as string;
-      const module = filesMap.get(filename);
-      if (!module) return;
+      const fileData = filesMap.get(filename);
+      if (!fileData) return;
 
+      const { module, originalPath } = fileData;
       const extMatch = filename.match(/\.(mdx|tsx|html)$/);
       if (!extMatch) return;
       const ext = extMatch[1];
@@ -176,16 +187,20 @@ export function getBooks(): BookEntry[] {
       let title = '';
       let component = null;
       let rawHtml = null;
+      let rawContent = '';
 
       if (ext === 'mdx') {
         component = m.default;
         title = m.frontmatter?.title;
+        rawContent = rawMdxModules[originalPath] as string || '';
       } else if (ext === 'tsx') {
         component = m.default;
         title = m.metadata?.title;
+        rawContent = rawTsxModules[originalPath] as string || '';
       } else if (ext === 'html') {
         rawHtml = typeof module === 'string' ? module : m.default;
-        const match = (rawHtml as string).match(/<title>(.*?)<\/title>/i);
+        rawContent = rawHtml as string;
+        const match = rawContent.match(/<title>(.*?)<\/title>/i);
         title = match ? match[1] : '';
       }
 
@@ -199,6 +214,32 @@ export function getBooks(): BookEntry[] {
       }
       usedSlugs.add(slug);
 
+      // Extract headings from rawContent
+      const headings: Heading[] = [];
+      if (rawContent && rawContent.length > 0) {
+        if (ext === 'mdx') {
+          // MDX/Markdown header matching strings like "## Header"
+          // Using \n as boundary, since start of string /gm works for line starts
+          const mdRegex = /^##\s+(.+)$/gm;
+          let match;
+          while ((match = mdRegex.exec(rawContent)) !== null) {
+            const hTitle = match[1].trim();
+            headings.push({ title: hTitle });
+          }
+        } else if (ext === 'html' || ext === 'tsx') {
+          // HTML style H2 tags matching
+          const htmlRegex = /<h2[^>]*>([\s\S]*?)<\/h2>/gi;
+          let match;
+          while ((match = htmlRegex.exec(rawContent)) !== null) {
+            // Strip any inner html like <font>, <b> etc. and normalize whitespace
+            const hTitle = match[1].replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+            if (hTitle) {
+              headings.push({ title: hTitle });
+            }
+          }
+        }
+      }
+
       book.chapters.push({
         slug,
         title,
@@ -207,6 +248,7 @@ export function getBooks(): BookEntry[] {
         rawHtml,
         styleUrl: chapterStyles.get(`${bookSlug}/${fileSlugBase}`) || null,
         order: index,
+        headings: headings.length > 0 ? headings : undefined
       });
     });
 

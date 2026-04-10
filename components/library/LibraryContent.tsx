@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { useParams, useOutletContext } from 'react-router-dom';
+import { useParams, useOutletContext, useLocation } from 'react-router-dom';
 import { BookEntry } from '../../utils/bookDiscovery';
 import { scanForTooltips } from '../shared/useGlobalTooltips';
 import { LibrarySearchContext } from './LibraryLayout';
@@ -16,6 +16,7 @@ interface LibraryContentProps {
 export default function LibraryContent({ books }: LibraryContentProps) {
   const { bookSlug, chapterSlug } = useParams<{ bookSlug: string; chapterSlug: string }>();
   const { searchQuery } = useOutletContext<LibrarySearchContext>();
+  const location = useLocation();
   const contentAreaRef = useRef<HTMLDivElement>(null);
   
   // Storage for last read chapters
@@ -70,12 +71,22 @@ export default function LibraryContent({ books }: LibraryContentProps) {
   useEffect(() => {
     const currentPath = `${bookSlug}/${chapterSlug}`;
     const container = contentAreaRef.current;
+    const params = new URLSearchParams(location.search);
+    const gotoHeading = params.get('goto');
 
     if (currentChapter && container) {
       const timer = setTimeout(() => {
-        // Restore scroll position after a short delay to ensure content height is calculated
-        const savedPos = scrollPositions.get(currentPath) || 0;
-        container.scrollTop = savedPos;
+        if (gotoHeading) {
+          const h2s = container.querySelectorAll('h2');
+          const target = Array.from(h2s).find(h => h.textContent?.replace(/\s+/g, ' ').trim() === gotoHeading);
+          if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        } else {
+          // Restore scroll position after a short delay to ensure content height is calculated
+          const savedPos = scrollPositions.get(currentPath) || 0;
+          container.scrollTop = savedPos;
+        }
 
         // Apply highlights if searching
         if (searchQuery && searchQuery.trim().length > 1) {
@@ -111,7 +122,7 @@ export default function LibraryContent({ books }: LibraryContentProps) {
 
       return () => clearTimeout(timer);
     }
-  }, [currentChapter, chapterSlug, bookSlug, searchQuery]);
+  }, [currentChapter, chapterSlug, bookSlug, searchQuery, location.search]);
 
   const scrollToMatch = (index: number) => {
     const container = contentAreaRef.current;
