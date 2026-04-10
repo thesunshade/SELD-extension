@@ -2,6 +2,7 @@ import { defineConfig } from "wxt";
 import mdx from '@mdx-js/rollup';
 import remarkFrontmatter from 'remark-frontmatter';
 import remarkMdxFrontmatter from 'remark-mdx-frontmatter';
+import { remarkExportHeadings } from './scripts/remark-export-headings';
 
 // See https://wxt.dev/api/config.html
 export default defineConfig({
@@ -46,7 +47,7 @@ export default defineConfig({
     },
     plugins: [
       mdx({
-        remarkPlugins: [remarkFrontmatter, remarkMdxFrontmatter],
+        remarkPlugins: [remarkFrontmatter, remarkMdxFrontmatter, remarkExportHeadings],
       }),
     ],
   }),
