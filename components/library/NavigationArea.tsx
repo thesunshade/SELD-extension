@@ -19,12 +19,12 @@ interface NavigationAreaProps {
   };
 }
 
-function ChapterNavItem({ 
-  chapter, 
-  activeChapterSlug 
-}: { 
-  chapter: ChapterEntry; 
-  activeChapterSlug?: string; 
+function ChapterNavItem({
+  chapter,
+  activeChapterSlug
+}: {
+  chapter: ChapterEntry;
+  activeChapterSlug?: string;
 }) {
   const isActive = chapter.slug === activeChapterSlug;
   const [isExpanded, setIsExpanded] = useState(isActive);
@@ -86,26 +86,16 @@ function ChapterNavItem({
         )}
       </div>
       {isExpanded && chapter.headings && chapter.headings.length > 0 && (
-        <div className="library-nav-headings-list" style={{ paddingLeft: '1.5rem', marginBottom: '4px' }}>
+        <div className="library-nav-headings-list" >
           {chapter.headings.map((heading, idx) => (
             <NavLink
               key={`${chapter.slug}-h-${idx}`}
               to={`/${chapter.path}?goto=${encodeURIComponent(heading.title)}`}
               onClick={(e) => handleHeadingClick(heading.title, e)}
               className="library-nav-heading-link"
-              style={{
-                display: 'block',
-                padding: '6px 8px',
-                fontSize: '0.85em',
-                color: 'inherit',
-                opacity: 0.7,
-                textDecoration: 'none',
-                lineHeight: '1.3',
-                borderLeft: '1px solid currentColor',
-                marginLeft: '4px'
-              }}
+
             >
-              • {heading.title}
+              {heading.title}
             </NavLink>
           ))}
         </div>
@@ -274,10 +264,10 @@ export default function NavigationArea({
                     {chapter.title}
                   </div>
                 ) : (
-                  <ChapterNavItem 
-                    key={chapter.slug} 
-                    chapter={chapter} 
-                    activeChapterSlug={chapterSlug} 
+                  <ChapterNavItem
+                    key={chapter.slug}
+                    chapter={chapter}
+                    activeChapterSlug={chapterSlug}
                   />
                 )
               ))}
