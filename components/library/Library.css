@@ -34,7 +34,6 @@ a:hover {
   border-right: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
   transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s ease;
   z-index: 10;
 }
@@ -137,7 +136,7 @@ a:hover {
   border: none;
   font: inherit;
   cursor: pointer;
-  width: 100%;
+  /* width: 100%; */
   text-align: left;
 }
 
