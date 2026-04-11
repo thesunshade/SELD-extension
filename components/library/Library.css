@@ -99,7 +99,7 @@ a:hover {
 }
 
 .library-nav-section-title {
-  padding: 0px 20px 5px 15px;
+  padding: 10px 20px 5px 15px;
   font-size: 0.75rem;
   font-weight: 800;
   color: var(--text-secondary);
