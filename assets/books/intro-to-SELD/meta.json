@@ -7,7 +7,14 @@
       "title": "Part 1: The Basics"
     },
     "chapter1.mdx",
+    "spelling.mdx",
+    "usage.mdx",
+    "Synonyms.tsx",
     "Bibliography.mdx",
-    "Synonyms.tsx"
+    {
+      "type": "section",
+      "title": "Part 2: Contributor Information"
+    },
+    "editor-instructions.mdx"
   ]
 }
