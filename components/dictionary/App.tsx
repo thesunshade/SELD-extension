@@ -404,6 +404,11 @@ export default function DictionaryApp() {
 		historyIndex.current = -1;
 		browser.storage.local.set({ seldSearchHistory: [] });
 	};
+    
+	const clearFavorites = () => {
+		setFavorites([]);
+		browser.storage.local.set({ seldFavorites: [] });
+	};
 
 	const downloadHistory = () => {
 		const unique = [...new Set(history)];
@@ -664,6 +669,7 @@ export default function DictionaryApp() {
 								transliterateSinhala={transliterateSinhala}
 								onItemClick={(word, idx) => jumpToPrefix(word, false, idx)}
 								onItemRemove={(word) => handleToggleFavorite(word)}
+								onClearAll={clearFavorites}
 								onFilteredItemsChange={setFavoritesFiltered}
 								emptyMessage="No favorites yet. Add some from the definition cards."
 								listType="favorites"
@@ -684,6 +690,7 @@ export default function DictionaryApp() {
 										return newHist;
 									});
 								}}
+								onClearAll={clearHistory}
 								onFilteredItemsChange={setHistoryFiltered}
 								emptyMessage="No search history yet."
 								listType="history"

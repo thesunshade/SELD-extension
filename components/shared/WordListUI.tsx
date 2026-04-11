@@ -151,12 +151,102 @@ const DownloadListButton = ({ filteredWords, listType }: { filteredWords: string
 	);
 };
 
+const ClearListButton = ({ onClearAll, listType, disabled }: { onClearAll?: () => void, listType?: string, disabled?: boolean }) => {
+	const btnRef = useRef<HTMLButtonElement>(null);
+
+	useEffect(() => {
+		if (btnRef.current && onClearAll) {
+			const instance = tippy(btnRef.current, {
+				interactive: true,
+				trigger: 'click',
+				placement: 'bottom-end',
+				theme: 'light',
+				appendTo: () => {
+					const root = btnRef.current?.closest('.seld-theme-vars');
+					return (root as HTMLElement) || document.body;
+				},
+				onShow: (inst) => {
+					const openTippys = document.querySelectorAll('[data-tippy-root]');
+					openTippys.forEach(t => {
+						if (t !== inst.popper) {
+							(t as any)._tippy?.hide();
+						}
+					});
+
+					const container = document.createElement('div');
+					container.style.padding = '12px';
+					container.style.display = 'flex';
+					container.style.flexDirection = 'column';
+					container.style.gap = '10px';
+					container.style.maxWidth = '200px';
+
+					const text = document.createElement('div');
+					text.textContent = `Clear entire ${listType || 'list'}? This cannot be undone.`;
+					text.style.fontSize = '0.9em';
+					text.style.lineHeight = '1.4';
+					text.style.fontWeight = '500';
+					container.appendChild(text);
+
+					const actions = document.createElement('div');
+					actions.style.display = 'flex';
+					actions.style.gap = '8px';
+					actions.style.justifyContent = 'flex-end';
+
+					const cancelBtn = document.createElement('button');
+					cancelBtn.className = "seld-btn seld-btn-ghost";
+					cancelBtn.textContent = "Cancel";
+					cancelBtn.style.padding = "4px 10px";
+					cancelBtn.style.fontSize = "0.85em";
+					cancelBtn.onclick = () => inst.hide();
+
+					const confirmBtn = document.createElement('button');
+					confirmBtn.className = "seld-btn seld-btn-danger";
+					confirmBtn.textContent = "Clear All";
+					confirmBtn.style.padding = "4px 10px";
+					confirmBtn.style.fontSize = "0.85em";
+					confirmBtn.onclick = () => {
+						onClearAll();
+						inst.hide();
+					};
+
+					actions.appendChild(cancelBtn);
+					actions.appendChild(confirmBtn);
+					container.appendChild(actions);
+
+					inst.setContent(container);
+				}
+			});
+			return () => instance.destroy();
+		}
+	}, [onClearAll, listType]);
+
+	if (!onClearAll) return null;
+
+	return (
+		<button
+			ref={btnRef}
+			title="Clear List"
+			className="seld-btn seld-btn-secondary sort-toggle-btn clear-list-btn"
+			style={{ minWidth: "40px", padding: "4px 8px" }}
+			disabled={disabled}
+		>
+			<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+				<polyline points="3 6 5 6 21 6"></polyline>
+				<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+				<line x1="10" y1="11" x2="10" y2="17"></line>
+				<line x1="14" y1="11" x2="14" y2="17"></line>
+			</svg>
+		</button>
+	);
+};
+
 interface WordListUIProps {
 	items: string[]; // Expected in chronological order (oldest first)
 	transliterateSinhala: boolean;
 	onItemClick: (word: string, index: number) => void;
 	onItemRemove: (word: string) => void;
 	onFilteredItemsChange: (items: string[]) => void;
+	onClearAll?: () => void;
 	emptyMessage?: string;
 	listType?: string;
 }
@@ -167,6 +257,7 @@ export const WordListUI: React.FC<WordListUIProps> = ({
 	onItemClick,
 	onItemRemove,
 	onFilteredItemsChange,
+	onClearAll,
 	emptyMessage = "No items found.",
 	listType
 }) => {
@@ -252,6 +343,7 @@ export const WordListUI: React.FC<WordListUIProps> = ({
 						</button>
 					)}
 				</div>
+				<ClearListButton onClearAll={onClearAll} listType={listType} disabled={items.length === 0} />
 				<DownloadListButton filteredWords={filteredWords} listType={listType} />
 				<button
 					onClick={() => setSortMode(prev => prev === "date" ? "alpha" : "date")}
@@ -322,6 +414,9 @@ export const WordListUI: React.FC<WordListUIProps> = ({
 				.list-item:hover .remove-item-btn { opacity: 0.6; }
 				.list-item .remove-item-btn:hover { opacity: 1; color: #e74c3c; transform: scale(1); }
 				.seld-btn-clear-search:hover { opacity: 1 !important; color: #e74c3c !important; }
+				.seld-btn-danger { background: #e74c3c !important; color: white !important; border-color: #c0392b !important; }
+				.seld-btn-danger:hover { background: #c0392b !important; }
+				.clear-list-btn:hover { color: #e74c3c !important; border-color: #e74c3c !important; }
 			`}</style>
 		</div>
 	);
