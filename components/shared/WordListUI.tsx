@@ -216,14 +216,42 @@ export const WordListUI: React.FC<WordListUIProps> = ({
 	return (
 		<div className="word-list-ui" style={{ display: "flex", flexDirection: "column", height: "100%" }}>
 			<div className="word-list-header" style={{ display: "flex", gap: "8px", paddingBottom: "10px" }}>
-				<input
-					type="text"
-					className="dict-search-input"
-					placeholder={listType ? `Search ${listType} list...` : "Search list..."}
-					value={searchQuery}
-					onChange={e => setSearchQuery(e.target.value)}
-					style={{ flex: 1, margin: 0 }}
-				/>
+				<div style={{ position: "relative", flex: 1, display: "flex", alignItems: "center" }}>
+					<input
+						type="text"
+						className="dict-search-input"
+						placeholder={listType ? `Search ${listType} list...` : "Search list..."}
+						value={searchQuery}
+						onChange={e => setSearchQuery(e.target.value)}
+						style={{ flex: 1, margin: 0, paddingRight: "30px" }}
+					/>
+					{searchQuery && (
+						<button
+							className="seld-btn-clear-search"
+							onClick={() => setSearchQuery("")}
+							title="Clear search"
+							style={{
+								position: "absolute",
+								right: "8px",
+								background: "none",
+								border: "none",
+								padding: "4px",
+								cursor: "pointer",
+								display: "flex",
+								alignItems: "center",
+								justifyContent: "center",
+								color: "inherit",
+								opacity: 0.5,
+								transition: "opacity 0.2s"
+							}}
+						>
+							<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+								<line x1="18" y1="6" x2="6" y2="18"></line>
+								<line x1="6" y1="6" x2="18" y2="18"></line>
+							</svg>
+						</button>
+					)}
+				</div>
 				<DownloadListButton filteredWords={filteredWords} listType={listType} />
 				<button
 					onClick={() => setSortMode(prev => prev === "date" ? "alpha" : "date")}
@@ -293,6 +321,7 @@ export const WordListUI: React.FC<WordListUIProps> = ({
 				.list-item .remove-item-btn { opacity: 0; transform: scale(0.8); }
 				.list-item:hover .remove-item-btn { opacity: 0.6; }
 				.list-item .remove-item-btn:hover { opacity: 1; color: #e74c3c; transform: scale(1); }
+				.seld-btn-clear-search:hover { opacity: 1 !important; color: #e74c3c !important; }
 			`}</style>
 		</div>
 	);
