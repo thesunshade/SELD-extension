@@ -3,6 +3,7 @@ import tippy from 'tippy.js';
 import 'tippy.js/dist/tippy.css';
 import '../../assets/theme.css';
 import './style.css'
+import { createThemeManager } from '../../utils/themeManager';
 
 document.addEventListener('DOMContentLoaded', () => {
 	const sidebarBtn = document.getElementById('open-sidebar');
@@ -24,26 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		return restrictedPrefixes.some(prefix => url.startsWith(prefix));
 	};
 
-	const applyTheme = (theme: string) => {
-		const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-		document.body.className = `seld-theme-vars ${isDark ? 'dark-theme' : 'light-theme'}`;
-	};
-
-	browser.storage.local.get(['theme']).then(res => {
-		applyTheme((res.theme as string) || 'system');
-	});
-
-	window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-		browser.storage.local.get(['theme']).then(res => {
-			applyTheme((res.theme as string) || 'system');
-		});
-	});
-
-	browser.storage.onChanged.addListener((changes, namespace) => {
-		if (namespace === 'local' && changes.theme) {
-			applyTheme(changes.theme.newValue as string);
-		}
-	});
+	createThemeManager().setupThemeListeners();
 
 	sidebarBtn?.addEventListener('click', async () => {
 		const [tab] = await browser.tabs.query({ active: true, currentWindow: true });

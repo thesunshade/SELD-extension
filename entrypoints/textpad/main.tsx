@@ -7,6 +7,10 @@ import '../../assets/theme.css';
 import '../../assets/content.css';
 import '../../assets/sidebar.css';
 import '../../components/sidebar/App.css';
+import { createThemeManager } from '../../utils/themeManager';
+
+// 0. Initialize Theme
+createThemeManager().setupThemeListeners();
 
 // 1. Mount Text Pad App
 const textPadRoot = document.getElementById('textpad-root');
