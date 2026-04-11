@@ -236,7 +236,8 @@ export default function NavigationArea({
                   className="library-nav-link library-back-link"
                   onClick={clearSearch}
                 >
-                  <span>← Back to Book</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                  <span>Back to Book</span>
                 </button>
               )}
             </div>
@@ -263,7 +264,8 @@ export default function NavigationArea({
           activeBook ? (
             <div className="library-nav-section">
               <NavLink to="/" className="library-nav-link library-back-link">
-                <span>← Back to Bookshelf</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                <span>Back to Bookshelf</span>
               </NavLink>
               <div className="library-nav-title">{activeBook.bookTitle}</div>
               {activeBook.chapters.map(chapter => (
