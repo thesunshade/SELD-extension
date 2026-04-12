@@ -7,6 +7,7 @@ import { setupSidebarEvents } from '../utils/selection-handler';
 import { createShadowRootUi } from 'wxt/client';
 import type { ContentScriptUi } from 'wxt/client';
 import { applySitePatch, removeSitePatch } from '../utils/site-patches';
+import { clearActiveHighlight } from '../utils/dom-highlights';
 //
 // Import CSS normally - WXT will bundle these into a single content.css file
 import '../assets/theme.css';
@@ -50,6 +51,9 @@ export default defineContentScript({
 
             // Always remove site patch on close (regardless of setting state)
             removeSitePatch();
+
+            // Clear any active word highlights
+            clearActiveHighlight();
 
             // Remove host layout styles
             removeHostStyles();

@@ -1,42 +1,37 @@
 import { browser } from 'wxt/browser';
 import type { ContentScriptContext } from 'wxt/client';
 import { checkBloom } from './bloom-data';
+import { setActiveHighlight, clearActiveHighlight } from './dom-highlights';
 
 const MAX_SELECTION_LENGTH = 100;
 
-function getNGrams(text: string, offset: number): { clickedWord: string, potentialCompounds: string[] } {
+function getNGrams(text: string, offset: number): { 
+	clickedWord: string, 
+	clickedWordRange: { start: number, end: number } | null,
+	potentialCompounds: { text: string, start: number, end: number }[] 
+} {
 	// Need to identify the word at offset first.
-	const start = text.substring(0, offset).search(/[\u0D80-\u0DFFa-zA-Z\u200D\u200C]+$/);
-	const end = text.substring(offset).search(/[^\u0D80-\u0DFFa-zA-Z\u200D\u200C]/);
-
-	let clickedWord = '';
-	let clickWordStart = -1;
-
-	if (start !== -1) {
-		clickWordStart = start;
-		const actualEnd = end === -1 ? text.length : offset + end;
-		clickedWord = text.substring(clickWordStart, actualEnd).trim();
-	}
-
-	if (!clickedWord) return { clickedWord: '', potentialCompounds: [] };
-
-	// Parse simple tokens
-	const regex = /[\u0D80-\u0DFFa-zA-Z\u200D\u200C]+/g;
+	const wordRegex = /[\u0D80-\u0DFFa-zA-Z\u200D\u200C]+/g;
 	let match;
-	const tokens: string[] = [];
+	const tokens: { text: string, start: number, end: number }[] = [];
 	let clickedWordIdx = -1;
 
-	while ((match = regex.exec(text)) !== null) {
-		tokens.push(match[0]);
-		// Match offset roughly
+	while ((match = wordRegex.exec(text)) !== null) {
+		const token = { text: match[0], start: match.index, end: match.index + match[0].length };
+		tokens.push(token);
 		if (match.index <= offset && match.index + match[0].length >= offset) {
 			clickedWordIdx = tokens.length - 1;
 		}
 	}
 
-	if (clickedWordIdx === -1) return { clickedWord, potentialCompounds: [] };
+	if (clickedWordIdx === -1) {
+		// Fallback for when regex might miss something but offset is valid
+		return { clickedWord: '', clickedWordRange: null, potentialCompounds: [] };
+	}
 
-	const compounds: string[] = [];
+	const clickedToken = tokens[clickedWordIdx];
+	const compounds: { text: string, start: number, end: number }[] = [];
+	
 	// Generates 4, 3, 2-grams containing the clicked word
 	for (let size = 4; size >= 2; size--) {
 		for (let i = 0; i < size; i++) {
@@ -44,12 +39,21 @@ function getNGrams(text: string, offset: number): { clickedWord: string, potenti
 			const endIdx = startIdx + size - 1;
 
 			if (startIdx >= 0 && endIdx < tokens.length) {
-				compounds.push(tokens.slice(startIdx, endIdx + 1).join(' '));
+				const group = tokens.slice(startIdx, endIdx + 1);
+				compounds.push({
+					text: group.map(t => t.text).join(' '),
+					start: group[0].start,
+					end: group[group.length - 1].end
+				});
 			}
 		}
 	}
 
-	return { clickedWord, potentialCompounds: compounds };
+	return { 
+		clickedWord: clickedToken.text, 
+		clickedWordRange: { start: clickedToken.start, end: clickedToken.end },
+		potentialCompounds: compounds 
+	};
 }
 
 export function setupSidebarEvents(
@@ -79,7 +83,12 @@ export function setupSidebarEvents(
 			if (text && text.length > 0 && text.length < MAX_SELECTION_LENGTH) {
 				const now = Date.now();
 				if (now - lastQueryTime > 300) {
-					window.dispatchEvent(new CustomEvent('seld:search', { detail: text }));
+					window.dispatchEvent(new CustomEvent('seld:search', { 
+						detail: { 
+							text, 
+							range 
+						} 
+					}));
 					lastQueryTime = now;
 				}
 			}
@@ -87,28 +96,53 @@ export function setupSidebarEvents(
 		}
 
 		const text = textNode.nodeValue || '';
-		const { clickedWord, potentialCompounds } = getNGrams(text, offset);
+		const { clickedWord, clickedWordRange, potentialCompounds } = getNGrams(text, offset);
 
 		let searchTarget = clickedWord;
 		let isCompoundMaybe = false;
+		let matchRange: { start: number, end: number } | null = clickedWordRange;
 
 		for (const compound of potentialCompounds) {
-			if (checkBloom(compound)) {
-				searchTarget = compound;
+			if (checkBloom(compound.text)) {
+				searchTarget = compound.text;
 				isCompoundMaybe = true;
+				matchRange = { start: compound.start, end: compound.end };
 				break;
 			}
 		}
 
-		// Use the selection string if clickedWord failed to resolve (e.g. punctuation only)
-		const finalFallback = clickedWord || selection.toString().trim();
+		const selectionString = selection.toString().trim();
+		const finalFallback = clickedWord || selectionString;
 		if (!finalFallback) return;
+
+		const potentialMatches: { text: string, range: Range }[] = [];
+		for (const compound of potentialCompounds) {
+			if (checkBloom(compound.text)) {
+				const r = document.createRange();
+				r.setStart(textNode, compound.start);
+				r.setEnd(textNode, compound.end);
+				potentialMatches.push({ text: compound.text, range: r });
+			}
+		}
+
+		let wordRange: Range | null = null;
+		if (clickedWordRange) {
+			wordRange = document.createRange();
+			wordRange.setStart(textNode, clickedWordRange.start);
+			wordRange.setEnd(textNode, clickedWordRange.end);
+		} else {
+			wordRange = range;
+		}
 
 		const now = Date.now();
 		if (now - lastQueryTime > 300) {
 			window.dispatchEvent(
 				new CustomEvent('seld:search', {
-					detail: isCompoundMaybe ? { primarySearch: searchTarget, fallbackSearch: finalFallback } : finalFallback
+					detail: {
+						text: finalFallback,
+						wordRange,
+						compounds: potentialMatches
+					}
 				})
 			);
 			lastQueryTime = now;
@@ -142,16 +176,17 @@ export function setupSidebarEvents(
 			if (!textNode || textNode.nodeType !== Node.TEXT_NODE) return;
 
 			const text = textNode.nodeValue || '';
-
-			const { clickedWord, potentialCompounds } = getNGrams(text, offset);
+			const { clickedWord, clickedWordRange, potentialCompounds } = getNGrams(text, offset);
 
 			let searchTarget = clickedWord;
 			let isCompoundMaybe = false;
+			let matchRange: { start: number, end: number } | null = clickedWordRange;
 
 			for (const compound of potentialCompounds) {
-				if (checkBloom(compound)) {
-					searchTarget = compound;
+				if (checkBloom(compound.text)) {
+					searchTarget = compound.text;
 					isCompoundMaybe = true;
+					matchRange = { start: compound.start, end: compound.end };
 					break;
 				}
 			}
@@ -160,9 +195,31 @@ export function setupSidebarEvents(
 				if (!getIsSidebarOpen()) {
 					initSidebar();
 				}
+
+				const potentialMatches: { text: string, range: Range }[] = [];
+				for (const compound of potentialCompounds) {
+					if (checkBloom(compound.text)) {
+						const r = document.createRange();
+						r.setStart(textNode, compound.start);
+						r.setEnd(textNode, compound.end);
+						potentialMatches.push({ text: compound.text, range: r });
+					}
+				}
+
+				let wordRange: Range | null = null;
+				if (clickedWordRange) {
+					wordRange = document.createRange();
+					wordRange.setStart(textNode, clickedWordRange.start);
+					wordRange.setEnd(textNode, clickedWordRange.end);
+				}
+
 				window.dispatchEvent(
 					new CustomEvent('seld:search', {
-						detail: isCompoundMaybe ? { primarySearch: searchTarget, fallbackSearch: clickedWord } : searchTarget
+						detail: {
+							text: searchTarget,
+							wordRange,
+							compounds: potentialMatches
+						}
 					})
 				);
 			}

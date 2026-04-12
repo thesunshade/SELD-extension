@@ -3,3 +3,8 @@
     text-underline-offset: 3px;
     cursor: help;
 }
+
+::highlight(seld-lookup-active) {
+    background-color: #ffd700;
+    color: #000;
+}

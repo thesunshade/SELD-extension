@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { stardict, IndexEntry, StructuredDefinition } from "../../utils/stardict";
 import { DEFAULT_SEARCH_LIMIT, DEFAULT_SEARCH_DEBOUNCE_MS } from "../../utils/constants";
-import { extractUniqueSinhalaWords, applyHighlights } from "../../utils/dom-highlights";
+import { extractUniqueSinhalaWords, applyHighlights, setActiveHighlight } from "../../utils/dom-highlights";
 import { transliterateSinhala as transliterateSinhalaTxt } from "../../utils/transliterate";
 import { browser } from "wxt/browser";
 import { DefinitionCard } from "../shared/DefinitionCard";
@@ -62,6 +62,8 @@ function App({ onClose, inline }: AppProps) {
 
   // Favorites state
   const [favorites, setFavorites] = useState<string[]>([]);
+
+  const searchTriggeredByInteraction = useRef(false);
 
 
   const listRef = useRef<HTMLDivElement>(null);
@@ -167,14 +169,17 @@ function App({ onClose, inline }: AppProps) {
     const handleSearchEvent = (e: Event) => {
       const detail = (e as CustomEvent).detail;
       if (detail) {
-        if (typeof detail === 'object' && detail.primarySearch) {
-          setQuery(detail.fallbackSearch);
-          setSearchBooster(detail.primarySearch);
-          handleSearch(detail.fallbackSearch, detail.primarySearch);
+        searchTriggeredByInteraction.current = true;
+        if (typeof detail === 'object' && (detail.compounds || detail.wordRange)) {
+          setQuery(detail.text);
+          setSearchBooster(null); // Clear booster state, using direct handleSearch params
+          handleSearch(detail.text, null, detail.compounds, detail.wordRange);
         } else {
-          setQuery(detail as string);
+          const text = typeof detail === 'string' ? detail : detail.text;
+          const range = typeof detail === 'string' ? null : detail.range;
+          setQuery(text);
           setSearchBooster(null);
-          handleSearch(detail as string);
+          handleSearch(text, null, [], range);
         }
         setView("search");
       }
@@ -279,6 +284,11 @@ function App({ onClose, inline }: AppProps) {
 
   useEffect(() => {
     if (view !== "search") return;
+    
+    if (searchTriggeredByInteraction.current) {
+      searchTriggeredByInteraction.current = false;
+      return;
+    }
 
     const timer = setTimeout(() => {
       handleSearch(query, searchBooster);
@@ -310,16 +320,18 @@ function App({ onClose, inline }: AppProps) {
     return () => clearTimeout(timer);
   }, [query, view]);
 
-  const handleSearch = async (q: string, booster?: string | null) => {
+  const handleSearch = async (q: string, booster?: string | null, potentialCompounds: { text: string, range: Range }[] = [], fallbackRange?: Range | null) => {
     const sanitized = sanitizeSearchQuery(q);
     if (!sanitized) {
       setResults([]);
       setDefinition(null);
       setSelectedWord(null);
       setSelectedOriginalQuery(null);
+      setActiveHighlight(null);
       return;
     }
 
+    let winningRange: Range | null = fallbackRange || null;
     let boosterMatches: IndexEntry[] = [];
     let boosterExact: IndexEntry | undefined;
 
@@ -329,6 +341,21 @@ function App({ onClose, inline }: AppProps) {
       boosterExact = matches.find(m => m.word.toLowerCase() === bSanitized.toLowerCase()) || matches.find(m => m.isSynthesizedMatch);
       if (boosterExact) {
         boosterMatches = matches;
+      }
+    }
+
+    // New logic: Check potential compounds from the event
+    if (!boosterExact && potentialCompounds.length > 0) {
+      for (const cp of potentialCompounds) {
+        const cpSanitized = sanitizeSearchQuery(cp.text);
+        const matches = await stardict.searchWords(cpSanitized, 5);
+        const exact = matches.find(m => m.word.toLowerCase() === cpSanitized.toLowerCase()) || matches.find(m => m.isSynthesizedMatch);
+        if (exact) {
+          boosterExact = exact;
+          boosterMatches = matches;
+          winningRange = cp.range;
+          break; // Found the longest valid compound
+        }
       }
     }
 
@@ -354,6 +381,11 @@ function App({ onClose, inline }: AppProps) {
         setSelectedWord(null);
         setSelectedOriginalQuery(null);
       }
+    }
+
+    // Only apply the highlight if we have a new valid range found during document interaction
+    if (winningRange) {
+      setActiveHighlight(winningRange);
     }
   };
 
@@ -583,6 +615,7 @@ function App({ onClose, inline }: AppProps) {
                 type="text"
                 value={query}
                 onChange={e => {
+                  searchTriggeredByInteraction.current = false;
                   setQuery(e.target.value);
                   setSearchBooster(null);
                 }}

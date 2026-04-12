@@ -80,3 +80,28 @@ export const applyHighlights = (words: string[], underlineEnabled: boolean) => {
     }
   }
 };
+
+export const setActiveHighlight = (range: Range | null) => {
+  if (typeof CSS === "undefined" || !("highlights" in CSS)) return;
+
+  if (!range) {
+    // @ts-ignore
+    CSS.highlights.delete("seld-lookup-active");
+    return;
+  }
+
+  try {
+    // @ts-ignore
+    const highlight = new Highlight(range);
+    // @ts-ignore
+    CSS.highlights.set("seld-lookup-active", highlight);
+  } catch (e) {
+    console.error("Failed to set active highlight:", e);
+  }
+};
+
+export const clearActiveHighlight = () => {
+  if (typeof CSS === "undefined" || !("highlights" in CSS)) return;
+  // @ts-ignore
+  CSS.highlights.delete("seld-lookup-active");
+};
