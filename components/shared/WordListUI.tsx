@@ -5,6 +5,7 @@ import { transliterateSinhala as transliterateSinhalaTxt } from "../../utils/tra
 import { DEFAULT_SEARCH_DEBOUNCE_MS } from "../../utils/constants";
 import { stardict } from "../../utils/stardict";
 import { htmlToFormattedText } from "../../utils/styleTranslator";
+import "./WordListUI.css";
 
 const DownloadListButton = ({ filteredWords, listType }: { filteredWords: string[], listType?: string }) => {
 	const btnRef = useRef<HTMLButtonElement>(null);
@@ -30,19 +31,11 @@ const DownloadListButton = ({ filteredWords, listType }: { filteredWords: string
 					});
 
 					const container = document.createElement('div');
-					container.style.display = 'flex';
-					container.style.flexDirection = 'column';
-					container.style.gap = '4px';
-					container.style.padding = '6px';
+					container.className = 'download-options-container';
 
 					const createOption = (label: string, type: number) => {
 						const btn = document.createElement('button');
-						btn.className = "seld-btn seld-btn-ghost";
-						btn.style.textAlign = "left";
-						btn.style.justifyContent = "flex-start";
-						btn.style.width = "100%";
-						btn.style.padding = "6px 12px";
-						btn.style.whiteSpace = "nowrap";
+						btn.className = "seld-btn seld-btn-ghost download-option-btn";
 						btn.textContent = label;
 						btn.onclick = () => {
 							handleDownload(type);
@@ -138,8 +131,8 @@ const DownloadListButton = ({ filteredWords, listType }: { filteredWords: string
 		<button
 			ref={btnRef}
 			title="Download List"
-			className="seld-btn seld-btn-secondary sort-toggle-btn"
-			style={{ minWidth: "40px", padding: "4px 8px", opacity: isDownloading ? 0.5 : 1 }}
+			className="seld-btn seld-btn-secondary sort-toggle-btn download-list-trigger"
+			style={{ opacity: isDownloading ? 0.5 : 1 }}
 			disabled={isDownloading || filteredWords.length === 0}
 		>
 			<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -174,36 +167,24 @@ const ClearListButton = ({ onClearAll, listType, disabled }: { onClearAll?: () =
 					});
 
 					const container = document.createElement('div');
-					container.style.padding = '12px';
-					container.style.display = 'flex';
-					container.style.flexDirection = 'column';
-					container.style.gap = '10px';
-					container.style.maxWidth = '200px';
+					container.className = 'clear-confirm-container';
 
 					const text = document.createElement('div');
+					text.className = 'clear-confirm-text';
 					text.textContent = `Clear entire ${listType || 'list'}? This cannot be undone.`;
-					text.style.fontSize = '0.9em';
-					text.style.lineHeight = '1.4';
-					text.style.fontWeight = '500';
 					container.appendChild(text);
 
 					const actions = document.createElement('div');
-					actions.style.display = 'flex';
-					actions.style.gap = '8px';
-					actions.style.justifyContent = 'flex-end';
+					actions.className = 'clear-confirm-actions';
 
 					const cancelBtn = document.createElement('button');
 					cancelBtn.className = "seld-btn seld-btn-ghost";
 					cancelBtn.textContent = "Cancel";
-					cancelBtn.style.padding = "4px 10px";
-					cancelBtn.style.fontSize = "0.85em";
 					cancelBtn.onclick = () => inst.hide();
 
 					const confirmBtn = document.createElement('button');
 					confirmBtn.className = "seld-btn seld-btn-danger";
 					confirmBtn.textContent = "Clear All";
-					confirmBtn.style.padding = "4px 10px";
-					confirmBtn.style.fontSize = "0.85em";
 					confirmBtn.onclick = () => {
 						onClearAll();
 						inst.hide();
@@ -227,7 +208,6 @@ const ClearListButton = ({ onClearAll, listType, disabled }: { onClearAll?: () =
 			ref={btnRef}
 			title="Clear List"
 			className="seld-btn seld-btn-secondary sort-toggle-btn clear-list-btn"
-			style={{ minWidth: "40px", padding: "4px 8px" }}
 			disabled={disabled}
 		>
 			<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -305,36 +285,21 @@ export const WordListUI: React.FC<WordListUIProps> = ({
 	}, [items, searchQuery, sortMode, onFilteredItemsChange]);
 
 	return (
-		<div className="word-list-ui" style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-			<div className="word-list-header" style={{ display: "flex", gap: "8px", paddingBottom: "10px" }}>
-				<div style={{ position: "relative", flex: 1, display: "flex", alignItems: "center" }}>
+		<div className="word-list-ui">
+			<div className="word-list-header">
+				<div className="word-list-search-wrapper">
 					<input
 						type="text"
 						className="dict-search-input"
 						placeholder={listType ? `Search ${listType} list...` : "Search list..."}
 						value={searchQuery}
 						onChange={e => setSearchQuery(e.target.value)}
-						style={{ flex: 1, margin: 0, paddingRight: "30px" }}
 					/>
 					{searchQuery && (
 						<button
 							className="seld-btn-clear-search"
 							onClick={() => setSearchQuery("")}
 							title="Clear search"
-							style={{
-								position: "absolute",
-								right: "8px",
-								background: "none",
-								border: "none",
-								padding: "4px",
-								cursor: "pointer",
-								display: "flex",
-								alignItems: "center",
-								justifyContent: "center",
-								color: "inherit",
-								opacity: 0.5,
-								transition: "opacity 0.2s"
-							}}
 						>
 							<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
 								<line x1="18" y1="6" x2="6" y2="18"></line>
@@ -348,7 +313,6 @@ export const WordListUI: React.FC<WordListUIProps> = ({
 				<button
 					onClick={() => setSortMode(prev => prev === "date" ? "alpha" : "date")}
 					className="seld-btn seld-btn-secondary sort-toggle-btn"
-					style={{ minWidth: "40px", padding: "4px 8px" }}
 					data-tippy-content={sortMode === "date" ? "Click to sort alphabetically" : "Click to sort by date added"}
 				>
 					{sortMode === "date" ? (
@@ -373,9 +337,9 @@ export const WordListUI: React.FC<WordListUIProps> = ({
 				</button>
 			</div>
 
-			<div className="word-list-content search-results-list custom-scroll" style={{ flex: 1, overflowY: "auto", margin: 0 }}>
+			<div className="word-list-content search-results-list custom-scroll">
 				{filteredWords.length === 0 ? (
-					<div className="dict-empty-state" style={{ padding: "20px", textAlign: "center", opacity: 0.7 }}>
+					<div className="dict-empty-state">
 						{emptyMessage}
 					</div>
 				) : (
@@ -384,9 +348,8 @@ export const WordListUI: React.FC<WordListUIProps> = ({
 							key={`${word}-${idx}`}
 							className="headword-item list-item"
 							onClick={() => onItemClick(word, idx)}
-							style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer" }}
 						>
-							<div style={{ flex: 1 }}>
+							<div className="word-info">
 								<Highlighter text={word} searchTerm={searchQuery} />
 								{transliterateSinhala && /[\u0D80-\u0DFF]/.test(word) && (
 									<span className="seld-transliteration"> {transliterateSinhalaTxt(word)}</span>
@@ -409,15 +372,6 @@ export const WordListUI: React.FC<WordListUIProps> = ({
 					))
 				)}
 			</div>
-			<style>{`
-				.list-item .remove-item-btn { opacity: 0; transform: scale(0.8); }
-				.list-item:hover .remove-item-btn { opacity: 0.6; }
-				.list-item .remove-item-btn:hover { opacity: 1; color: #e74c3c; transform: scale(1); }
-				.seld-btn-clear-search:hover { opacity: 1 !important; color: #e74c3c !important; }
-				.seld-btn-danger { background: #e74c3c !important; color: white !important; border-color: #c0392b !important; }
-				.seld-btn-danger:hover { background: #c0392b !important; }
-				.clear-list-btn:hover { color: #e74c3c !important; border-color: #e74c3c !important; }
-			`}</style>
 		</div>
 	);
 }

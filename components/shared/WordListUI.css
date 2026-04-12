@@ -1,0 +1,145 @@
+.word-list-ui {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+
+.word-list-header {
+	display: flex;
+	gap: 8px;
+	padding-bottom: 10px;
+}
+
+.word-list-search-wrapper {
+	position: relative;
+	flex: 1;
+	display: flex;
+	align-items: center;
+}
+
+.word-list-search-wrapper .dict-search-input {
+	flex: 1;
+	margin: 0;
+	padding-right: 30px;
+}
+
+.seld-btn-clear-search {
+	position: absolute;
+	right: 8px;
+	background: none;
+	border: none;
+	padding: 4px;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: inherit;
+	opacity: 0.5;
+	transition: opacity 0.2s;
+}
+
+.seld-btn-clear-search:hover {
+	opacity: 1 !important;
+	color: #e74c3c !important;
+}
+
+.word-list-header .sort-toggle-btn {
+	min-width: 40px;
+	padding: 4px 8px;
+}
+
+.word-list-content {
+	flex: 1;
+	overflow-y: auto;
+	margin: 0;
+}
+
+.word-list-content .dict-empty-state {
+	padding: 20px;
+	text-align: center;
+	opacity: 0.7;
+}
+
+.headword-item.list-item {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	cursor: pointer;
+}
+
+.headword-item .word-info {
+	flex: 1;
+}
+
+/* List Item Interactions */
+.list-item .remove-item-btn {
+	opacity: 0;
+	transform: scale(0.8);
+}
+
+.list-item:hover .remove-item-btn {
+	opacity: 0.6;
+}
+
+.list-item .remove-item-btn:hover {
+	opacity: 1;
+	color: #e74c3c;
+	transform: scale(1);
+}
+
+/* Tippy Popup Styling */
+.download-options-container {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	padding: 6px;
+}
+
+.download-option-btn {
+	text-align: left !important;
+	justify-content: flex-start !important;
+	width: 100% !important;
+	padding: 6px 12px !important;
+	white-space: nowrap !important;
+}
+
+.clear-confirm-container {
+	padding: 12px;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	max-width: 200px;
+}
+
+.clear-confirm-text {
+	font-size: 0.9em;
+	line-height: 1.4;
+	font-weight: 500;
+}
+
+.clear-confirm-actions {
+	display: flex;
+	gap: 8px;
+	justify-content: flex-end;
+}
+
+.clear-confirm-actions .seld-btn {
+	padding: 4px 10px;
+	font-size: 0.85em;
+}
+
+/* Specialized Buttons */
+.seld-btn-danger {
+	background: #e74c3c !important;
+	color: white !important;
+	border-color: #c0392b !important;
+}
+
+.seld-btn-danger:hover {
+	background: #c0392b !important;
+}
+
+.clear-list-btn:hover {
+	color: #e74c3c !important;
+	border-color: #e74c3c !important;
+}
