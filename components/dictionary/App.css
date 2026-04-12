@@ -169,12 +169,13 @@ body {
 	border-radius: 10px;
 	background: var(--bg-color);
 	max-height: calc(100vh - 170px);
+	padding-top: .5rem;
 }
 
 .headword-item {
-	padding: 6px 14px;
+	padding: 0px 14px;
 	cursor: pointer;
-	font-size: 0.88em;
+	/* font-size: 0.88em; */
 	color: var(--text-secondary);
 	border-left: 3px solid transparent;
 	transition: all 0.1s ease;
