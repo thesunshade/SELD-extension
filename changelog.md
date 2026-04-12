@@ -3,6 +3,12 @@
 # Change Log
 
 ## 0.4.4
+* multi-feature entry copy and history/favorite download (markdown, plain text, tsv)
+* Highlight clicked word on page
+* Add second level headings in library books navigation
+* Add alphabet groups to intro Sinhala book
+* Refactor inline css
+* Only do welcome screen on major updates
 
 ## 0.4.3 (2026-04-06)
 * Refactoring and Welcome page improvement
