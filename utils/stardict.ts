@@ -25,11 +25,11 @@ export interface IndexEntry {
 }
 
 const MATCH_EXACT = 0;
-const MATCH_SUFFIX = 1;
-const MATCH_PREFIX = 2;
-const MATCH_CONTAINS = 3;
-const MATCH_FUZZY_EXACT = 4;
-const MATCH_FUZZY_PREFIX = 5;
+const MATCH_SUFFIX = 1;       // Inflected form (e.g., -ේ, -ක්)
+const MATCH_FUZZY_EXACT = 2;  // Normalized word matches exactly (e.g., ZWJ differences)
+const MATCH_PREFIX = 3;       // Word starts with query
+const MATCH_CONTAINS = 4;     // Word contains query
+const MATCH_FUZZY_PREFIX = 5; // Normalized word starts with normalized query
 
 class StarDictParser {
     private idxBuffer: ArrayBuffer | null = null;
@@ -250,6 +250,8 @@ class StarDictParser {
                 // Store fuzzy metrics for final sort
                 m.entry.fuzzyDist = m.dist;
                 m.entry.vowelScore = m.score;
+                
+                // Use FUZZY_EXACT priority for perfect matches after normalization
                 addIfUnique(m.entry, m.isExactFuzzy ? MATCH_FUZZY_EXACT : MATCH_FUZZY_PREFIX);
             }
         }

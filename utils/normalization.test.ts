@@ -19,6 +19,14 @@ describe('normalizeSinhala', () => {
     it('should be case-insensitive (though Sinhala is as well)', () => {
         expect(normalizeSinhala('Test')).toBe('test');
     });
+
+    it('should remove zero-width joiners (ZWJ and ZWNJ)', () => {
+        const withZWJ = 'ක්‍රමවේදය'; // Has ZWJ
+        const withoutZWJ = 'ක්රමවේදය';
+        expect(normalizeSinhala(withZWJ)).toBe(normalizeSinhala(withoutZWJ));
+        expect(normalizeSinhala('අ\u200Dති')).toBe('අත');
+        expect(normalizeSinhala('අ\u200Cති')).toBe('අත');
+    });
 });
 
 describe('levenshteinDistance', () => {
@@ -28,6 +36,11 @@ describe('levenshteinDistance', () => {
         expect(levenshteinDistance('abc', 'ab')).toBe(1);
         expect(levenshteinDistance('පියඹනවා', 'පියාඹනවා')).toBe(1);
     });
+
+    it('should ignore ZWJ/ZWNJ in distance calculations', () => {
+        expect(levenshteinDistance('ක්‍ර', 'ක්ර')).toBe(0);
+        expect(levenshteinDistance('සැප\u200Dයි', 'සැපයි')).toBe(0);
+    });
 });
 
 describe('vowelSimilarityScore', () => {
@@ -36,5 +49,9 @@ describe('vowelSimilarityScore', () => {
         const match1 = 'පැසෙනවා'; // matches 'ෙ', 'ා'
         const match2 = 'පසනවා';   // matches 'ා'
         expect(vowelSimilarityScore(query, match1)).toBeGreaterThan(vowelSimilarityScore(query, match2));
+    });
+
+    it('should ignore ZWJ/ZWNJ in vowel similarity score', () => {
+        expect(vowelSimilarityScore('ක්‍ර', 'ක්ර')).toBe(1.0);
     });
 });

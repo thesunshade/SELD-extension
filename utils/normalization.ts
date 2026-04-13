@@ -5,7 +5,8 @@
 /**
  * Normalizes Sinhala text for fuzzy matching.
  * 1. Removes vowel modifiers (\u0DCA to \u0DDF).
- * 2. Standardizes interchangeable consonants:
+ * 2. Removes zero-width joiners (\u200C, \u200D) which are often "erroneous" in search queries.
+ * 3. Standardizes interchangeable consonants:
  *    - ණ (Murdhaja Na) -> න (Na)
  *    - ළ (Murdhaja La) -> ල (La)
  *    - ෂ (Murdhaja Sa) -> ශ (Taluja Sa)
@@ -13,10 +14,8 @@
 export function normalizeSinhala(text: string): string {
     if (!text) return '';
     
-    // Low-level range for vowel modifiers/signs
-    // \u0DCA: ් (Al-lakuna)
-    // \u0DCE-\u0DDF: Various vowel signs
-    let normalized = text.replace(/[\u0DCA-\u0DDF]/g, '');
+    // Remove vowel modifiers and zero-width characters
+    let normalized = text.replace(/[\u0DCA-\u0DDF\u200C\u200D]/g, '');
     
     // Replace interchangeable consonants
     normalized = normalized.replace(/ණ/g, 'න');
@@ -28,10 +27,14 @@ export function normalizeSinhala(text: string): string {
 
 /**
  * Standard Levenshtein distance algorithm to calculate edit distance between strings.
+ * Zero-width characters (ZWJ, ZWNJ) are ignored to handle "erroneous" characters in search queries.
  */
 export function levenshteinDistance(s1: string, s2: string): number {
-    const m = s1.length;
-    const n = s2.length;
+    const str1 = s1.replace(/[\u200C\u200D]/g, '');
+    const str2 = s2.replace(/[\u200C\u200D]/g, '');
+    
+    const m = str1.length;
+    const n = str2.length;
     const dp: number[][] = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
 
     for (let i = 0; i <= m; i++) dp[i][0] = i;
@@ -39,7 +42,7 @@ export function levenshteinDistance(s1: string, s2: string): number {
 
     for (let i = 1; i <= m; i++) {
         for (let j = 1; j <= n; j++) {
-            if (s1[i - 1] === s2[j - 1]) {
+            if (str1[i - 1] === str2[j - 1]) {
                 dp[i][j] = dp[i - 1][j - 1];
             } else {
                 dp[i][j] = 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
@@ -56,8 +59,12 @@ export function levenshteinDistance(s1: string, s2: string): number {
  * Returns a score between 0.0 and 1.0 based on identical characters.
  */
 export function vowelSimilarityScore(query: string, match: string): number {
-    const queryChars = [...query];
-    const matchChars = [...match];
+    // Strip zero-width characters before scoring
+    const q = query.replace(/[\u200C\u200D]/g, '');
+    const m = match.replace(/[\u200C\u200D]/g, '');
+    
+    const queryChars = [...q];
+    const matchChars = [...m];
     const maxLen = Math.max(queryChars.length, matchChars.length);
     if (maxLen === 0) return 1.0;
     
