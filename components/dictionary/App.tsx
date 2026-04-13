@@ -678,7 +678,7 @@ export default function DictionaryApp() {
 					)}
 
 					{view === "favorites" && (
-						<div className="favorites-panel" style={{ height: "100%" }}>
+						<div className="favorites-panel">
 							<WordListUI
 								items={favorites}
 								transliterateSinhala={transliterateSinhala}
@@ -693,7 +693,7 @@ export default function DictionaryApp() {
 					)}
 
 					{view === "history" && (
-						<div className="history-panel" style={{ height: "100%" }}>
+						<div className="history-panel">
 							<WordListUI
 								items={history}
 								transliterateSinhala={transliterateSinhala}
@@ -730,7 +730,7 @@ export default function DictionaryApp() {
 											? "No matching history entries."
 											: searchQuery.trim()
 												? (
-													<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+													<div className="dict-empty-state-inner">
 														<div>No matching entries found.</div>
 														<CarterFallbackLink searchTerm={searchQuery} />
 													</div>
@@ -742,7 +742,7 @@ export default function DictionaryApp() {
 							const defs = definitionCache.get(entry.word);
 							const isHighlighted = entry.word === highlightedWord;
 							return (
-								<div key={`${entry.word}-${startIndex + idx}`} className={`dictionary-browser-entry-card ${isHighlighted ? "highlighted-card" : ""}`} style={{ minHeight: ITEM_HEIGHT }}>
+								<div key={`${entry.word}-${startIndex + idx}`} className={`dictionary-browser-entry-card ${isHighlighted ? "highlighted-card" : ""}`}>
 									{defs ? (
 										<DefinitionCard
 											word={entry.word}

@@ -74,19 +74,11 @@ const CopyOptionsButton = ({ word, definitionHtml, onCopyClick }: { word: string
 
 					// Construct the DOM nodes natively to avoid React unmout bugs inside Vanilla Tippy
 					const container = document.createElement('div');
-					container.style.display = 'flex';
-					container.style.flexDirection = 'column';
-					container.style.gap = '4px';
-					container.style.padding = '6px';
+					container.className = "abbrev-tippy-container";
 
 					const createOption = (label: string, type: number) => {
 						const btn = document.createElement('button');
-						btn.className = "seld-btn seld-btn-ghost";
-						btn.style.textAlign = "left";
-						btn.style.justifyContent = "flex-start";
-						btn.style.width = "100%";
-						btn.style.padding = "6px 12px";
-						btn.style.whiteSpace = "nowrap";
+						btn.className = "seld-btn seld-btn-ghost abbrev-tippy-option";
 						btn.textContent = label;
 						btn.onclick = () => {
 							handleOptionClick(type);
@@ -206,15 +198,14 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 
 						// Header line with term and abbreviation
 						const header = document.createElement('div');
-						header.setAttribute('style', 'margin-bottom: 4px; padding-right: 18px;');
+						header.className = "abbrev-tippy-header";
 
 						const strong = document.createElement('strong');
-						strong.style.fontSize = '1.1em';
+						strong.className = "abbrev-tippy-title";
 						strong.textContent = data.fullTerm;
 
 						const span = document.createElement('span');
-						span.style.opacity = '0.8';
-						span.style.fontSize = '0.9em';
+						span.className = "abbrev-tippy-meta";
 						span.textContent = ` (${data.abbreviation})`;
 
 						header.appendChild(strong);
@@ -224,15 +215,14 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 						// Description if available
 						if (data.description) {
 							const desc = document.createElement('div');
-							desc.setAttribute('style', 'font-size: 0.95em; line-height: 1.4; padding-top: 4px; border-top: 1px solid rgba(255,255,255,0.2); margin-top: 4px;');
+							desc.className = "abbrev-tippy-desc";
 							desc.textContent = data.description;
 							content.appendChild(desc);
 						}
 
 						// Close button
 						const closeBtn = document.createElement('button');
-						closeBtn.className = 'tippy-close-btn';
-						closeBtn.setAttribute('style', 'position: absolute; top: 4px; right: 4px; background: none; border: none; color: inherit; cursor: pointer; padding: 2px;');
+						closeBtn.className = 'tippy-close-btn abbrev-tippy-close';
 
 						const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
 						svg.setAttribute('width', '14');
@@ -422,7 +412,7 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 
 		const parts = text.split(regex);
 		return parts.map((part, index) =>
-			regex.test(part) ? <span key={index} style={{ backgroundColor: 'rgba(255, 255, 0, 0.4)' }}>{part}</span> : part
+			regex.test(part) ? <span key={index} className="search-highlight">{part}</span> : part
 		);
 	};
 
@@ -459,12 +449,12 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 					case "i":
 					case "em": return <em key={key} className={element.className}>{children}</em>;
 					case "u": return <u key={key} className={element.className}>{children}</u>;
-					case "p": return <p key={key} className={element.className} style={{ color: "inherit" }}>{children}</p>;
-					case "div": return <div key={key} className={element.className} style={{ color: "inherit" }}>{children}</div>;
-					case "span": return <span key={key} className={element.className} style={{ color: "inherit" }}>{children}</span>;
+					case "p": return <p key={key} className={element.className}>{children}</p>;
+					case "div": return <div key={key} className={element.className}>{children}</div>;
+					case "span": return <span key={key} className={element.className}>{children}</span>;
 					case "ul": return <ul key={key} className={element.className}>{children}</ul>;
-					case "li": return <li key={key} className={element.className} style={{ color: "inherit" }}>{children}</li>;
-					case "font": return <span key={key} className={element.className} style={{ color: "inherit" }}>{children}</span>;
+					case "li": return <li key={key} className={element.className}>{children}</li>;
+					case "font": return <span key={key} className={element.className}>{children}</span>;
 					default: return <React.Fragment key={key}>{children}</React.Fragment>;
 				}
 			}
@@ -475,16 +465,16 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 
 	return (
 		<div className="definition-box" ref={containerRef}>
-			<h2 className="def-title" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-				<div style={{ display: "flex", flexDirection: "column" }}>
+			<h2 className="def-title">
+				<div className="def-header-text-container">
 					<span>{highlightText(word)}</span>
 					{transliterateSinhala && /[\u0D80-\u0DFF]/.test(word || "") && (
-						<span className="seld-transliteration" style={{ fontSize: "0.8em", fontWeight: "normal", opacity: 0.8, marginTop: "2px" }}>
+						<span className="seld-transliteration def-transliteration-header">
 							{transliterateSinhalaTxt(word!)}
 						</span>
 					)}
 				</div>
-				<div className="global-actions" style={{ display: "flex", gap: "8px" }}>
+				<div className="global-actions">
 					{showExplorerLink && definition.length === 1 && (
 						<button
 							className="seld-btn seld-btn-secondary seld-btn-icon-circle explorer-link-button"
@@ -500,11 +490,7 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 								strokeWidth="1.8"
 								strokeLinecap="round"
 								strokeLinejoin="round"
-								style={{
-									transform: "scale(1.15)",
-									transformOrigin: "center",
-									overflow: "visible"
-								}}
+								className="explorer-icon-svg"
 							>
 								<path d="M12 6C12 6 13.6875 5 16.5 5C19.3125 5 21 6 21 6V19C21 19 19.3125 18 16.5 18C13.6875 18 12 19 12 19V6Z" fill="currentColor" fillOpacity="0" strokeMiterlimit="10" />
 								<path d="M3 6C3 6 4.6875 5 7.5 5C10.3125 5 12 6 12 6V19C12 19 10.3125 18 7.5 18C4.6875 18 3 19 3 19V6Z" fill="currentColor" fillOpacity="0" strokeMiterlimit="10" />
@@ -562,16 +548,16 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 			</h2>
 			<div className="definition-content">
 				{definition.length === 0 ? (
-					<div className="not-found-message" style={{ padding: "8px 0" }}>
-						<div style={{ fontStyle: "italic", opacity: 0.8 }}>Not in the SELD</div>
+					<div className="not-found-message">
+						<div className="not-found-text">Not in the SELD</div>
 						<CarterFallbackLink searchTerm={word} />
 					</div>
 				) : (
 					definition.map((block, bIdx) => (
-						<div key={bIdx} className="synthesized-section" style={{ marginBottom: bIdx < definition.length - 1 ? "16px" : "0" }}>
+						<div key={bIdx} className="synthesized-section">
 							{definition.length > 1 && (
 								<div className="synthesized-header">
-									<div style={{ display: "flex", flexDirection: "column" }}>
+									<div className="def-header-text-container">
 										<span
 											className="synthesized-header-text"
 											onClick={() => {
@@ -581,19 +567,19 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 											{highlightText(block.headword)}
 										</span>
 										{transliterateSinhala && /[\u0D80-\u0DFF]/.test(block.headword) && (
-											<span className="seld-transliteration" style={{ fontSize: "0.8em", fontWeight: "normal", opacity: 0.8, marginTop: "2px" }}>
+											<span className="seld-transliteration def-transliteration-header">
 												{transliterateSinhalaTxt(block.headword)}
 											</span>
 										)}
 									</div>
-									<div style={{ display: "flex", gap: "8px", opacity: 0.8, transform: "scale(0.85)" }}>
+									<div className="header-actions-small">
 										{showExplorerLink && (
 											<button
 												className="seld-btn seld-btn-secondary seld-btn-icon-circle explorer-link-button"
 												onClick={() => onExplorerClick?.(block.headword)}
 												data-tippy-content="Show in Dictionary Explorer"
 											>
-												<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+												<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="explorer-icon-svg">
 													<path d="M12 6C12 6 13.6875 5 16.5 5C19.3125 5 21 6 21 6V19C21 19 19.3125 18 16.5 18C13.6875 18 12 19 12 19V6Z" fill="currentColor" fillOpacity="0" strokeMiterlimit="10" />
 													<path d="M3 6C3 6 4.6875 5 7.5 5C10.3125 5 12 6 12 6V19C12 19 10.3125 18 7.5 18C4.6875 18 3 19 3 19V6Z" fill="currentColor" fillOpacity="0" strokeMiterlimit="10" />
 												</svg>
@@ -626,11 +612,11 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 							{block.homographDefinitions.map((homograph, hIdx) => (
 								<div key={hIdx}>
 									{renderHtmlDefinition(homograph)}
-									{hIdx < block.homographDefinitions.length - 1 && <hr className="homograph-separator" style={{ margin: "8px 0" }} />}
+									{hIdx < block.homographDefinitions.length - 1 && <hr className="homograph-separator" />}
 								</div>
 							))}
 
-							{bIdx < definition.length - 1 && <hr style={{ margin: "16px 0", border: "none", borderTop: "2px dashed var(--border-color)" }} />}
+							{bIdx < definition.length - 1 && <hr className="synthesized-section-divider" />}
 						</div>
 					)))}
 			</div>
