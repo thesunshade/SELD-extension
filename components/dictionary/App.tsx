@@ -417,7 +417,7 @@ export default function DictionaryApp() {
 		historyIndex.current = -1;
 		browser.storage.local.set({ seldSearchHistory: [] });
 	};
-    
+
 	const clearFavorites = () => {
 		setFavorites([]);
 		browser.storage.local.set({ seldFavorites: [] });
@@ -639,8 +639,10 @@ export default function DictionaryApp() {
 							/>
 							<input type="text" className="dict-search-input" placeholder="Search..." value={searchQuery} onChange={e => { setSearchQuery(e.target.value); setFallbackSearchQuery(""); }} autoFocus />
 							<div className="search-scope-toggle">
-								<button className={`seld-btn seld-btn-secondary scope-btn ${searchScope === "headwords" ? "active" : ""}`} onClick={() => setSearchScope("headwords")}>Headwords</button>
-								<button className={`seld-btn seld-btn-secondary scope-btn ${searchScope === "fulltext" ? "active" : ""}`} onClick={() => setSearchScope("fulltext")}>Full Text</button>
+								<button className={`seld-btn seld-btn-secondary scope-btn ${searchScope === "headwords" ? "active" : ""}`} onClick={() => setSearchScope("headwords")}
+									data-tippy-content="Search headwords only, using a fuzzy matching pattern.">Headwords</button>
+								<button className={`seld-btn seld-btn-secondary scope-btn ${searchScope === "fulltext" ? "active" : ""}`} onClick={() => setSearchScope("fulltext")}
+									data-tippy-content="Search definitions as well as headwords, using exact and partial search.">Full Text</button>
 							</div>
 							<div className="search-results-list custom-scroll">
 								{searchResults.map((entry, idx) => (
