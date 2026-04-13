@@ -156,7 +156,7 @@
 
 .search-input {
   width: 100%;
-  padding: 0.7em 2.4em 0.7em 1em;
+  padding: 0.7em 4.2em 0.7em 1em;
   border-radius: 8px;
   border: 1px solid var(--border-color);
   background: var(--input-bg);
@@ -170,13 +170,26 @@
   align-items: center;
 }
 
-.search-copy-btn {
+.search-input-actions {
   position: absolute;
-  right: 8px;
+  right: 6px;
   top: 50%;
   transform: translateY(-50%);
+  display: flex;
+  gap: 0px;
+  align-items: center;
+}
+
+.search-copy-btn, .search-explorer-btn {
   color: var(--text-secondary);
-  padding: 2px;
+  padding: 4px;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.search-copy-btn:hover, .search-explorer-btn:hover {
+  opacity: 1;
+  color: var(--accent);
 }
 
 .search-input:focus {

@@ -284,7 +284,7 @@ function App({ onClose, inline }: AppProps) {
 
   useEffect(() => {
     if (view !== "search") return;
-    
+
     if (searchTriggeredByInteraction.current) {
       searchTriggeredByInteraction.current = false;
       return;
@@ -476,8 +476,8 @@ function App({ onClose, inline }: AppProps) {
     }
   };
 
-  const handleExplorerClick = (word: string) => {
-    browser.runtime.sendMessage({ action: 'OPEN_EXPLORER', word });
+  const handleExplorerClick = (word: string, view?: string) => {
+    browser.runtime.sendMessage({ action: 'OPEN_EXPLORER', word, view });
   };
 
   const startVerticalResizing = () => {
@@ -623,27 +623,48 @@ function App({ onClose, inline }: AppProps) {
                 className="search-input"
               />
               {query && (
-                <button
-                  className="seld-btn seld-btn-ghost seld-btn-icon-circle search-copy-btn"
-                  data-tippy-content="Copy search text"
-                  onClick={async () => {
-                    try {
-                      await navigator.clipboard.writeText(query);
-                      setToastMessage("Copied!");
-                      setShowToast(true);
-                      setTimeout(() => setShowToast(false), 2000);
-                    } catch {
-                      setToastMessage("Failed to copy");
-                      setShowToast(true);
-                      setTimeout(() => setShowToast(false), 2000);
-                    }
-                  }}
-                >
-                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                  </svg>
-                </button>
+                <div className="search-input-actions">
+                  <button
+                    className="seld-btn seld-btn-ghost seld-btn-icon-circle search-explorer-btn"
+                    data-tippy-content="Open in Dictionary Explorer"
+                    onClick={() => handleExplorerClick(query, 'search')}
+                  >
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M12 6C12 6 13.6875 5 16.5 5C19.3125 5 21 6 21 6V19C21 19 19.3125 18 16.5 18C13.6875 18 12 19 12 19V6Z" fill="currentColor" fillOpacity="0" strokeMiterlimit="10" />
+                      <path d="M3 6C3 6 4.6875 5 7.5 5C10.3125 5 12 6 12 6V19C12 19 10.3125 18 7.5 18C4.6875 18 3 19 3 19V6Z" fill="currentColor" fillOpacity="0" strokeMiterlimit="10" />
+                    </svg>
+                  </button>
+                  <button
+                    className="seld-btn seld-btn-ghost seld-btn-icon-circle search-copy-btn"
+                    data-tippy-content="Copy search text"
+                    onClick={async () => {
+                      try {
+                        await navigator.clipboard.writeText(query);
+                        setToastMessage("Copied!");
+                        setShowToast(true);
+                        setTimeout(() => setShowToast(false), 2000);
+                      } catch {
+                        setToastMessage("Failed to copy");
+                        setShowToast(true);
+                        setTimeout(() => setShowToast(false), 2000);
+                      }
+                    }}
+                  >
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                  </button>
+                </div>
               )}
             </div>
           </div>

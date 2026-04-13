@@ -169,6 +169,7 @@ body {
 	border-radius: 10px;
 	background: var(--bg-color);
 	max-height: calc(100vh - 230px);
+	min-height: 6rem;
 	padding-top: .5rem;
 }
 

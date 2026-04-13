@@ -100,6 +100,86 @@ export default function DictionaryApp() {
 			char.trim() === "";
 	};
 
+	// --- Core Callbacks ---
+	const performSearch = useCallback(async (q: string, booster?: string) => {
+		if (!q.trim()) { setSearchResults([]); setIsSearching(false); return; }
+		setIsSearching(true);
+
+		let boosterMatches: IndexEntry[] = [];
+		let boosterExact: IndexEntry | undefined;
+
+		if (booster) {
+			const bSanitized = booster.trim();
+			const bMatches = searchScope === "headwords"
+				? await stardict.searchWords(bSanitized, 5)
+				: await stardict.searchFullText(bSanitized, 5);
+
+			boosterExact = bMatches.find(m => m.word.toLowerCase() === bSanitized.toLowerCase()) || bMatches.find(m => m.isSynthesizedMatch);
+			if (boosterExact) {
+				boosterMatches = bMatches;
+			}
+		}
+
+		let results = searchScope === "headwords"
+			? await stardict.searchWords(q, DEFAULT_SEARCH_LIMIT)
+			: await stardict.searchFullText(q, DEFAULT_SEARCH_LIMIT);
+
+		if (boosterExact) {
+			const merged = [...boosterMatches];
+			const seen = new Set(merged.map(m => m.word));
+			for (const r of results) {
+				if (!seen.has(r.word)) {
+					merged.push(r);
+				}
+			}
+			results = merged;
+		}
+
+		setSearchResults(results);
+		setIsSearching(false);
+		if (bookViewRef.current) { bookViewRef.current.scrollTop = 0; setScrollTop(0); }
+	}, [searchScope]);
+
+	const jumpToPrefix = useCallback((prefix: string, isFromScroll = false, index?: number, forceView?: ViewTab) => {
+		const effectiveView = forceView || (view === "settings" ? lastContentView.current : view);
+		let entries: IndexEntry[] = [];
+		if (effectiveView === "browse") entries = allEntries;
+		else if (effectiveView === "search") entries = searchResults;
+		else if (effectiveView === "history") entries = historyFiltered.map(w => ({ word: w } as IndexEntry));
+		else if (effectiveView === "favorites") entries = favoritesFiltered.map(w => ({ word: w } as IndexEntry));
+
+		if (entries.length === 0) return;
+
+		let targetIndex = index;
+		if (targetIndex === undefined) {
+			targetIndex = entries.findIndex(e => getEffectiveWord(e.word).startsWith(prefix));
+		}
+
+		if (targetIndex === -1 || targetIndex === undefined) return;
+
+		if (!isFromScroll) {
+			isManualJump.current = true;
+			if (bookViewRef.current) {
+				const targetScroll = targetIndex * ITEM_HEIGHT;
+				bookViewRef.current.scrollTop = targetScroll;
+				setScrollTop(targetScroll);
+				setHighlightedWord(entries[targetIndex].word);
+			}
+			setTimeout(() => { isManualJump.current = false; }, 100);
+		}
+	}, [allEntries, searchResults, historyFiltered, favoritesFiltered, view]);
+
+	const handleExplorerLinkClick = useCallback((word: string) => {
+		const index = allEntries.findIndex(e => e.word === word);
+		if (index !== -1) {
+			setView("browse");
+			setHighlightedWord(word);
+			setTimeout(() => {
+				jumpToPrefix(word, false, index);
+			}, 50);
+		}
+	}, [allEntries, jumpToPrefix]);
+
 	// --- Load settings ---
 	useEffect(() => {
 		const settingsConfig: Record<string, (val: any) => void> = {
@@ -229,63 +309,7 @@ export default function DictionaryApp() {
 		setTertiaryPrefixes(Array.from(tertiaries).sort((a, b) => a.localeCompare(b, "si")));
 	}, [selectedLetter, selectedPrefix, allEntries]);
 
-	const jumpToPrefix = useCallback((prefix: string, isFromScroll = false, index?: number) => {
-		const currentView = view === "settings" ? lastContentView.current : view;
-		let entries: IndexEntry[] = [];
-		if (currentView === "browse") entries = allEntries;
-		else if (currentView === "search") entries = searchResults;
-		else if (currentView === "history") entries = historyFiltered.map(w => ({ word: w } as IndexEntry));
-		else if (currentView === "favorites") entries = favoritesFiltered.map(w => ({ word: w } as IndexEntry));
 
-		if (entries.length === 0) return;
-
-		let targetIndex = index;
-		if (targetIndex === undefined) {
-			targetIndex = entries.findIndex(e => getEffectiveWord(e.word).startsWith(prefix));
-		}
-
-		if (targetIndex === -1 || targetIndex === undefined) return;
-
-		if (!isFromScroll) {
-			isManualJump.current = true;
-			if (bookViewRef.current) {
-				const targetScroll = targetIndex * ITEM_HEIGHT;
-				bookViewRef.current.scrollTop = targetScroll;
-				setScrollTop(targetScroll);
-				setHighlightedWord(entries[targetIndex].word);
-			}
-			setTimeout(() => { isManualJump.current = false; }, 100);
-		}
-	}, [allEntries, searchResults, historyFiltered, favoritesFiltered, view]);
-
-	const handleExplorerLinkClick = useCallback((word: string) => {
-		const index = allEntries.findIndex(e => e.word === word);
-		if (index !== -1) {
-			setView("browse");
-			setHighlightedWord(word);
-			setTimeout(() => {
-				jumpToPrefix(word, false, index);
-			}, 50);
-		}
-	}, [allEntries, jumpToPrefix]);
-
-	// --- Handle Word from URL ---
-	useEffect(() => {
-		const params = new URLSearchParams(window.location.search);
-		const word = params.get("word");
-		if (word && allEntries.length > 0) {
-			const index = allEntries.findIndex(e => e.word === word);
-			if (index !== -1) {
-				setView("browse");
-				// Clear the word param so it doesn't jump back on settings/search toggle
-				window.history.replaceState({}, document.title, window.location.pathname);
-
-				setTimeout(() => {
-					jumpToPrefix(word, false, index);
-				}, 100);
-			}
-		}
-	}, [allEntries, jumpToPrefix]);
 
 	// --- Handlers ---
 	const handleLetterClick = (letter: string) => {
@@ -320,45 +344,34 @@ export default function DictionaryApp() {
 		}
 	};
 
-	// --- Virtualization & Search Sync ---
-	const performSearch = useCallback(async (q: string, booster?: string) => {
-		if (!q.trim()) { setSearchResults([]); setIsSearching(false); return; }
-		setIsSearching(true);
+	useEffect(() => {
+		const params = new URLSearchParams(window.location.search);
+		const word = params.get("word");
+		const viewParam = params.get("view") as ViewTab | null;
 
-		let boosterMatches: IndexEntry[] = [];
-		let boosterExact: IndexEntry | undefined;
+		if (word && allEntries.length > 0) {
+			// Clear the word param so it doesn't jump back on settings/search toggle
+			// window.history.replaceState({}, document.title, window.location.pathname);
 
-		if (booster) {
-			const bSanitized = booster.trim();
-			const bMatches = searchScope === "headwords"
-				? await stardict.searchWords(bSanitized, 5)
-				: await stardict.searchFullText(bSanitized, 5);
-
-			boosterExact = bMatches.find(m => m.word.toLowerCase() === bSanitized.toLowerCase()) || bMatches.find(m => m.isSynthesizedMatch);
-			if (boosterExact) {
-				boosterMatches = bMatches;
-			}
-		}
-
-		let results = searchScope === "headwords"
-			? await stardict.searchWords(q, DEFAULT_SEARCH_LIMIT)
-			: await stardict.searchFullText(q, DEFAULT_SEARCH_LIMIT);
-
-		if (boosterExact) {
-			const merged = [...boosterMatches];
-			const seen = new Set(merged.map(m => m.word));
-			for (const r of results) {
-				if (!seen.has(r.word)) {
-					merged.push(r);
+			if (viewParam === "search") {
+				setView("search");
+				setSearchQuery(word);
+				performSearch(word);
+			} else {
+				const index = allEntries.findIndex(e => e.word === word);
+				if (index !== -1) {
+					setView("browse");
+					setHighlightedWord(word);
+					setTimeout(() => {
+						jumpToPrefix(word, false, index, "browse");
+					}, 100);
 				}
 			}
-			results = merged;
 		}
+	}, [allEntries, window.location.search, jumpToPrefix, performSearch]);
 
-		setSearchResults(results);
-		setIsSearching(false);
-		if (bookViewRef.current) { bookViewRef.current.scrollTop = 0; setScrollTop(0); }
-	}, [searchScope]);
+	// --- Virtualization & Search Sync ---
+
 
 	// Debounced history push — fires 1.5 s after the query settles
 	useEffect(() => {

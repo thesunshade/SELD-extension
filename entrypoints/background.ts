@@ -76,8 +76,8 @@ export default defineBackground(() => {
             });
             sendResponse({ success: true });
         } else if (message.action === 'OPEN_EXPLORER') {
-            const { word } = message;
-            const url = browser.runtime.getURL(`/dictionary.html?word=${encodeURIComponent(word || '')}`);
+            const { word, view } = message;
+            const url = browser.runtime.getURL(`/dictionary.html?word=${encodeURIComponent(word || '')}${view ? `&view=${view}` : ''}`);
 
             if (explorerTabId !== null) {
                 browser.tabs.get(explorerTabId)
