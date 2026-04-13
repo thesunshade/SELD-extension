@@ -10,6 +10,7 @@
 * Add alphabet groups to intro Sinhala book
 * Refactor inline css
 * Only do welcome screen on major updates
+* Updated dictionary file
 
 ## 0.4.3 (2026-04-06)
 * Refactoring and Welcome page improvement
