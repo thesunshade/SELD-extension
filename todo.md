@@ -6,6 +6,8 @@
 
 
 ## Improvements
+- [ ] sidebar search field needs dict browser button
+- [ ] no result found msg should be in definition area so that non-perect matches can see the suggest link
 - [ ] transliteration feature appears to inject inline css instead of using classes. This styling should probably be elevated to `theme.css`
 - [ ] `.dict-toast` needs to be DRY
 - [ ] There should probably be some limit to the "distance" of fuzzy search results. If there are more than two variants, it's probaby not a good potential match.
