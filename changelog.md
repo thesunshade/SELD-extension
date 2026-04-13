@@ -2,6 +2,9 @@
 
 # Change Log
 
+## 0.4.5
+
+
 ## 0.4.4 (2026-04-13)
 * multi-feature entry copy and history/favorite download (markdown, plain text, tsv)
 * Highlight clicked word on page
