@@ -1,6 +1,10 @@
 import mahameghaCSS from '../assets/site-patches/mahamegha.lk.css?raw';
 import redditCSS from '../assets/site-patches/reddit.com.css?raw';
 import wikipediaCSS from '../assets/site-patches/wikipedia.org.css?raw';
+import adaderanaCSS from '../assets/site-patches/adaderana.lk.css?raw';
+import newsLkCSS from '../assets/site-patches/news.lk.css?raw';
+import hirunewsLkCSS from '../assets/site-patches/hirunews.lk.css?raw';
+import lankadeepaLkCSS from '../assets/site-patches/lankadeepa.lk.css?raw';
 
 const SITE_PATCH_ID = 'seld-site-patch';
 
@@ -11,6 +15,10 @@ const SITE_PATCHES: Record<string, string> = {
     'mahamegha.lk': mahameghaCSS,
     'reddit.com': redditCSS,
     'wikipedia.org': wikipediaCSS,
+    'adaderana.lk': adaderanaCSS,
+    'news.lk': newsLkCSS,
+    'hirunews.lk': hirunewsLkCSS,
+    'lankadeepa.lk': lankadeepaLkCSS
 };
 
 /**

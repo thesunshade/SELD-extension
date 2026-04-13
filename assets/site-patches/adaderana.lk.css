@@ -1,0 +1,20 @@
+/* Hide the sidebar on adaderana.lk */
+.col-sm-4,
+.sidebar,
+.right-sidebar,
+.side-bar {
+    display: none !important;
+}
+
+/* Expand main content to full width */
+.col-sm-8 {
+    width: 100% !important;
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+}
+
+@media (min-width: 768px) {
+    .container {
+        width: auto;
+    }
+}

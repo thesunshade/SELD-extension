@@ -1,0 +1,11 @@
+/* Hide sidebar on lankadeepa.lk */
+.main-top-block>.row>.col-lg-3 {
+    display: none !important;
+}
+
+/* Expand main article content to full width */
+.main-top-block>.row>.col-lg-9 {
+    width: 100% !important;
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+}

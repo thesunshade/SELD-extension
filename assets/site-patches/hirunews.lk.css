@@ -1,0 +1,11 @@
+    /* Hide sidebar on hirunews.lk */
+    .single_news .article-content-wrp.col-lg-4 {
+        display: none !important;
+    }
+
+    /* Expand main article content to full width */
+    .single_news .article-content.col-lg-8 {
+        width: 100% !important;
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+    }

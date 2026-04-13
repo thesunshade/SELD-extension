@@ -1,0 +1,11 @@
+    /* Hide sidebar on sinhala.news.lk */
+    #sp-right {
+        display: none !important;
+    }
+
+    /* Expand main content to full width */
+    #sp-component {
+        width: 100% !important;
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+    }
