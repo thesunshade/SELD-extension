@@ -2,9 +2,10 @@
 
 # Change Log
 
-## 0.4.4
+## 0.4.4 (2026-04-13)
 * multi-feature entry copy and history/favorite download (markdown, plain text, tsv)
 * Highlight clicked word on page
+* add dictionary browser button in the sidebar search input field
 * Add second level headings in library books navigation
 * Add alphabet groups to intro Sinhala book
 * Refactor inline css
