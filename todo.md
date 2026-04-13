@@ -6,7 +6,6 @@
 
 
 ## Improvements
-- [ ] sidebar search field needs dict browser button
 - [ ] no result found msg should be in definition area so that non-perect matches can see the suggest link
 - [ ] transliteration feature appears to inject inline css instead of using classes. This styling should probably be elevated to `theme.css`
 - [ ] `.dict-toast` needs to be DRY
@@ -65,3 +64,4 @@
 - [ ] for suffix type headwords when the suffix starts with a dash and then a combining vowel, two non-breaking spaces should be inserted betweeen the vowel and the dash MAYBE FIXED??
 - [x] grammar overview page that provides an interface for lists.xml data, including an alphabet chart
 - [x] it appears that `.seld-transliteration` style is in two places.
+- [x] sidebar search field needs dict browser button
