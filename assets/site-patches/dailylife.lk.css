@@ -1,0 +1,10 @@
+/* Hide sidebar on dailylife.lk */
+#right-bar-container {
+    display: none !important;
+}
+
+/* Expand main article content to full width */
+#article-content-wrapper {
+    flex: 1 1 100% !important;
+    max-width: 100% !important;
+}
