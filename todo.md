@@ -7,7 +7,6 @@
 
 ## Improvements
 - [ ] no result found msg should be in definition area so that non-perect matches can see the suggest link
-- [ ] transliteration feature appears to inject inline css instead of using classes. This styling should probably be elevated to `theme.css`
 - [ ] `.dict-toast` needs to be DRY
 - [ ] There should probably be some limit to the "distance" of fuzzy search results. If there are more than two variants, it's probaby not a good potential match.
 - [ ] single click or double click option
@@ -15,11 +14,11 @@
 - [ ] font size of definition is too big relative to the rest of the sidebar. See sccreenshots
 
 ## Possible new features
-- [ ] underline should be one of three options: off, bold, subtle
 - [ ] when word is not found, try to break into existing words
 
 
 ## On hold
+- [ ] underline should be one of three options: off, bold, subtle
 - [ ] homograph numbers need to be styled in synonym, component parts section. See වන්දනාමාන. It appears that these are not easily accessed.
 - [ ] links to other dictionaries
 
@@ -65,3 +64,4 @@
 - [x] grammar overview page that provides an interface for lists.xml data, including an alphabet chart
 - [x] it appears that `.seld-transliteration` style is in two places.
 - [x] sidebar search field needs dict browser button
+- [x] transliteration feature appears to inject inline css instead of using classes. This styling should probably be elevated to `theme.css`
