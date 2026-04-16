@@ -18,22 +18,18 @@ export const InfoUI: React.FC = () => {
             <p>Double click or select words on any web page to look up. You can also use the Dictionary Explorer to browse entries alphabetically.</p>
             <p>Text to speech provided by Google.</p>
 
-            <details>
-                <summary>Pages to try</summary>
-                <p style={{ marginTop: "1em", fontSize: "0.9em" }}>The following pages have good coverage in the SELD</p>
-                <ul className="test-sites">
-                    <li>
-                        <a rel="noreferrer" target="_blank" href="https://mahamegha.lk/2022/04/23/sirapa-wandanawa/">
-                            සිරිපා වන්දනාවේ ගිය ගැමි කවියෝ
-                        </a>
-                    </li>
-                    <li>
-                        <a rel="noreferrer" target="_blank" href="https://tripitaka.online/sutta/7478">
-                            අංගුත්තර නිකාය තික නිපාතෝ 3.1.1.1.{" "}
-                        </a>
-                    </li>
-                </ul>
-            </details>
+            <h2>
+                Test drive
+            </h2>
+            <p><a
+                href={browser.runtime.getURL("/explore.html")}
+                onClick={(e) => {
+                    e.preventDefault();
+                    browser.runtime.sendMessage({ action: 'OPEN_URL', url: browser.runtime.getURL("/explore.html") });
+                }}
+            >
+                Here are some pages
+            </a> to try out the extension on.</p>
         </div>
     );
 };

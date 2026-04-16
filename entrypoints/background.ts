@@ -96,6 +96,9 @@ export default defineBackground(() => {
                 });
             }
             sendResponse({ success: true });
+        } else if (message.action === 'OPEN_URL') {
+            browser.tabs.create({ url: message.url });
+            sendResponse({ success: true });
         }
         return true;
     });
