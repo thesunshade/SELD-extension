@@ -166,3 +166,85 @@
   border: 1px solid var(--border-color);
   border-radius: 12px;
 }
+
+/* ---- Sinhala Font Picker ---- */
+.seld-font-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4em;
+  position: relative;
+  margin-top: 0.6em;
+}
+
+.seld-font-picker-trigger {
+  width: 100%;
+  justify-content: flex-start;
+  gap: 0.6em;
+  padding: 0.45em 0.7em;
+  text-align: left;
+}
+
+.seld-font-picker-label {
+  font-size: 0.85em;
+  font-weight: 600;
+  color: var(--text-primary);
+  min-width: 5em;
+  flex-shrink: 0;
+}
+
+.seld-font-picker-sample {
+  font-size: 1em;
+  color: var(--text-secondary);
+  flex: 1;
+}
+
+.seld-font-picker-chevron {
+  margin-left: auto;
+  flex-shrink: 0;
+  color: var(--text-secondary);
+}
+
+.seld-font-picker-list {
+  list-style: none;
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  overflow: hidden;
+}
+
+.seld-font-picker-option {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  padding: 0.5em 0.8em;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.seld-font-picker-option:hover {
+  background: var(--accent-bg);
+}
+
+.seld-font-picker-option.selected {
+  background: var(--accent-bg);
+  color: var(--accent);
+}
+
+.seld-font-picker-option-label {
+  font-size: 0.8em;
+  font-weight: 600;
+  min-width: 5em;
+  flex-shrink: 0;
+  color: inherit;
+}
+
+.seld-font-picker-option-sample {
+  font-size: 1em;
+  color: var(--text-secondary);
+}

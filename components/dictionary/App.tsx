@@ -34,6 +34,7 @@ export default function DictionaryApp() {
 	const [overrideSinhalaFont, setOverrideSinhalaFont] = useState(false);
 	const [transliterateSinhala, setTransliterateSinhala] = useState(false);
 	const [sitePatches, setSitePatches] = useState(false);
+	const [sinhalaFont, setSinhalaFont] = useState("Noto Sans Sinhala");
 
 	// Browse state
 	const [allEntries, setAllEntries] = useState<IndexEntry[]>([]);
@@ -191,6 +192,7 @@ export default function DictionaryApp() {
 			seldOverrideSinhalaFont: v => setOverrideSinhalaFont(v as boolean),
 			transliterateSinhala: v => setTransliterateSinhala(v as boolean),
 			seldSitePatches: v => setSitePatches(v as boolean),
+			seldSinhalaFont: v => setSinhalaFont(v as string),
 			seldSearchHistory: v => {
 				if (Array.isArray(v)) {
 					setHistory(v);
@@ -559,7 +561,7 @@ export default function DictionaryApp() {
 		: (theme === "dark" ? "dark-theme" : "light-theme");
 
 	return (
-		<div ref={appRef} className={`dict-explorer seld-theme-vars ${themeClass}`} style={{ "--font-size-percent": `${fontSize}%` } as any}>
+		<div ref={appRef} className={`dict-explorer seld-theme-vars ${themeClass}`} style={{ "--font-size-percent": `${fontSize}%`, "--sinhala-font": sinhalaFont === "system" ? "__seld_system__" : sinhalaFont } as any}>
 			<aside className="dict-sidebar">
 				<div className="dict-tabs">
 					<button data-tippy-content="Browse" className={`seld-btn seld-tab-folder dict-tab ${view === "browse" ? "active" : ""}`} onClick={() => setView("browse")}>
@@ -673,6 +675,8 @@ export default function DictionaryApp() {
 							setTransliterateSinhala={setTransliterateSinhala}
 							sitePatches={sitePatches}
 							setSitePatches={setSitePatches}
+							sinhalaFont={sinhalaFont}
+							setSinhalaFont={setSinhalaFont}
 							saveSetting={saveSetting}
 						/>
 					)}

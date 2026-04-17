@@ -77,14 +77,14 @@ export default defineContentScript({
             if (ui) return;
 
             // Load position and apply class
-            const res = await browser.storage.local.get(['seldSidebarPosition', 'seldOverrideSinhalaFont']);
+            const res = await browser.storage.local.get(['seldSidebarPosition', 'seldOverrideSinhalaFont', 'seldSinhalaFont']);
             const rawPosition = res.seldSidebarPosition;
             const position = (rawPosition === 'left' || rawPosition === 'right') ? rawPosition : 'right';
             updateSidebarPositionClass(position);
 
             // Apply font override if enabled and sidebar is being opened
             if (res.seldOverrideSinhalaFont) {
-                applyFontOverride(true);
+                applyFontOverride(true, res.seldSinhalaFont as string | undefined);
             }
 
             document.documentElement.classList.add('seld-active');
@@ -148,7 +148,15 @@ export default defineContentScript({
         };
 
         const FONT_STYLE_ID = 'seld-font-override';
-        const applyFontOverride = (enabled: boolean) => {
+
+        // Maps the storage font value to the font file name bundled in the extension
+        const SINHALA_FONT_FILES: Record<string, string> = {
+            'Noto Sans Sinhala': 'NotoSansSinhala-VariableFont_wdth,wght.ttf',
+            'Google Sans':       'GoogleSans-VariableFont_GRAD,opsz,wght-EnglishSinhala.ttf',
+            'Abhaya Libre':      'AbhayaLibre-Regular.ttf',
+        };
+
+        const applyFontOverride = (enabled: boolean, fontName?: string) => {
             let styleEl = document.getElementById(FONT_STYLE_ID);
             if (enabled) {
                 if (!styleEl) {
@@ -156,20 +164,32 @@ export default defineContentScript({
                     styleEl.id = FONT_STYLE_ID;
                     document.head.appendChild(styleEl);
                 }
-                const fontUrl = (browser.runtime.getURL as any)('assets/fonts/NotoSansSinhala-VariableFont_wdth,wght.ttf');
-                styleEl.textContent = `
-                    @font-face {
-                        font-family: 'SeldNotoSansSinhala';
-                        src: url('${fontUrl}') format('truetype');
-                        font-weight: normal;
-                        font-style: normal;
-                        font-display: swap;
-                    }
-                    /* Aggressive override for everything EXCEPT the sidebar subtree */
-                    *:not(#seld-sidebar-root):not(#seld-sidebar-root *) {
-                        font-family: 'SeldNotoSansSinhala', 'Noto Sans Sinhala', sans-serif !important;
-                    }
-                `;
+                const resolvedFont = fontName || 'Noto Sans Sinhala';
+                
+                if (resolvedFont === 'system') {
+                    styleEl.textContent = `
+                        /* Aggressive override for everything EXCEPT the sidebar subtree */
+                        *:not(#seld-sidebar-root):not(#seld-sidebar-root *) {
+                            font-family: sans-serif !important;
+                        }
+                    `;
+                } else {
+                    const fileName = SINHALA_FONT_FILES[resolvedFont] ?? SINHALA_FONT_FILES['Noto Sans Sinhala'];
+                    const fontUrl = (browser.runtime.getURL as any)(`assets/fonts/${fileName}`);
+                    styleEl.textContent = `
+                        @font-face {
+                            font-family: 'SeldSinhalaOverride';
+                            src: url('${fontUrl}') format('truetype');
+                            font-weight: normal;
+                            font-style: normal;
+                            font-display: swap;
+                        }
+                        /* Aggressive override for everything EXCEPT the sidebar subtree */
+                        *:not(#seld-sidebar-root):not(#seld-sidebar-root *) {
+                            font-family: 'SeldSinhalaOverride', '${resolvedFont}', sans-serif !important;
+                        }
+                    `;
+                }
             } else {
                 styleEl?.remove();
             }
@@ -185,8 +205,18 @@ export default defineContentScript({
                     const enabled = changes.seldOverrideSinhalaFont.newValue as boolean;
                     // Only apply/remove font override if sidebar is open or we are explicitly turning it off
                     if (isSidebarOpen || !enabled) {
-                        applyFontOverride(enabled);
+                        browser.storage.local.get('seldSinhalaFont').then(r => {
+                            applyFontOverride(enabled, r.seldSinhalaFont as string | undefined);
+                        });
                     }
+                }
+                if (changes.seldSinhalaFont && isSidebarOpen) {
+                    // Re-apply the override with the new font if the override is currently active
+                    browser.storage.local.get('seldOverrideSinhalaFont').then(r => {
+                        if (r.seldOverrideSinhalaFont) {
+                            applyFontOverride(true, changes.seldSinhalaFont.newValue as string);
+                        }
+                    });
                 }
                 if (changes.seldSidebarPosition && isSidebarOpen) {
                     const nextPosition = changes.seldSidebarPosition.newValue;

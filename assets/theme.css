@@ -7,6 +7,38 @@
 }
 
 @font-face {
+	font-family: 'Abhaya Libre';
+	src: url('~/assets/fonts/AbhayaLibre-Regular.ttf') format('truetype');
+	font-weight: normal;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'Abhaya Libre';
+	src: url('~/assets/fonts/AbhayaLibre-Bold.ttf') format('truetype');
+	font-weight: bold;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'Google Sans';
+	src: url('~/assets/fonts/GoogleSans-VariableFont_GRAD,opsz,wght-EnglishSinhala.ttf') format('truetype');
+	font-weight: 200 800;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'Google Sans';
+	src: url('~/assets/fonts/GoogleSans-Italic-VariableFont_GRAD,opsz,wght-EnglishSinhala.ttf') format('truetype');
+	font-weight: 200 800;
+	font-style: italic;
+	font-display: swap;
+}
+
+@font-face {
 	font-family: 'Noto Sans';
 	src: url('~/assets/fonts/NotoSans-VariableFont_wdth,wght.ttf') format('truetype');
 	font-weight: 200 800;
@@ -24,7 +56,7 @@
 
 body *,
 html {
-	font-family: "Noto Sans", "Noto Sans Sinhala", sans-serif
+	font-family: "Noto Sans", var(--sinhala-font, "Noto Sans Sinhala"), sans-serif;
 }
 
 .seld-theme-vars {

@@ -20,7 +20,6 @@ body {
 	display: flex;
 	justify-content: center;
 	padding: 48px 24px 64px;
-	font-family: system-ui, -apple-system, sans-serif;
 }
 
 a {

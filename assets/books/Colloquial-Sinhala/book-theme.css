@@ -9,11 +9,11 @@ p.western {
 p.cjk {
 	font-size: 12pt;
 
-	font-family: "Noto Sans Sinhala", sans-serif
+	font-family: var(--sinhala-font, "Noto Sans Sinhala"), sans-serif
 }
 
 p.ctl {
-	font-family: "Noto Sans Sinhala", sans-serif;
+	font-family: var(--sinhala-font, "Noto Sans Sinhala"), sans-serif;
 	font-size: 12pt;
 
 }
@@ -29,11 +29,11 @@ h1.cjk {
 	font-size: 18pt;
 
 	font-weight: bold;
-	font-family: "Noto Sans Sinhala", sans-serif
+	font-family: var(--sinhala-font, "Noto Sans Sinhala"), sans-serif
 }
 
 h1.ctl {
-	font-family: "Noto Sans Sinhala", sans-serif;
+	font-family: var(--sinhala-font, "Noto Sans Sinhala"), sans-serif;
 	font-size: 18pt;
 	;
 	font-weight: bold
@@ -50,11 +50,11 @@ h2.cjk {
 	font-size: 16pt;
 
 	font-weight: bold;
-	font-family: "Noto Sans Sinhala", sans-serif
+	font-family: var(--sinhala-font, "Noto Sans Sinhala"), sans-serif
 }
 
 h2.ctl {
-	font-family: "Noto Sans Sinhala", sans-serif;
+	font-family: var(--sinhala-font, "Noto Sans Sinhala"), sans-serif;
 	font-size: 16pt;
 	;
 	font-weight: bold
@@ -87,11 +87,11 @@ h3.western {
 h3.cjk {
 	font-size: 14pt;
 
-	font-family: "Noto Sans Sinhala", sans-serif
+	font-family: var(--sinhala-font, "Noto Sans Sinhala"), sans-serif
 }
 
 h3.ctl {
-	font-family: "Noto Sans Sinhala", sans-serif;
+	font-family: var(--sinhala-font, "Noto Sans Sinhala"), sans-serif;
 	font-size: 14pt;
 
 }
@@ -118,13 +118,13 @@ h4.western {
 h4.cjk {
 	font-size: 13pt;
 
-	font-family: "Noto Sans Sinhala", sans-serif;
+	font-family: var(--sinhala-font, "Noto Sans Sinhala"), sans-serif;
 	font-style: italic;
 	font-weight: bold
 }
 
 h4.ctl {
-	font-family: "Noto Sans Sinhala", sans-serif;
+	font-family: var(--sinhala-font, "Noto Sans Sinhala"), sans-serif;
 	font-size: 13pt;
 	;
 	font-style: italic;

@@ -40,6 +40,7 @@ function App({ onClose, inline }: AppProps) {
   const [underlineDictionaryWords, setUnderlineDictionaryWords] = useState(true);
   const [autoPlayTTS, setAutoPlayTTS] = useState(false);
   const [overrideSinhalaFont, setOverrideSinhalaFont] = useState(false);
+  const [sinhalaFont, setSinhalaFont] = useState("Noto Sans Sinhala");
 
   // Transliteration settings
   const [transliterateSinhala, setTransliterateSinhala] = useState(false);
@@ -130,6 +131,7 @@ function App({ onClose, inline }: AppProps) {
       transliterateSinhala: v => setTransliterateSinhala(v as boolean),
       seldSidebarPosition: v => setSidebarPosition(v as 'left' | 'right'),
       seldSitePatches: v => setSitePatches(v as boolean),
+      seldSinhalaFont: v => setSinhalaFont(v as string),
       seldSearchHistory: v => {
         if (Array.isArray(v)) {
           setHistory(v);
@@ -540,6 +542,7 @@ function App({ onClose, inline }: AppProps) {
       className={`seld-sidebar-container seld-theme-vars ${themeClass} ${sidebarPosition === 'left' ? 'left-position' : ''}`}
       style={{
         "--font-size-percent": `${fontSize}%`,
+        "--sinhala-font": sinhalaFont === "system" ? "__seld_system__" : sinhalaFont,
         position: inline ? 'relative' : 'fixed',
         top: inline ? 'auto' : 0,
         [sidebarPosition]: inline ? 'auto' : 0,
@@ -754,6 +757,8 @@ function App({ onClose, inline }: AppProps) {
           setTransliterateSinhala={setTransliterateSinhala}
           sitePatches={sitePatches}
           setSitePatches={setSitePatches}
+          sinhalaFont={sinhalaFont}
+          setSinhalaFont={setSinhalaFont}
           saveSetting={saveSetting}
         />
       )}

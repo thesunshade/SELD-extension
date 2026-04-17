@@ -1,6 +1,58 @@
-import React from "react";
+import React, { useState } from "react";
 import { Theme } from "./types";
 import "./SettingsUI.css";
+
+const SINHALA_FONTS: { value: string; label: string }[] = [
+  { value: "Noto Sans Sinhala", label: "Noto Sans" },
+  { value: "Google Sans",       label: "Google Sans" },
+  { value: "Abhaya Libre",      label: "Abhaya Libre" },
+  { value: "system",           label: "System Default" },
+];
+
+const SINHALA_SAMPLE = "සිංහල හෝඩිය";
+
+const SinhalaFontPicker: React.FC<{
+  value: string;
+  onChange: (val: string) => void;
+}> = ({ value, onChange }) => {
+  const [open, setOpen] = useState(false);
+  const current = SINHALA_FONTS.find(f => f.value === value) ?? SINHALA_FONTS[0];
+
+  return (
+    <div className="seld-font-picker">
+      <label className="settings-label">Sinhala Font</label>
+      <button
+        className="seld-font-picker-trigger seld-btn seld-btn-secondary"
+        onClick={() => setOpen(o => !o)}
+        type="button"
+      >
+        <span className="seld-font-picker-label">{current.label}</span>
+        <span className="seld-font-picker-sample" style={{ fontFamily: current.value === "system" ? "system-ui, sans-serif" : current.value }}>
+          {SINHALA_SAMPLE}
+        </span>
+        <svg className="seld-font-picker-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
+      </button>
+      {open && (
+        <ul className="seld-font-picker-list">
+          {SINHALA_FONTS.map(font => (
+            <li
+              key={font.value}
+              className={`seld-font-picker-option${font.value === value ? " selected" : ""}`}
+              onClick={() => { onChange(font.value); setOpen(false); }}
+            >
+              <span className="seld-font-picker-option-label">{font.label}</span>
+              <span className="seld-font-picker-option-sample" style={{ fontFamily: font.value === "system" ? "system-ui, sans-serif" : font.value }}>
+                {SINHALA_SAMPLE}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+};
 
 interface SettingsUIProps {
   theme: Theme;
@@ -21,6 +73,8 @@ interface SettingsUIProps {
   setTransliterateSinhala: (val: boolean) => void;
   sitePatches: boolean;
   setSitePatches: (val: boolean) => void;
+  sinhalaFont: string;
+  setSinhalaFont: (val: string) => void;
   saveSetting: (key: string, value: any) => void;
 }
 
@@ -43,6 +97,8 @@ export const SettingsUI: React.FC<SettingsUIProps> = ({
   setTransliterateSinhala,
   sitePatches,
   setSitePatches,
+  sinhalaFont,
+  setSinhalaFont,
   saveSetting,
 }) => {
   return (
@@ -141,6 +197,13 @@ export const SettingsUI: React.FC<SettingsUIProps> = ({
         <div className="dynamic-font" style={{ marginTop: "0.4em", color: "var(--text-primary)", textAlign: "center" }}>
           ෴ශබ්දකෝෂය෴
         </div>
+        <SinhalaFontPicker
+          value={sinhalaFont}
+          onChange={val => {
+            setSinhalaFont(val);
+            saveSetting("seldSinhalaFont", val);
+          }}
+        />
       </div>
       <div className="settings-group">
         <label className="settings-label">Behavior</label>
