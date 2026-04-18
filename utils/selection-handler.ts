@@ -5,10 +5,10 @@ import { setActiveHighlight, clearActiveHighlight } from './dom-highlights';
 
 const MAX_SELECTION_LENGTH = 100;
 
-function getNGrams(text: string, offset: number): { 
-	clickedWord: string, 
+function getNGrams(text: string, offset: number): {
+	clickedWord: string,
 	clickedWordRange: { start: number, end: number } | null,
-	potentialCompounds: { text: string, start: number, end: number }[] 
+	potentialCompounds: { text: string, start: number, end: number }[]
 } {
 	// Need to identify the word at offset first.
 	const wordRegex = /[\u0D80-\u0DFFa-zA-Z\u200D\u200C]+/g;
@@ -31,7 +31,7 @@ function getNGrams(text: string, offset: number): {
 
 	const clickedToken = tokens[clickedWordIdx];
 	const compounds: { text: string, start: number, end: number }[] = [];
-	
+
 	// Generates 4, 3, 2-grams containing the clicked word
 	for (let size = 4; size >= 2; size--) {
 		for (let i = 0; i < size; i++) {
@@ -49,16 +49,18 @@ function getNGrams(text: string, offset: number): {
 		}
 	}
 
-	return { 
-		clickedWord: clickedToken.text, 
+	return {
+		clickedWord: clickedToken.text,
 		clickedWordRange: { start: clickedToken.start, end: clickedToken.end },
-		potentialCompounds: compounds 
+		potentialCompounds: compounds
 	};
 }
 
 export function setupSidebarEvents(
 	getIsSidebarOpen: () => boolean,
 	initSidebar: () => void,
+	getInterceptLinks: () => boolean,
+	getCtrlClickLookup: () => boolean,
 	ctx?: ContentScriptContext | null
 ) {
 	let lastQueryTime = 0;
@@ -83,11 +85,11 @@ export function setupSidebarEvents(
 			if (text && text.length > 0 && text.length < MAX_SELECTION_LENGTH) {
 				const now = Date.now();
 				if (now - lastQueryTime > 300) {
-					window.dispatchEvent(new CustomEvent('seld:search', { 
-						detail: { 
-							text, 
-							range 
-						} 
+					window.dispatchEvent(new CustomEvent('seld:search', {
+						detail: {
+							text,
+							range
+						}
 					}));
 					lastQueryTime = now;
 				}
@@ -98,44 +100,28 @@ export function setupSidebarEvents(
 		const text = textNode.nodeValue || '';
 		const { clickedWord, clickedWordRange, potentialCompounds } = getNGrams(text, offset);
 
-		let searchTarget = clickedWord;
-		let isCompoundMaybe = false;
-		let matchRange: { start: number, end: number } | null = clickedWordRange;
-
-		for (const compound of potentialCompounds) {
-			if (checkBloom(compound.text)) {
-				searchTarget = compound.text;
-				isCompoundMaybe = true;
-				matchRange = { start: compound.start, end: compound.end };
-				break;
-			}
-		}
-
-		const selectionString = selection.toString().trim();
-		const finalFallback = clickedWord || selectionString;
-		if (!finalFallback) return;
-
-		const potentialMatches: { text: string, range: Range }[] = [];
-		for (const compound of potentialCompounds) {
-			if (checkBloom(compound.text)) {
-				const r = document.createRange();
-				r.setStart(textNode, compound.start);
-				r.setEnd(textNode, compound.end);
-				potentialMatches.push({ text: compound.text, range: r });
-			}
-		}
-
-		let wordRange: Range | null = null;
-		if (clickedWordRange) {
-			wordRange = document.createRange();
-			wordRange.setStart(textNode, clickedWordRange.start);
-			wordRange.setEnd(textNode, clickedWordRange.end);
-		} else {
-			wordRange = range;
-		}
-
 		const now = Date.now();
 		if (now - lastQueryTime > 300) {
+			const potentialMatches: { text: string, range: Range }[] = [];
+			for (const compound of potentialCompounds) {
+				if (checkBloom(compound.text)) {
+					const r = document.createRange();
+					r.setStart(textNode, compound.start);
+					r.setEnd(textNode, compound.end);
+					potentialMatches.push({ text: compound.text, range: r });
+				}
+			}
+
+			let wordRange: Range | null = null;
+			if (clickedWordRange) {
+				wordRange = document.createRange();
+				wordRange.setStart(textNode, clickedWordRange.start);
+				wordRange.setEnd(textNode, clickedWordRange.end);
+			}
+
+			const selectionString = selection.toString().trim();
+			const finalFallback = clickedWord || selectionString;
+
 			window.dispatchEvent(
 				new CustomEvent('seld:search', {
 					detail: {
@@ -149,94 +135,104 @@ export function setupSidebarEvents(
 		}
 	};
 
-	const handleCtrlClick = (e: MouseEvent) => {
-		if (!e.ctrlKey) return;
+	const handleClick = (e: MouseEvent) => {
 		if (e.target instanceof HTMLElement && (e.target.closest('#seld-sidebar-root') || e.target.tagName.toLowerCase() === 'seld-sidebar')) return;
 
-		browser.storage.local.get(['seldCtrlClickLookup']).then((result) => {
-			if (result.seldCtrlClickLookup === false) return;
+		const isAnchor = e.target instanceof HTMLElement && !!e.target.closest('a');
+		const interceptEnabled = getInterceptLinks();
+		const ctrlClickEnabled = getCtrlClickLookup();
 
-			let textNode: Node | null = null;
-			let offset: number = 0;
+		const shouldInterceptLink = interceptEnabled && isAnchor && e.button === 0 && !e.ctrlKey && !e.shiftKey && !e.altKey && !e.metaKey;
+		const isCtrlClick = e.ctrlKey && ctrlClickEnabled;
 
-			if (document.caretRangeFromPoint) {
-				const range = document.caretRangeFromPoint(e.clientX, e.clientY);
-				if (range) {
-					textNode = range.startContainer;
-					offset = range.startOffset;
-				}
-			} else if ((document as any).caretPositionFromPoint) {
-				const position = (document as any).caretPositionFromPoint(e.clientX, e.clientY);
-				if (position) {
-					textNode = position.offsetNode;
-					offset = position.offset;
-				}
+		if (!isCtrlClick && !shouldInterceptLink) return;
+
+		if (shouldInterceptLink) {
+			e.preventDefault();
+			e.stopPropagation();
+			window.dispatchEvent(new CustomEvent('seld:toast', {
+				detail: { message: "Click blocked. Change this in settings." }
+			}));
+		}
+
+		let textNode: Node | null = null;
+		let offset: number = 0;
+
+		if (document.caretRangeFromPoint) {
+			const range = document.caretRangeFromPoint(e.clientX, e.clientY);
+			if (range) {
+				textNode = range.startContainer;
+				offset = range.startOffset;
+			}
+		} else if ((document as any).caretPositionFromPoint) {
+			const position = (document as any).caretPositionFromPoint(e.clientX, e.clientY);
+			if (position) {
+				textNode = position.offsetNode;
+				offset = position.offset;
+			}
+		}
+
+		if (!textNode || textNode.nodeType !== Node.TEXT_NODE) return;
+
+		const text = textNode.nodeValue || '';
+		const { clickedWord, clickedWordRange, potentialCompounds } = getNGrams(text, offset);
+
+		let searchTarget = clickedWord;
+		let matchRange: { start: number, end: number } | null = clickedWordRange;
+
+		for (const compound of potentialCompounds) {
+			if (checkBloom(compound.text)) {
+				searchTarget = compound.text;
+				matchRange = { start: compound.start, end: compound.end };
+				break;
+			}
+		}
+
+		if (searchTarget && searchTarget.length < MAX_SELECTION_LENGTH) {
+			if (!getIsSidebarOpen()) {
+				initSidebar();
 			}
 
-			if (!textNode || textNode.nodeType !== Node.TEXT_NODE) return;
-
-			const text = textNode.nodeValue || '';
-			const { clickedWord, clickedWordRange, potentialCompounds } = getNGrams(text, offset);
-
-			let searchTarget = clickedWord;
-			let isCompoundMaybe = false;
-			let matchRange: { start: number, end: number } | null = clickedWordRange;
-
+			const potentialMatches: { text: string, range: Range }[] = [];
 			for (const compound of potentialCompounds) {
 				if (checkBloom(compound.text)) {
-					searchTarget = compound.text;
-					isCompoundMaybe = true;
-					matchRange = { start: compound.start, end: compound.end };
-					break;
+					const r = document.createRange();
+					r.setStart(textNode, compound.start);
+					r.setEnd(textNode, compound.end);
+					potentialMatches.push({ text: compound.text, range: r });
 				}
 			}
 
-			if (searchTarget && searchTarget.length < MAX_SELECTION_LENGTH) {
-				if (!getIsSidebarOpen()) {
-					initSidebar();
-				}
+			let wordRange: Range | null = null;
+			if (clickedWordRange) {
+				wordRange = document.createRange();
+				wordRange.setStart(textNode, clickedWordRange.start);
+				wordRange.setEnd(textNode, clickedWordRange.end);
+			}
 
-				const potentialMatches: { text: string, range: Range }[] = [];
-				for (const compound of potentialCompounds) {
-					if (checkBloom(compound.text)) {
-						const r = document.createRange();
-						r.setStart(textNode, compound.start);
-						r.setEnd(textNode, compound.end);
-						potentialMatches.push({ text: compound.text, range: r });
+			window.dispatchEvent(
+				new CustomEvent('seld:search', {
+					detail: {
+						text: searchTarget,
+						wordRange,
+						compounds: potentialMatches
 					}
-				}
-
-				let wordRange: Range | null = null;
-				if (clickedWordRange) {
-					wordRange = document.createRange();
-					wordRange.setStart(textNode, clickedWordRange.start);
-					wordRange.setEnd(textNode, clickedWordRange.end);
-				}
-
-				window.dispatchEvent(
-					new CustomEvent('seld:search', {
-						detail: {
-							text: searchTarget,
-							wordRange,
-							compounds: potentialMatches
-						}
-					})
-				);
-			}
-		});
+				})
+			);
+		}
 	};
 
 	// Use ctx.addEventListener when available for auto-cleanup on context invalidation
 	if (ctx) {
 		ctx.addEventListener(window, 'mouseup', handleSelection);
-		ctx.addEventListener(window, 'click', handleCtrlClick);
+		ctx.addEventListener(window, 'click', handleClick);
 	} else {
 		window.addEventListener('mouseup', handleSelection);
-		window.addEventListener('click', handleCtrlClick);
+		window.addEventListener('click', handleClick);
 	}
 
 	return () => {
 		window.removeEventListener('mouseup', handleSelection);
-		window.removeEventListener('click', handleCtrlClick);
+		window.removeEventListener('click', handleClick);
 	};
 }

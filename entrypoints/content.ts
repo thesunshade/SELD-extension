@@ -22,6 +22,8 @@ export default defineContentScript({
         let isSidebarOpen = false;
         let ui: ContentScriptUi<ReactDOM.Root> | null = null;
         const STYLE_ID = 'seld-dynamic-styles';
+        let seldInterceptLinkClicks = false;
+        let seldCtrlClickLookup = true;
 
         const updateSidebarPositionClass = (position: 'left' | 'right') => {
             document.documentElement.classList.remove('seld-pos-left', 'seld-pos-right');
@@ -76,11 +78,19 @@ export default defineContentScript({
         const initSidebar = async () => {
             if (ui) return;
 
-            // Load position and apply class
-            const res = await browser.storage.local.get(['seldSidebarPosition', 'seldOverrideSinhalaFont', 'seldSinhalaFont']);
-            const rawPosition = res.seldSidebarPosition;
-            const position = (rawPosition === 'left' || rawPosition === 'right') ? rawPosition : 'right';
-            updateSidebarPositionClass(position);
+            // Load settings and apply class
+            const res: any = await browser.storage.local.get({
+                seldSidebarPosition: 'right',
+                seldOverrideSinhalaFont: false,
+                seldSinhalaFont: 'Noto Sans Sinhala',
+                seldInterceptLinkClicks: false,
+                seldCtrlClickLookup: true
+            });
+            const position = (res.seldSidebarPosition === 'left' || res.seldSidebarPosition === 'right') ? res.seldSidebarPosition : 'right';
+            updateSidebarPositionClass(position as 'left' | 'right');
+            
+            seldInterceptLinkClicks = res.seldInterceptLinkClicks;
+            seldCtrlClickLookup = res.seldCtrlClickLookup;
 
             // Apply font override if enabled and sidebar is being opened
             if (res.seldOverrideSinhalaFont) {
@@ -117,7 +127,7 @@ export default defineContentScript({
             injectHostStyles();
 
             // Apply site-specific CSS patch if the setting is enabled
-            const patchRes = await browser.storage.local.get('seldSitePatches');
+            const patchRes: any = await browser.storage.local.get({ seldSitePatches: false });
             if (patchRes.seldSitePatches) {
                 applySitePatch(location.hostname);
             }
@@ -205,14 +215,14 @@ export default defineContentScript({
                     const enabled = changes.seldOverrideSinhalaFont.newValue as boolean;
                     // Only apply/remove font override if sidebar is open or we are explicitly turning it off
                     if (isSidebarOpen || !enabled) {
-                        browser.storage.local.get('seldSinhalaFont').then(r => {
-                            applyFontOverride(enabled, r.seldSinhalaFont as string | undefined);
+                        browser.storage.local.get({ seldSinhalaFont: 'Noto Sans Sinhala' }).then((r: any) => {
+                            applyFontOverride(enabled, r.seldSinhalaFont);
                         });
                     }
                 }
                 if (changes.seldSinhalaFont && isSidebarOpen) {
                     // Re-apply the override with the new font if the override is currently active
-                    browser.storage.local.get('seldOverrideSinhalaFont').then(r => {
+                    browser.storage.local.get({ seldOverrideSinhalaFont: false }).then((r: any) => {
                         if (r.seldOverrideSinhalaFont) {
                             applyFontOverride(true, changes.seldSinhalaFont.newValue as string);
                         }
@@ -231,6 +241,12 @@ export default defineContentScript({
                         removeSitePatch();
                     }
                 }
+                if (changes.seldInterceptLinkClicks) {
+                  seldInterceptLinkClicks = changes.seldInterceptLinkClicks.newValue;
+                }
+                if (changes.seldCtrlClickLookup) {
+                  seldCtrlClickLookup = changes.seldCtrlClickLookup.newValue;
+                }
             }
         };
         browser.storage.onChanged.addListener(storageChangeHandler);
@@ -243,7 +259,13 @@ export default defineContentScript({
             }
         };
 
-        setupSidebarEvents(() => isSidebarOpen, initSidebar, ctx);
+        setupSidebarEvents(
+          () => isSidebarOpen, 
+          initSidebar, 
+          () => seldInterceptLinkClicks, 
+          () => seldCtrlClickLookup, 
+          ctx
+        );
 
         // -------------------------------------------------------------
         // Listen for requests from the SidePanel

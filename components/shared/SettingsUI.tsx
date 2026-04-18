@@ -75,6 +75,8 @@ interface SettingsUIProps {
   setSitePatches: (val: boolean) => void;
   sinhalaFont: string;
   setSinhalaFont: (val: string) => void;
+  interceptLinkClicks: boolean;
+  setInterceptLinkClicks: (val: boolean) => void;
   saveSetting: (key: string, value: any) => void;
 }
 
@@ -99,6 +101,8 @@ export const SettingsUI: React.FC<SettingsUIProps> = ({
   setSitePatches,
   sinhalaFont,
   setSinhalaFont,
+  interceptLinkClicks,
+  setInterceptLinkClicks,
   saveSetting,
 }) => {
   return (
@@ -302,6 +306,21 @@ export const SettingsUI: React.FC<SettingsUIProps> = ({
             />
             <span className="custom-checkbox"></span>
             <span className="checkbox-label">Fix page layout for supported sites</span>
+          </label>
+        </div>
+        <div data-tippy-content="Prevents clicking on links from opening a new page, and instead looks up the word you clicked on. Ideal for studying Sinhala text with lots of links." className="settings-control">
+          <label className="checkbox-container">
+            <input
+              type="checkbox"
+              checked={interceptLinkClicks}
+              onChange={e => {
+                const val = e.target.checked;
+                setInterceptLinkClicks(val);
+                saveSetting("seldInterceptLinkClicks", val);
+              }}
+            />
+            <span className="custom-checkbox"></span>
+            <span className="checkbox-label">Intercept link clicks to Dictionary</span>
           </label>
         </div>
       </div>

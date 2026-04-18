@@ -46,6 +46,7 @@ function App({ onClose, inline }: AppProps) {
   const [transliterateSinhala, setTransliterateSinhala] = useState(false);
   const [sidebarPosition, setSidebarPosition] = useState<'left' | 'right'>('right');
   const [sitePatches, setSitePatches] = useState(false);
+  const [interceptLinkClicks, setInterceptLinkClicks] = useState(false);
 
   const autoPlayTTSRef = useRef(false);
   const [showToast, setShowToast] = useState(false);
@@ -132,6 +133,7 @@ function App({ onClose, inline }: AppProps) {
       seldSidebarPosition: v => setSidebarPosition(v as 'left' | 'right'),
       seldSitePatches: v => setSitePatches(v as boolean),
       seldSinhalaFont: v => setSinhalaFont(v as string),
+      seldInterceptLinkClicks: v => setInterceptLinkClicks(v as boolean),
       seldSearchHistory: v => {
         if (Array.isArray(v)) {
           setHistory(v);
@@ -187,12 +189,23 @@ function App({ onClose, inline }: AppProps) {
       }
     };
 
+    const handleToastEvent = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail && detail.message) {
+        setToastMessage(detail.message);
+        setShowToast(true);
+        setTimeout(() => setShowToast(false), 3000);
+      }
+    };
+
     browser.storage.onChanged.addListener(handleStorageChange);
     window.addEventListener("seld:search", handleSearchEvent);
+    window.addEventListener("seld:toast", handleToastEvent);
 
     return () => {
       browser.storage.onChanged.removeListener(handleStorageChange);
       window.removeEventListener("seld:search", handleSearchEvent);
+      window.removeEventListener("seld:toast", handleToastEvent);
     };
   }, []);
 
@@ -759,6 +772,8 @@ function App({ onClose, inline }: AppProps) {
           setSitePatches={setSitePatches}
           sinhalaFont={sinhalaFont}
           setSinhalaFont={setSinhalaFont}
+          interceptLinkClicks={interceptLinkClicks}
+          setInterceptLinkClicks={setInterceptLinkClicks}
           saveSetting={saveSetting}
         />
       )}

@@ -34,6 +34,7 @@ export default function DictionaryApp() {
 	const [overrideSinhalaFont, setOverrideSinhalaFont] = useState(false);
 	const [transliterateSinhala, setTransliterateSinhala] = useState(false);
 	const [sitePatches, setSitePatches] = useState(false);
+	const [interceptLinkClicks, setInterceptLinkClicks] = useState(false);
 	const [sinhalaFont, setSinhalaFont] = useState("Noto Sans Sinhala");
 
 	// Browse state
@@ -193,6 +194,7 @@ export default function DictionaryApp() {
 			transliterateSinhala: v => setTransliterateSinhala(v as boolean),
 			seldSitePatches: v => setSitePatches(v as boolean),
 			seldSinhalaFont: v => setSinhalaFont(v as string),
+			seldInterceptLinkClicks: v => setInterceptLinkClicks(v as boolean),
 			seldSearchHistory: v => {
 				if (Array.isArray(v)) {
 					setHistory(v);
@@ -677,6 +679,8 @@ export default function DictionaryApp() {
 							setSitePatches={setSitePatches}
 							sinhalaFont={sinhalaFont}
 							setSinhalaFont={setSinhalaFont}
+							interceptLinkClicks={interceptLinkClicks}
+							setInterceptLinkClicks={setInterceptLinkClicks}
 							saveSetting={saveSetting}
 						/>
 					)}
