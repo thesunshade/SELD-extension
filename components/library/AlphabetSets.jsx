@@ -126,7 +126,7 @@ const AlphabetSets = () => {
 					<table className="split-table">
 						<tbody>
 							<tr className="sinhala">
-								{["śha ශ", "ṣha ෂ", "sa ස"].map(v => <td key={v} className={getCellClass(v)}>{v}</td>)}
+								{["śa ශ", "ṣa ෂ", "sa ස"].map(v => <td key={v} className={getCellClass(v)}>{v}</td>)}
 								<td className={getCellClass("ha හ")}>ha හ</td>
 
 								<td className={getCellClass("ං")}>ṁ ං</td>

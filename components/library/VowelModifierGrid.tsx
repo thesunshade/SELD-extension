@@ -5,6 +5,7 @@ interface Vowel {
   sinhala: string;
   suffix: string;
   diacritic: string;
+  highlight?: string[];
 }
 
 interface Modifier {
@@ -13,6 +14,7 @@ interface Modifier {
   sinhala: string;
   suffix: string;
   diacritic: string;
+  highlight?: string[];
 }
 
 interface Consonant {
@@ -26,19 +28,19 @@ interface ConsonantGroup {
 }
 
 const VOWELS: Vowel[] = [
-  { trans: 'no vowel— ', sinhala: '්', suffix: '', diacritic: '\u0DCA' },
+  { trans: 'no vowel— ', sinhala: '්', suffix: '', diacritic: '\u0DCA', highlight: ['kh', 'ṅ', 'c', 'jh', 'ṭ', 'ḍ', 'n̆ḍ', 'dh', 'b', 'm', 'm̆b', 'v'] },
   { trans: 'a', sinhala: 'අ', suffix: 'a', diacritic: '' },
   { trans: 'ā', sinhala: 'ආ', suffix: 'ā', diacritic: '\u0DCF' },
-  { trans: 'æ', sinhala: 'ඇ', suffix: 'æ', diacritic: '\u0DD0' },
-  { trans: 'ǣ', sinhala: 'ඈ', suffix: 'ǣ', diacritic: '\u0DD1' },
-  { trans: 'i', sinhala: 'ඉ', suffix: 'i', diacritic: '\u0DD2' },
-  { trans: 'ī', sinhala: 'ඊ', suffix: 'ī', diacritic: '\u0DD3' },
-  { trans: 'u', sinhala: 'උ', suffix: 'u', diacritic: '\u0DD4' },
-  { trans: 'ū', sinhala: 'ඌ', suffix: 'ū', diacritic: '\u0DD6' },
+  { trans: 'æ', sinhala: 'ඇ', suffix: 'æ', diacritic: '\u0DD0', highlight: ['r'] },
+  { trans: 'ǣ', sinhala: 'ඈ', suffix: 'ǣ', diacritic: '\u0DD1', highlight: ['r'] },
+  { trans: 'i', sinhala: 'ඉ', suffix: 'i', diacritic: '\u0DD2', highlight: ['kh', 'ṅ', 'c', 'ch', 'j', 'jh', 'ṭ', 'ḍ', 'n̆ḍ', 'dh', 'b', 'm', 'm̆b', 'v'] },
+  { trans: 'ī', sinhala: 'ඊ', suffix: 'ī', diacritic: '\u0DD3', highlight: ['kh', 'ṅ', 'c', 'ch', 'j', 'jh', 'ṭ', 'ḍ', 'n̆ḍ', 'dh', 'b', 'm', 'm̆b', 'v'] },
+  { trans: 'u', sinhala: 'උ', suffix: 'u', diacritic: '\u0DD4', highlight: ['k', 'g', 'n̆g', 'ñ', 'jñ', 't', 'd', 'n̆d', 'bh', 'r', 'ḷ', 'śh'] },
+  { trans: 'ū', sinhala: 'ඌ', suffix: 'ū', diacritic: '\u0DD6', highlight: ['k', 'g', 'n̆g', 'ñ', 'jñ', 't', 'd', 'n̆d', 'bh', 'r', 'ḷ', 'śh'] },
   { trans: 'ṛi/ṛu', sinhala: 'ඍ', suffix: 'ṛ', diacritic: '\u0DD8' },
   { trans: 'ṛī/ṛū', sinhala: 'ඎ', suffix: 'ṝ', diacritic: '\u0DF2' },
   { trans: 'e', sinhala: 'එ', suffix: 'e', diacritic: '\u0DD9' },
-  { trans: 'ē', sinhala: 'ඒ', suffix: 'ē', diacritic: '\u0DDA' },
+  { trans: 'ē', sinhala: 'ඒ', suffix: 'ē', diacritic: '\u0DDA', highlight: ['kh', 'ṅ', 'c', 'jh', 'ṭ', 'ḍ', 'n̆ḍ', 'dh', 'b', 'm', 'm̆b', 'v'] },
   { trans: 'ai', sinhala: 'ඓ', suffix: 'ai', diacritic: '\u0DDB' },
   { trans: 'o', sinhala: 'ඔ', suffix: 'o', diacritic: '\u0DDC' },
   { trans: 'ō', sinhala: 'ඕ', suffix: 'ō', diacritic: '\u0DDD' },
@@ -47,7 +49,7 @@ const VOWELS: Vowel[] = [
 
 const MODIFIERS: Modifier[] = [
   { id: 'yanshaya', label: 'ya', sinhala: '්‍ය', suffix: 'y', diacritic: '\u0DCA\u200D\u0DBA' },
-  { id: 'rakaranshaya', label: 'ra', sinhala: '්‍ර', suffix: 'r', diacritic: '\u0DCA\u200D\u0DBB' },
+  { id: 'rakaranshaya', label: 'ra', sinhala: '්‍ර', suffix: 'r', diacritic: '\u0DCA\u200D\u0DBB', highlight: ['ñ', 'jñ', 'd', 'n̆d'] },
 ];
 
 const GROUPS: ConsonantGroup[] = [
@@ -90,7 +92,7 @@ const GROUPS: ConsonantGroup[] = [
   {
     name: 'Sibilants & Aspiration',
     consonants: [
-      { trans: 'śh', sinhala: 'ශ' }, { trans: 'ṣh', sinhala: 'ෂ' }, { trans: 's', sinhala: 'ස' }, { trans: 'h', sinhala: 'හ' },
+      { trans: 'ś', sinhala: 'ශ' }, { trans: 'ṣ', sinhala: 'ෂ' }, { trans: 's', sinhala: 'ස' }, { trans: 'h', sinhala: 'හ' },
     ],
   },
 ];
@@ -152,16 +154,19 @@ export default function VowelModifierGrid() {
           <tbody>
             {GROUPS.map((group, groupIndex) => (
               <tr key={groupIndex} className="sinhala">
-                {group.consonants.map((c, colIndex) => (
-                  <React.Fragment key={colIndex}>
-                    <td className="translit-cell">
-                      {renderTranslit(c)}
-                    </td>
-                    <td className="sinhala-cell">
-                      {renderSinhala(c)}
-                    </td>
-                  </React.Fragment>
-                ))}
+                {group.consonants.map((c, colIndex) => {
+                  const isHighlighted = (selectedVowel.highlight?.includes(c.trans)) || (activeModifier?.highlight?.includes(c.trans));
+                  return (
+                    <React.Fragment key={colIndex}>
+                      <td className={`translit-cell ${isHighlighted ? 'highlight' : ''}`}>
+                        {renderTranslit(c)}
+                      </td>
+                      <td className={`sinhala-cell ${isHighlighted ? 'highlight' : ''}`}>
+                        {renderSinhala(c)}
+                      </td>
+                    </React.Fragment>
+                  );
+                })}
                 {Array.from({ length: 6 - group.consonants.length }).map((_, i) => (
                   <React.Fragment key={`pad-${i}`}>
                     <td></td>

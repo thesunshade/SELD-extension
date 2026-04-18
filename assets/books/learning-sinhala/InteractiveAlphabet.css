@@ -65,3 +65,8 @@
 	text-align: left;
 	width: 4.5rem;
 }
+
+.consonant-container .highlight {
+	color: #ef4444; /* red */
+	font-weight: 600;
+}
