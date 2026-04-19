@@ -6,6 +6,7 @@
 
 
 ## Improvements
+- [ ] icon in sidebar search field to play search string
 - [ ] no result found msg should be in definition area so that non-perect matches can see the suggest link
 - [ ] `.dict-toast` needs to be DRY
 - [ ] There should probably be some limit to the "distance" of fuzzy search results. If there are more than two variants, it's probaby not a good potential match.
