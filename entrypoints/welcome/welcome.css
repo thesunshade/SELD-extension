@@ -185,23 +185,28 @@ kbd {
 /* ─── Feature list ─── */
 .features {
 	list-style: none;
-	display: grid;
+	display: flex;
+	flex-direction: column;
 	gap: 10px;
+	margin: 12px 0 0;
 }
 
 .features li {
 	display: flex;
-	align-items: center;
-	gap: 10px;
+	align-items: flex-start;
+	gap: 12px;
 	font-size: 0.95em;
+	line-height: 1.5;
 }
 
-.features li .dot {
+.features li::before {
+	content: "";
 	width: 8px;
 	height: 8px;
 	border-radius: 50%;
 	background: var(--accent-bg);
 	flex-shrink: 0;
+	margin-top: 0.5em; /* Centers the dot with the first line of text */
 }
 
 /* ─── Tip box ─── */
@@ -371,4 +376,12 @@ kbd {
 .changelog-content::-webkit-scrollbar-thumb {
 	background-color: var(--border-color);
 	border-radius: 10px;
+}
+
+.credits {
+	text-align: center;
+	color: var(--text-secondary);
+	font-size: 0.85em;
+	margin-top: 40px;
+	opacity: 0.8;
 }
