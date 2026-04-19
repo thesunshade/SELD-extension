@@ -3,7 +3,13 @@
 # Change Log
 
 ## 0.4.5
-
+* Improve alphabet pages
+* Add setting to prevent link clicks from opening so that their text can be looked up
+* Add font selector
+* Add pages to test dictionary on
+* Add more websites to CSS override
+* Normalize ZWJ in searches
+* Update dictionary
 
 ## 0.4.4 (2026-04-13)
 * multi-feature entry copy and history/favorite download (markdown, plain text, tsv)
