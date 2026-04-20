@@ -1,8 +1,11 @@
 ## Bugs
+- [ ] Trailing spaces in dictionary explorer search should be ignored
+- [ ] leading and trailing hyphens should be ignored
 
 ## Search
 - [ ] particles should be treated like suffixes, e.g. ත්
 - [ ] නාම පදයක් should be returning නාම පදය -ක්
+- [ ] prefixes should be parsed, e.g. නොසතුටු වෙනවා should be parsed as නො- සතුටු වෙනවා
 
 
 ## Improvements
