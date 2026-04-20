@@ -8,6 +8,7 @@
   display: block;
   box-sizing: border-box;
   z-index: 2147483647;
+  height: 100vh;
 }
 
 /* Restore basic display properties for common elements within sidebar */

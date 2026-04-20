@@ -26,12 +26,12 @@ body.seld-active {
 
 /* Right side grid default */
 body.seld-active {
-	grid-template-columns: 1fr var(--seld-panel-width) !important;
+	grid-template-columns: minmax(0, 1fr) var(--seld-panel-width) !important;
 }
 
 /* Left side grid */
 html.seld-pos-left body.seld-active {
-	grid-template-columns: var(--seld-panel-width) 1fr !important;
+	grid-template-columns: var(--seld-panel-width) minmax(0, 1fr) !important;
 }
 
 /* Container for existing content */
@@ -40,6 +40,8 @@ html.seld-pos-left body.seld-active {
 	overflow-y: auto;
 	position: relative;
 	grid-row: 1;
+	min-width: 0;
+	width: 100% !important;
 }
 
 /* Content should be in the correct column */
@@ -49,6 +51,33 @@ body.seld-active #seld-main-content {
 
 html.seld-pos-left body.seld-active #seld-main-content {
 	grid-column: 2;
+}
+
+html.seld-pos-left body.seld-active #seld-main-content {
+	grid-column: 2;
+}
+
+/* Dedicated layout for the Text Pad page container */
+#seld-layout-container {
+	display: flex;
+	width: 100vw;
+	height: 100vh;
+	overflow: hidden;
+}
+
+html.seld-pos-left #seld-layout-container {
+	flex-direction: row-reverse;
+}
+
+#seld-layout-container #seld-main-content {
+	flex: 1;
+	min-width: 0;
+}
+
+#seld-layout-container #seld-sidebar-root {
+	flex: 0 0 var(--seld-panel-width);
+	width: var(--seld-panel-width);
+	height: 100vh;
 }
 
 /* Sidebar Styling */
