@@ -36,9 +36,11 @@ describe('StarDictParser', () => {
   it('should load and search for a word', async () => {
     const mockIdx = createMockIdx([
       { word: 'apple', offset: 0, size: 5 },
-      { word: 'banana', offset: 5, size: 6 }
+      { word: 'banana', offset: 5, size: 6 },
+      { word: 'ගිය', offset: 11, size: 4 },
+      { word: 'නො-', offset: 15, size: 3 }
     ]);
-    const mockDict = new TextEncoder().encode('fruityellow').buffer;
+    const mockDict = new TextEncoder().encode('fruityellowgonenot').buffer;
 
     (global.fetch as any).mockImplementation((url: string) => {
       if (url.endsWith('.idx')) return Promise.resolve({ arrayBuffer: () => Promise.resolve(mockIdx) });
@@ -56,9 +58,20 @@ describe('StarDictParser', () => {
   });
 
   it('should handle prefix matches', async () => {
-    const results = await stardict.searchWords('ban');
-    expect(results).toHaveLength(1);
-    expect(results[0].word).toBe('banana');
+    const resultsSuffix = await stardict.searchWords('ban');
+    expect(resultsSuffix).toHaveLength(1);
+    expect(resultsSuffix[0].word).toBe('banana');
+  });
+
+  it('should handle affix synthesized matches', async () => {
+    const parsedResults = await stardict.searchWords('නොගිය');
+    expect(parsedResults).toHaveLength(1);
+    expect(parsedResults[0].word).toBe('නො- ගිය');
+
+    const defs = await stardict.getDefinition('නො- ගිය');
+    expect(defs).toHaveLength(2);
+    expect(defs![0].headword).toBe('නො-');
+    expect(defs![1].headword).toBe('ගිය');
   });
 
   it('should handle case insensitivity', async () => {

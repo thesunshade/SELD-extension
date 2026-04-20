@@ -36,6 +36,7 @@ class StarDictParser {
     private dictBuffer: ArrayBuffer | null = null;
     private indexList: IndexEntry[] = [];
     private suffixes: string[] = []; // Store suffixes without the leading '-'
+    private prefixes: string[] = []; // Store prefixes without the trailing '-'
     private isLoaded = false;
     private loadPromise: Promise<void> | null = null;
 
@@ -96,6 +97,9 @@ class StarDictParser {
                 if (wordStr.startsWith('-') && wordStr.length > 1) {
                     this.suffixes.push(wordStr.substring(1));
                 }
+                if (wordStr.endsWith('-') && wordStr.length > 1) {
+                    this.prefixes.push(wordStr.slice(0, -1));
+                }
             } else {
                 break;
             }
@@ -108,13 +112,37 @@ class StarDictParser {
 
         const results: StructuredDefinition[] = [];
 
-        // Handle synthesized multi-suffix words (e.g., "ලෝකය -ේ -ක්")
-        if (word.includes(' -')) {
-            const parts = word.split(' -');
-            const baseWord = parts[0];
-            const suffixWords = parts.slice(1).map(s => '-' + s);
+        // Handle synthesized multi-affix words (e.g., "නො- ලෝකය -ේ -ක්")
+        if (word.includes(' -') || word.includes('- ')) {
+            const allWordsToFetch: string[] = [];
+            let remaining = word;
+            
+            // extract prefixes
+            while (true) {
+                const spaceIdx = remaining.indexOf(' ');
+                if (spaceIdx > 0 && remaining[spaceIdx - 1] === '-') {
+                    allWordsToFetch.push(remaining.substring(0, spaceIdx));
+                    remaining = remaining.substring(spaceIdx + 1);
+                } else {
+                    break;
+                }
+            }
 
-            const allWordsToFetch = [baseWord, ...suffixWords];
+            // extract suffixes
+            const trailingSuffixes: string[] = [];
+            while (true) {
+                const lastSpaceIdx = remaining.lastIndexOf(' -');
+                if (lastSpaceIdx !== -1) {
+                    const suffix = remaining.substring(lastSpaceIdx + 1);
+                    trailingSuffixes.unshift(suffix);
+                    remaining = remaining.substring(0, lastSpaceIdx);
+                } else {
+                    break;
+                }
+            }
+
+            allWordsToFetch.push(remaining); // base word
+            allWordsToFetch.push(...trailingSuffixes);
 
             for (const w of allWordsToFetch) {
                 const indices = this.findAllIndices(w);
@@ -213,9 +241,9 @@ class StarDictParser {
             }
         }
 
-        // Suffix combination matches (recursive)
+        // Affix combination matches (recursive)
         if (uniqueMatches.size < limit && !lowerQuery.includes(' ')) {
-            this.findSuffixCombinations(lowerQuery, [], uniqueMatches, limit, 0, query);
+            this.findAffixCombinations(lowerQuery, [], [], uniqueMatches, limit, 0, query);
         }
 
         // Fuzzy matches (vowel modifier ignorance and interchangeable consonants)
@@ -283,9 +311,10 @@ class StarDictParser {
         return matchesArray;
     }
 
-    private findSuffixCombinations(
+    private findAffixCombinations(
         currentWord: string,
         foundSuffixes: string[],
+        foundPrefixes: string[],
         uniqueMatches: Map<string, IndexEntry>,
         limit: number,
         depth: number = 0,
@@ -294,7 +323,7 @@ class StarDictParser {
         if (uniqueMatches.size >= limit || depth >= 3) return;
 
         // Check if the current leftover word is a valid base word
-        if (foundSuffixes.length > 0) {
+        if (foundSuffixes.length > 0 || foundPrefixes.length > 0) {
             const baseIdx = this.findFirstIndex(currentWord);
             if (baseIdx !== -1) {
                 // Synthesize a virtual entry
@@ -303,7 +332,11 @@ class StarDictParser {
 
                 // Reconstruct the suffixes in the correct order (they were found backwards)
                 const suffixesStr = [...foundSuffixes].reverse().map(s => `-${s}`).join(' ');
-                const synthesizedWord = `${baseWordActual} ${suffixesStr}`;
+                const prefixesStr = [...foundPrefixes].map(p => `${p}-`).join(' ');
+
+                let synthesizedWord = baseWordActual;
+                if (prefixesStr) synthesizedWord = `${prefixesStr} ${synthesizedWord}`;
+                if (suffixesStr) synthesizedWord = `${synthesizedWord} ${suffixesStr}`;
 
                 if (!uniqueMatches.has(synthesizedWord)) {
                     // Create a virtual IndexEntry.
@@ -313,7 +346,7 @@ class StarDictParser {
                         offset: 0,
                         size: 0,
                         isSynthesizedMatch: true,
-                        suffixCount: foundSuffixes.length,
+                        suffixCount: foundSuffixes.length + foundPrefixes.length,
                         originalQuery: originalQuery,
                         matchPriority: MATCH_SUFFIX
                     });
@@ -325,7 +358,15 @@ class StarDictParser {
         for (const suffix of this.suffixes) {
             if (currentWord.endsWith(suffix) && currentWord.length > suffix.length) {
                 const remainingRoot = currentWord.slice(0, -suffix.length);
-                this.findSuffixCombinations(remainingRoot, [...foundSuffixes, suffix], uniqueMatches, limit, depth + 1, originalQuery);
+                this.findAffixCombinations(remainingRoot, [...foundSuffixes, suffix], foundPrefixes, uniqueMatches, limit, depth + 1, originalQuery);
+            }
+        }
+
+        // Try breaking off more prefixes
+        for (const prefix of this.prefixes) {
+            if (currentWord.startsWith(prefix) && currentWord.length > prefix.length) {
+                const remainingRoot = currentWord.substring(prefix.length);
+                this.findAffixCombinations(remainingRoot, foundSuffixes, [...foundPrefixes, prefix], uniqueMatches, limit, depth + 1, originalQuery);
             }
         }
     }
