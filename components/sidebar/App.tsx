@@ -47,6 +47,7 @@ function App({ onClose, inline }: AppProps) {
   const [sidebarPosition, setSidebarPosition] = useState<'left' | 'right'>('right');
   const [sitePatches, setSitePatches] = useState(false);
   const [interceptLinkClicks, setInterceptLinkClicks] = useState(false);
+  const [autoExpandRefs, setAutoExpandRefs] = useState(false);
   const [selectionCopyThreshold, setSelectionCopyThreshold] = useState(0);
 
   const autoPlayTTSRef = useRef(false);
@@ -135,6 +136,7 @@ function App({ onClose, inline }: AppProps) {
       seldSitePatches: v => setSitePatches(v as boolean),
       seldSinhalaFont: v => setSinhalaFont(v as string),
       seldInterceptLinkClicks: v => setInterceptLinkClicks(v as boolean),
+      seldAutoExpandRefs: v => setAutoExpandRefs(v as boolean),
       seldSelectionCopyThreshold: v => setSelectionCopyThreshold(v as number),
       seldSearchHistory: v => {
         if (Array.isArray(v)) {
@@ -722,6 +724,7 @@ function App({ onClose, inline }: AppProps) {
                   word={selectedWord!}
                   definition={definition}
                   transliterateSinhala={transliterateSinhala}
+                  autoExpandRefs={autoExpandRefs}
                   onWordClick={(word, fallbackWord) => {
                     setQuery(word);
                     if (fallbackWord) {
@@ -776,6 +779,8 @@ function App({ onClose, inline }: AppProps) {
           setSinhalaFont={setSinhalaFont}
           interceptLinkClicks={interceptLinkClicks}
           setInterceptLinkClicks={setInterceptLinkClicks}
+          autoExpandRefs={autoExpandRefs}
+          setAutoExpandRefs={setAutoExpandRefs}
           selectionCopyThreshold={selectionCopyThreshold}
           setSelectionCopyThreshold={setSelectionCopyThreshold}
           saveSetting={saveSetting}

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import tippy, { delegate } from "tippy.js";
 import "tippy.js/dist/border.css";
 import "tippy.js/dist/tippy.css";
@@ -23,7 +23,95 @@ interface DefinitionCardProps {
 	isFavorite?: boolean;
 	favoritesList?: string[];
 	onToggleFavorite?: (word: string) => void;
+	autoExpandRefs?: boolean;
+	isNested?: boolean;
 }
+
+const NestedDefinition: React.FC<{
+	word: string;
+	onWordClick: (word: string, fallbackWord?: string) => void;
+	onSpeakClick: (word: string) => void;
+	onCopyClick: (copyData: { copyText: string; typeName: string }) => void;
+	transliterateSinhala: boolean;
+	autoExpand: boolean;
+	favoritesList?: string[];
+	onToggleFavorite?: (word: string) => void;
+	onExplorerClick?: (word: string) => void;
+}> = ({ word, autoExpand, ...props }) => {
+	const [isExpanded, setIsExpanded] = useState(autoExpand);
+	const [nestedDef, setNestedDef] = useState<StructuredDefinition[] | null>(null);
+	const [loading, setLoading] = useState(false);
+	const [error, setError] = useState(false);
+
+	useEffect(() => {
+		if (isExpanded && !nestedDef && !loading) {
+			setLoading(true);
+			setError(false);
+			import("../../utils/stardict").then(({ stardict }) => {
+				stardict.getDefinition(word).then(def => {
+					if (def && def.length > 0) {
+						setNestedDef(def);
+					} else {
+						setError(true);
+					}
+					setLoading(false);
+				}).catch(() => {
+					setError(true);
+					setLoading(false);
+				});
+			});
+		}
+	}, [isExpanded, word, nestedDef, loading]);
+
+	return (
+		<div className="nested-definition">
+			<div className="nested-definition-header">
+				<span className="nested-word-link" onClick={(e) => {
+					e.stopPropagation();
+					props.onWordClick(word);
+				}}>
+					{word}
+				</span>
+				{props.transliterateSinhala && /[\u0D80-\u0DFF]/.test(word) && (
+					<span className="seld-transliteration" style={{ marginLeft: '4px', fontSize: '0.9em', opacity: 0.8 }}>
+						[{transliterateSinhalaTxt(word)}]
+					</span>
+				)}
+				<button
+					className={`seld-btn seld-btn-ghost nested-toggle-btn ${isExpanded ? "expanded" : ""}`}
+					onClick={(e) => {
+						e.stopPropagation();
+						setIsExpanded(!isExpanded);
+					}}
+				>
+					<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" className="toggle-chevron">
+						<polyline points="9 18 15 12 9 6"></polyline>
+					</svg>
+				</button>
+			</div>
+			{isExpanded && (
+				<div className="nested-definition-content">
+					{loading ? (
+						<div className="nested-loading">
+							<div className="skeleton-line shimmer"></div>
+						</div>
+					) : error ? (
+						<div className="nested-error">Definition not found</div>
+					) : nestedDef ? (
+						<DefinitionCard
+							{...props}
+							word={word}
+							definition={nestedDef}
+							showExplorerLink={false}
+							autoExpandRefs={autoExpand}
+							isNested={true}
+						/>
+					) : null}
+				</div>
+			)}
+		</div>
+	);
+};
 
 const CopyOptionsButton = ({ word, definitionHtml, onCopyClick }: { word: string, definitionHtml: string | string[], onCopyClick: (data: { copyText: string, typeName: string }) => void }) => {
 	const btnRef = useRef<HTMLButtonElement>(null);
@@ -127,7 +215,9 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 	onExplorerClick,
 	isFavorite,
 	favoritesList,
-	onToggleFavorite
+	onToggleFavorite,
+	autoExpandRefs = false,
+	isNested = false
 }) => {
 	const containerRef = useRef<HTMLDivElement>(null);
 
@@ -291,7 +381,7 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 		};
 	}, []);
 
-	const renderTextWithClicks = (text: string) => {
+	const renderTextWithClicks = (text: string, isRef: boolean = false) => {
 		const tokens = text.split(/([^a-zA-Z\u0D80-\u0DFF\u200D\u200C]+)/).filter(Boolean);
 		const elements: React.ReactNode[] = [];
 
@@ -356,22 +446,37 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 						}
 
 						elements.push(
-							<span
-								key={k}
-								className="clickable-word"
-								onClick={e => {
-									e.stopPropagation();
-									onWordClick(compoundSearchTarget, hasCompound ? t : undefined);
-								}}>
-								{highlightText(t)}
-							</span>
+							isRef ? (
+								<NestedDefinition
+									key={k}
+									word={compoundSearchTarget}
+									autoExpand={autoExpandRefs}
+									onWordClick={onWordClick}
+									onSpeakClick={onSpeakClick}
+									onCopyClick={onCopyClick}
+									transliterateSinhala={transliterateSinhala}
+									favoritesList={favoritesList}
+									onToggleFavorite={onToggleFavorite}
+									onExplorerClick={onExplorerClick}
+								/>
+							) : (
+								<span
+									key={k}
+									className="clickable-word"
+									onClick={e => {
+										e.stopPropagation();
+										onWordClick(compoundSearchTarget, hasCompound ? t : undefined);
+									}}>
+									{highlightText(t)}
+								</span>
+							)
 						);
 					} else {
 						elements.push(<span key={k}>{t}</span>);
 					}
 				}
 
-				if (transliterateSinhala) {
+				if (transliterateSinhala && !isRef) {
 					elements.push(
 						<span key={`t-${i}`} className="seld-transliteration">
 							{" "}
@@ -383,15 +488,30 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 				i = lastSinhalaIndex + 1;
 			} else if (isEnglish) {
 				elements.push(
-					<span
-						key={i}
-						className="clickable-word"
-						onClick={e => {
-							e.stopPropagation();
-							onWordClick(token);
-						}}>
-						{highlightText(token)}
-					</span>
+					isRef ? (
+						<NestedDefinition
+							key={i}
+							word={token}
+							autoExpand={autoExpandRefs}
+							onWordClick={onWordClick}
+							onSpeakClick={onSpeakClick}
+							onCopyClick={onCopyClick}
+							transliterateSinhala={transliterateSinhala}
+							favoritesList={favoritesList}
+							onToggleFavorite={onToggleFavorite}
+							onExplorerClick={onExplorerClick}
+						/>
+					) : (
+						<span
+							key={i}
+							className="clickable-word"
+							onClick={e => {
+								e.stopPropagation();
+								onWordClick(token);
+							}}>
+							{highlightText(token)}
+						</span>
+					)
 				);
 				i++;
 			} else {
@@ -424,18 +544,19 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 
 		const ABBREV_CLASSES = ["partofspeech", "usage", "language", "variantentrytype", "ownertype_abbreviation"];
 
-		const convertNode = (node: Node, key: string, isAbbrev: boolean = false): React.ReactNode => {
+		const convertNode = (node: Node, key: string, isAbbrev: boolean = false, isRef: boolean = false): React.ReactNode => {
 			if (node.nodeType === Node.TEXT_NODE) {
 				if (isAbbrev) {
 					return <React.Fragment key={key}>{node.textContent}</React.Fragment>;
 				}
-				return <React.Fragment key={key}>{renderTextWithClicks(node.textContent || "")}</React.Fragment>;
+				return <React.Fragment key={key}>{renderTextWithClicks(node.textContent || "", isRef)}</React.Fragment>;
 			}
 			if (node.nodeType === Node.ELEMENT_NODE) {
 				const element = node as HTMLElement;
 				const tagName = element.tagName.toLowerCase();
 				const nodeIsAbbrev = isAbbrev || Array.from(element.classList).some(c => ABBREV_CLASSES.includes(c));
-				const children = Array.from(element.childNodes).map((child, i) => convertNode(child, `${key}-${i}`, nodeIsAbbrev));
+				const nodeIsRef = isRef || element.classList.contains("referencedentry");
+				const children = Array.from(element.childNodes).map((child, i) => convertNode(child, `${key}-${i}`, nodeIsAbbrev, nodeIsRef));
 
 				if (element.style && element.style.color) {
 					element.style.color = "";
@@ -455,6 +576,32 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 					case "ul": return <ul key={key} className={element.className}>{children}</ul>;
 					case "li": return <li key={key} className={element.className}>{children}</li>;
 					case "font": return <span key={key} className={element.className}>{children}</span>;
+					case "a":
+						const wordToLink = element.textContent || "";
+						return isRef ? (
+							<NestedDefinition
+								key={key}
+								word={wordToLink}
+								autoExpand={autoExpandRefs}
+								onWordClick={onWordClick}
+								onSpeakClick={onSpeakClick}
+								onCopyClick={onCopyClick}
+								transliterateSinhala={transliterateSinhala}
+								favoritesList={favoritesList}
+								onToggleFavorite={onToggleFavorite}
+								onExplorerClick={onExplorerClick}
+							/>
+						) : (
+							<span
+								key={key}
+								className="clickable-word"
+								onClick={e => {
+									e.stopPropagation();
+									onWordClick(wordToLink);
+								}}>
+								{wordToLink}
+							</span>
+						);
 					default: return <React.Fragment key={key}>{children}</React.Fragment>;
 				}
 			}
@@ -464,7 +611,7 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 	};
 
 	return (
-		<div className="definition-box" ref={containerRef}>
+		<div className={`definition-box${isNested ? " is-nested" : ""}`} ref={containerRef}>
 			<h2 className="def-title">
 				<div className="def-header-text-container">
 					<span>{highlightText(word)}</span>

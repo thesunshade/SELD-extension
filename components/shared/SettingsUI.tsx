@@ -77,6 +77,8 @@ interface SettingsUIProps {
   setSinhalaFont: (val: string) => void;
   interceptLinkClicks: boolean;
   setInterceptLinkClicks: (val: boolean) => void;
+  autoExpandRefs: boolean;
+  setAutoExpandRefs: (val: boolean) => void;
   selectionCopyThreshold: number;
   setSelectionCopyThreshold: (val: number) => void;
   saveSetting: (key: string, value: any) => void;
@@ -105,6 +107,8 @@ export const SettingsUI: React.FC<SettingsUIProps> = ({
   setSinhalaFont,
   interceptLinkClicks,
   setInterceptLinkClicks,
+  autoExpandRefs,
+  setAutoExpandRefs,
   selectionCopyThreshold,
   setSelectionCopyThreshold,
   saveSetting,
@@ -291,6 +295,21 @@ export const SettingsUI: React.FC<SettingsUIProps> = ({
             />
             <span className="custom-checkbox"></span>
             <span className="checkbox-label">Transliterate Sinhala</span>
+          </label>
+
+          <label className="checkbox-container"
+            data-tippy-content="Automatically fetch and display rooted definitions for derivative words (e.g. 'ran' showing 'run').">
+            <input
+              type="checkbox"
+              checked={autoExpandRefs}
+              onChange={e => {
+                const val = e.target.checked;
+                setAutoExpandRefs(val);
+                saveSetting("seldAutoExpandRefs", val);
+              }}
+            />
+            <span className="custom-checkbox"></span>
+            <span className="checkbox-label">Auto-expand references</span>
           </label>
         </div>
         <div className="settings-control" style={{ marginTop: '10px' }}>
