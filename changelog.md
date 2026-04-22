@@ -9,6 +9,7 @@
 * add copy popup for larger selections of text 
 * emphasize definition box in sidebar
 * fix textpad layout
+* update dictionary
 
 ## 0.4.5
 * Improve alphabet pages
