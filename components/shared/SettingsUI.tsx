@@ -4,9 +4,9 @@ import "./SettingsUI.css";
 
 const SINHALA_FONTS: { value: string; label: string }[] = [
   { value: "Noto Sans Sinhala", label: "Noto Sans" },
-  { value: "Google Sans",       label: "Google Sans" },
-  { value: "Abhaya Libre",      label: "Abhaya Libre" },
-  { value: "system",           label: "System Default" },
+  { value: "Google Sans", label: "Google Sans" },
+  { value: "Abhaya Libre", label: "Abhaya Libre" },
+  { value: "system", label: "System Default" },
 ];
 
 const SINHALA_SAMPLE = "සිංහල හෝඩිය";
@@ -77,6 +77,8 @@ interface SettingsUIProps {
   setSinhalaFont: (val: string) => void;
   interceptLinkClicks: boolean;
   setInterceptLinkClicks: (val: boolean) => void;
+  selectionCopyThreshold: number;
+  setSelectionCopyThreshold: (val: number) => void;
   saveSetting: (key: string, value: any) => void;
 }
 
@@ -103,6 +105,8 @@ export const SettingsUI: React.FC<SettingsUIProps> = ({
   setSinhalaFont,
   interceptLinkClicks,
   setInterceptLinkClicks,
+  selectionCopyThreshold,
+  setSelectionCopyThreshold,
   saveSetting,
 }) => {
   return (
@@ -289,10 +293,39 @@ export const SettingsUI: React.FC<SettingsUIProps> = ({
             <span className="checkbox-label">Transliterate Sinhala</span>
           </label>
         </div>
+        <div className="settings-control" style={{ marginTop: '10px' }}>
+          <label className="settings-label" style={{ fontSize: '0.85em', opacity: 0.8, marginBottom: '4px', display: 'block' }}>
+            Copy selection if longer than
+          </label>
+          <div className="slider-container" style={{ maxWidth: '240px' }}>
+            <input
+              type="range"
+              min="0"
+              max="200"
+              step="10"
+              value={selectionCopyThreshold}
+              onChange={e => {
+                const val = parseInt(e.target.value);
+                setSelectionCopyThreshold(val);
+                saveSetting("seldSelectionCopyThreshold", val);
+              }}
+            />
+            <span
+              className="slider-value"
+              style={{ cursor: "pointer" }}
+              onClick={() => {
+                setSelectionCopyThreshold(0);
+                saveSetting("seldSelectionCopyThreshold", 0);
+              }}
+            >
+              {selectionCopyThreshold === 0 ? "Off" : `${selectionCopyThreshold} chars`}
+            </span>
+          </div>
+        </div>
       </div>
       <div className="settings-group">
         <label className="settings-label">Experimental</label>
-        <div data-tippy-content="Removes the page sidebar on the following sites when the Dictionary sidebar is open to improve usability. May cause unexpected results.<br>• wikipedia.org<br>• mahamegha.lk<br>• lankadeepa.lk<br>• hirunews.lk<br>• news.lk<br>• adaderana.lk<br>• reddit.com" className="settings-control"
+        <div data-tippy-content="Removes the page sidebar on the following sites when the Dictionary sidebar is open to improve usability. May cause unexpected results.<br>• BBC.com<br>• wikipedia.org<br>• mahamegha.lk<br>• lankadeepa.lk<br>• hirunews.lk<br>• news.lk<br>• adaderana.lk<br>• reddit.com" className="settings-control"
           data-tippy-allowhtml="true">
           <label className="checkbox-container">
             <input

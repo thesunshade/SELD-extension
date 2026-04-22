@@ -23,25 +23,39 @@ if (textPadRoot) {
 }
 
 // 2. Mount Sidebar App
+let interceptLinks = false;
+let ctrlClickLookup = true;
+
 const updateSidebarPositionClass = (position: 'left' | 'right') => {
 	document.documentElement.classList.remove('seld-pos-left', 'seld-pos-right');
 	document.documentElement.classList.add(`seld-pos-${position}`);
 };
 
-// Initial load of position
-browser.storage.local.get(['seldSidebarPosition']).then(res => {
+// Initial load of settings
+browser.storage.local.get(['seldSidebarPosition', 'seldInterceptLinkClicks', 'seldCtrlClickLookup']).then(res => {
 	const pos = (res.seldSidebarPosition === 'left' || res.seldSidebarPosition === 'right') 
 		? res.seldSidebarPosition 
 		: 'right';
 	updateSidebarPositionClass(pos);
+	
+	interceptLinks = !!res.seldInterceptLinkClicks;
+	ctrlClickLookup = res.seldCtrlClickLookup !== false; // Default to true
 });
 
-// React to position changes
+// React to changes
 browser.storage.onChanged.addListener((changes, namespace) => {
-	if (namespace === 'local' && changes.seldSidebarPosition) {
-		const nextPos = changes.seldSidebarPosition.newValue;
-		if (nextPos === 'left' || nextPos === 'right') {
-			updateSidebarPositionClass(nextPos);
+	if (namespace === 'local') {
+		if (changes.seldSidebarPosition) {
+			const nextPos = changes.seldSidebarPosition.newValue;
+			if (nextPos === 'left' || nextPos === 'right') {
+				updateSidebarPositionClass(nextPos);
+			}
+		}
+		if (changes.seldInterceptLinkClicks) {
+			interceptLinks = changes.seldInterceptLinkClicks.newValue;
+		}
+		if (changes.seldCtrlClickLookup) {
+			ctrlClickLookup = changes.seldCtrlClickLookup.newValue;
 		}
 	}
 });
@@ -61,5 +75,7 @@ if (sidebarRoot) {
 // 3. Setup Selection Events (treating the Text Pad like a normal webpage)
 setupSidebarEvents(
 	() => true, // Sidebar is always open on this page
-	() => { }    // No need to init, it's already there
+	() => { },    // No need to init, it's already there
+	() => interceptLinks,
+	() => ctrlClickLookup
 );

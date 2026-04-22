@@ -8,6 +8,7 @@ import { createShadowRootUi } from 'wxt/client';
 import type { ContentScriptUi } from 'wxt/client';
 import { applySitePatch, removeSitePatch } from '../utils/site-patches';
 import { clearActiveHighlight } from '../utils/dom-highlights';
+import { selectionCopyTooltip } from '../utils/selection-copy';
 //
 // Import CSS normally - WXT will bundle these into a single content.css file
 import '../assets/theme.css';
@@ -247,6 +248,12 @@ export default defineContentScript({
                 if (changes.seldCtrlClickLookup) {
                   seldCtrlClickLookup = changes.seldCtrlClickLookup.newValue;
                 }
+                if (changes.seldSelectionCopyThreshold) {
+                  selectionCopyTooltip.updateThreshold(changes.seldSelectionCopyThreshold.newValue);
+                }
+                if (changes.theme) {
+                  selectionCopyTooltip.updateTheme(changes.theme.newValue);
+                }
             }
         };
         browser.storage.onChanged.addListener(storageChangeHandler);
@@ -266,6 +273,16 @@ export default defineContentScript({
           () => seldCtrlClickLookup, 
           ctx
         );
+
+        const handleMouseUp = () => {
+          selectionCopyTooltip.handleSelection();
+        };
+
+        if (ctx) {
+          ctx.addEventListener(window, 'mouseup', handleMouseUp);
+        } else {
+          window.addEventListener('mouseup', handleMouseUp);
+        }
 
         // -------------------------------------------------------------
         // Listen for requests from the SidePanel
