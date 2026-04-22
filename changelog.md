@@ -2,13 +2,13 @@
 
 # Change Log
 
-## 0.4.6
+## 0.4.6 (2025-04-22)
 * parse prefixes in words
 * add nested main entry toggle for minor entries
 * add BBC to custom css
 * add copy popup for larger selections of text 
 * emphasize definition box in sidebar
-* fix textpad layou
+* fix textpad layout
 
 ## 0.4.5
 * Improve alphabet pages
