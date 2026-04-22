@@ -2,6 +2,14 @@
 
 # Change Log
 
+## 0.4.6
+* parse prefixes in words
+* add nested main entry toggle for minor entries
+* add BBC to custom css
+* add copy popup for larger selections of text 
+* emphasize definition box in sidebar
+* fix textpad layou
+
 ## 0.4.5
 * Improve alphabet pages
 * Add setting to prevent link clicks from opening so that their text can be looked up
