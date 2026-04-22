@@ -1,0 +1,11 @@
+/* NOTE: because of the use of a hashed class, this code is somewhat fragile*/
+
+/* Hide the last grid column (sidebar) on bbc.com/sinhala article pages */
+.css-bg8vrv>div:last-child {
+    display: none !important;
+}
+
+/* Expand the main content to full width */
+.css-bg8vrv>div:first-child {
+    grid-column: 1 / -1 !important;
+}

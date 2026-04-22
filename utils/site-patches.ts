@@ -6,6 +6,7 @@ import newsLkCSS from '../assets/site-patches/news.lk.css?raw';
 import hirunewsLkCSS from '../assets/site-patches/hirunews.lk.css?raw';
 import lankadeepaLkCSS from '../assets/site-patches/lankadeepa.lk.css?raw';
 import dailylifeLkCSS from '../assets/site-patches/dailylife.lk.css?raw';
+import bbcCSS from '../assets/site-patches/bbc.com.css?raw';
 
 
 
@@ -22,7 +23,8 @@ const SITE_PATCHES: Record<string, string> = {
     'news.lk': newsLkCSS,
     'hirunews.lk': hirunewsLkCSS,
     'lankadeepa.lk': lankadeepaLkCSS,
-    'dailylife.lk': dailylifeLkCSS
+    'dailylife.lk': dailylifeLkCSS,
+    'bbc.com': bbcCSS
 };
 
 /**
