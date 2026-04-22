@@ -66,6 +66,7 @@ html {
 	--bg-panel: rgba(255, 255, 255);
 	--bg-panel-secondary: #e9f2ff;
 	--border-color: #e2e8f0;
+	--border-color-strong: black;
 	--accent: #0f172a;
 	--accent-fg: #ffffff;
 	--accent-hover: #1e293b;
@@ -85,6 +86,7 @@ html {
 	--text-primary: #f6f8fa;
 	--text-secondary: #bfc8d4;
 	--border-color: #3c5379;
+	--border-color-strong: white;
 	--accent: #f8fafc;
 	--accent-fg: #0f172a;
 	--accent-hover: #e2e8f0;
