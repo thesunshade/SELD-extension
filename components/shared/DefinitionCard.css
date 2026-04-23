@@ -92,6 +92,7 @@
  .definitionorgloss {
  	font-weight: bold;
  	/* color: aquamarine !important; */
+ 	opacity: 1;
  }
 
  /* For some reason the below only applies to the dictionary browser, not the sidebar */
@@ -112,7 +113,9 @@
  	opacity: 0.6;
  }
 
+
  .variantformentrybackrefs,
+ /* .visiblecomplexformbackrefs, */
  .complexformentryrefs,
  .lexsensereferences,
  .minimallexreferences {
