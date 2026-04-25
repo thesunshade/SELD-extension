@@ -298,7 +298,7 @@ export const SettingsUI: React.FC<SettingsUIProps> = ({
           </label>
 
           <label className="checkbox-container"
-            data-tippy-content="Automatically fetch and display rooted definitions for derivative words (e.g. 'ran' showing 'run').">
+            data-tippy-content="Automatically fetch and display rooted definitions for derivative words.">
             <input
               type="checkbox"
               checked={autoExpandRefs}
