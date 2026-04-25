@@ -70,6 +70,19 @@ export function useGlobalTooltips(
                     instance.setContent(currentContent);
                 }
 
+                // Honour per-element data-tippy-delay overrides (not supported natively
+                // by the delegate pattern since the delegate shares one instance config).
+                const rawDelay = instance.reference.getAttribute('data-tippy-delay');
+                if (rawDelay !== null) {
+                    const parsed = Number(rawDelay);
+                    if (!isNaN(parsed)) {
+                        instance.setProps({ delay: [parsed, parsed] });
+                    }
+                } else {
+                    // Reset to global default in case a previous target had overridden it.
+                    instance.setProps({ delay: DEFAULT_TIPPY_OPTIONS.delay });
+                }
+
                 // Allow custom options to override or extend onShow
                 if (options?.onShow) {
                     options.onShow(instance);

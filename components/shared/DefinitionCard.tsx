@@ -8,6 +8,9 @@ import { transliterateSinhala as transliterateSinhalaTxt } from "../../utils/tra
 import { htmlToFormattedText } from "../../utils/styleTranslator";
 import { checkBloom } from "../../utils/bloom-data";
 import { CarterFallbackLink } from "./CarterFallbackLink";
+import { useGlobalTooltips } from "./useGlobalTooltips";
+
+const isSynthesized = (w?: string) => w && (w.includes(' -') || w.includes('- '));
 
 interface DefinitionCardProps {
 	word: string;
@@ -220,6 +223,7 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 	isNested = false
 }) => {
 	const containerRef = useRef<HTMLDivElement>(null);
+	useGlobalTooltips(containerRef);
 
 	useEffect(() => {
 		let tippyInstances: any[] = [];
@@ -614,7 +618,18 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 		<div className={`definition-box${isNested ? " is-nested" : ""}`} ref={containerRef}>
 			<h2 className="def-title">
 				<div className="def-header-text-container">
-					<span>{highlightText(word)}</span>
+					<div className="def-header-row">
+						<span>{highlightText(word)}</span>
+						{isSynthesized(word) && (
+							<span
+								className="synthesized-info-dot"
+								data-tippy-content="This break down of the word is just an automatic guess based on existing entries in the dictionary. It may or may not be correct."
+								data-tippy-delay="0"
+							>
+								i
+							</span>
+						)}
+					</div>
 					{transliterateSinhala && /[\u0D80-\u0DFF]/.test(word || "") && (
 						<span className="seld-transliteration def-transliteration-header">
 							{transliterateSinhalaTxt(word!)}
@@ -705,14 +720,25 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 							{definition.length > 1 && (
 								<div className="synthesized-header">
 									<div className="def-header-text-container">
-										<span
-											className="synthesized-header-text"
-											onClick={() => {
-												onWordClick(block.headword);
-											}}
-											data-tippy-content="Search this word">
-											{highlightText(block.headword)}
-										</span>
+										<div className="def-header-row">
+											<span
+												className="synthesized-header-text"
+												onClick={() => {
+													onWordClick(block.headword);
+												}}
+												data-tippy-content="Search this word">
+												{highlightText(block.headword)}
+											</span>
+											{isSynthesized(block.headword) && (
+												<span
+													className="synthesized-info-dot"
+													data-tippy-content="This break down of the word is just an automatic guess based on existing entries in the dictionary. It may or may not be correct."
+													data-tippy-delay="0"
+												>
+													i
+												</span>
+											)}
+										</div>
 										{transliterateSinhala && /[\u0D80-\u0DFF]/.test(block.headword) && (
 											<span className="seld-transliteration def-transliteration-header">
 												{transliterateSinhalaTxt(block.headword)}
