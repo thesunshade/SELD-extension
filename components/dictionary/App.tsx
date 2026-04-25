@@ -357,7 +357,7 @@ export default function DictionaryApp() {
 
 		if (word && allEntries.length > 0) {
 			// Clear the word param so it doesn't jump back on settings/search toggle
-			// window.history.replaceState({}, document.title, window.location.pathname);
+			window.history.replaceState({}, document.title, window.location.pathname);
 
 			if (viewParam === "search") {
 				setView("search");
