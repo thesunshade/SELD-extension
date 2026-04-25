@@ -9,6 +9,7 @@
 
 
 ## Improvements
+- [ ] info or warning icon when words are parsed with a tooltip explaining that this is an automated function
 - [ ] icon in sidebar search field to play search string
 - [ ] no result found msg should be in definition area so that non-perect matches can see the suggest link
 - [ ] `.dict-toast` needs to be DRY
