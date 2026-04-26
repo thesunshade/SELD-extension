@@ -2,6 +2,10 @@
 
 # Change Log
 
+## 0.4.7 (2025-04-26)
+* bug: fix sending word to dictionary browser search
+* update dictionary
+
 ## 0.4.6 (2025-04-22)
 * parse prefixes in words
 * add nested main entry toggle for minor entries
