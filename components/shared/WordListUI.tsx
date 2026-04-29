@@ -288,7 +288,9 @@ export const WordListUI: React.FC<WordListUIProps> = ({
 		<div className="word-list-ui">
 			<div className="word-list-header">
 				<div className="word-list-search-wrapper">
+					<label htmlFor={`word-list-search-${listType || 'generic'}`} className="sr-only">Filter {listType || 'items'} in list</label>
 					<input
+						id={`word-list-search-${listType || 'generic'}`}
 						type="text"
 						className="dict-search-input"
 						placeholder={listType ? `Search ${listType} list...` : "Search list..."}

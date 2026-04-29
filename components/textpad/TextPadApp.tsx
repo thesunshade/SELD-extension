@@ -138,14 +138,18 @@ export default function TextPadApp() {
 
 			<div className="textpad-main">
 				{mode === 'EDIT' ? (
-					<textarea
-						className="textpad-input"
-						style={{ fontSize: `${fontScale}%` }}
-						value={text}
-						onChange={e => setText(e.target.value)}
-						placeholder="Type or paste your Sinhala text here. Then save to start looking up words."
-						autoFocus
-					/>
+					<>
+						<label htmlFor="textpad-input-area" className="sr-only">Type or paste Sinhala text here</label>
+						<textarea
+							id="textpad-input-area"
+							className="textpad-input"
+							style={{ fontSize: `${fontScale}%` }}
+							value={text}
+							onChange={e => setText(e.target.value)}
+							placeholder="Type or paste your Sinhala text here. Then save to start looking up words."
+							autoFocus
+						/>
+					</>
 				) : (
 					<div
 						className="textpad-display"

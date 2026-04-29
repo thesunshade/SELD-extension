@@ -631,7 +631,9 @@ function App({ onClose, inline }: AppProps) {
         <>
           <div className="search-input-section">
             <div className="search-input-wrapper">
+              <label htmlFor="sidebar-search-input" className="sr-only">Search dictionary</label>
               <input
+                id="sidebar-search-input"
                 type="text"
                 value={query}
                 onChange={e => {

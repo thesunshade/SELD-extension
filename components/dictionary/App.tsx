@@ -643,7 +643,8 @@ export default function DictionaryApp() {
 								onClear={clearHistory}
 								onDownload={downloadHistory}
 							/>
-							<input type="text" className="dict-search-input" placeholder="Search..." value={searchQuery} onChange={e => { setSearchQuery(e.target.value); setFallbackSearchQuery(""); }} autoFocus />
+							<label htmlFor="dict-main-search" className="sr-only">Search dictionary entries</label>
+							<input id="dict-main-search" type="text" className="dict-search-input" placeholder="Search..." value={searchQuery} onChange={e => { setSearchQuery(e.target.value); setFallbackSearchQuery(""); }} autoFocus />
 							<div className="search-scope-toggle">
 								<button className={`seld-btn seld-btn-secondary scope-btn ${searchScope === "headwords" ? "active" : ""}`} onClick={() => setSearchScope("headwords")}
 									data-tippy-content="Search headwords only, using a fuzzy matching pattern.">Headwords</button>

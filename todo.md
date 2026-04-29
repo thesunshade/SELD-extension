@@ -3,6 +3,7 @@
 - [ ] Trailing spaces in dictionary explorer search should be ignored
 - [ ] leading and trailing hyphens should be ignored
 - [ ] in the entry for එකතු වෙලා, it gives the main entry එකතු වෙනවා twice. This doesn't seem to be the case for variants of other words. And it doesn't show up this way in goldendict
+- [ ] @contextScopeItemMention 
 
 ## Search
 - [ ] particles should be treated like suffixes, e.g. ත්

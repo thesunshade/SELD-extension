@@ -181,9 +181,10 @@ export const SettingsUI: React.FC<SettingsUIProps> = ({
         </div>
       </div>
       <div className="settings-group">
-        <label className="settings-label">Font Size</label>
+        <label className="settings-label" htmlFor="settings-font-size">Font Size</label>
         <div className="slider-container">
           <input
+            id="settings-font-size"
             type="range"
             min="50"
             max="200"
@@ -313,11 +314,12 @@ export const SettingsUI: React.FC<SettingsUIProps> = ({
           </label>
         </div>
         <div className="settings-control" style={{ marginTop: '10px' }}>
-          <label className="settings-label" style={{ fontSize: '0.85em', opacity: 0.8, marginBottom: '4px', display: 'block' }}>
+          <label className="settings-label" htmlFor="settings-copy-threshold" >
             Copy selection if longer than
           </label>
           <div className="slider-container" style={{ maxWidth: '240px' }}>
             <input
+              id="settings-copy-threshold"
               type="range"
               min="0"
               max="200"
