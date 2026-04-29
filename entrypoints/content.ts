@@ -61,6 +61,9 @@ export default defineContentScript({
             // Remove host layout styles
             removeHostStyles();
 
+            // Remove copy tooltip
+            selectionCopyTooltip.destroy();
+
             if (ui) {
                 ui.remove();
                 ui = null;
@@ -275,7 +278,11 @@ export default defineContentScript({
         );
 
         const handleMouseUp = () => {
-          selectionCopyTooltip.handleSelection();
+          if (isSidebarOpen) {
+            selectionCopyTooltip.handleSelection();
+          } else {
+            selectionCopyTooltip.destroy();
+          }
         };
 
         if (ctx) {
