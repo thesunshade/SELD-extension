@@ -2,6 +2,11 @@
 
 # Change Log
 
+## 0.4.8 (2025-04-30)
+* bug: fixed select/copy popup on non-sidebar pages
+* improve a11y on input fields
+
+
 ## 0.4.7 (2025-04-26)
 * bug: fix sending word to dictionary browser search
 * update dictionary
