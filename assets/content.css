@@ -8,3 +8,8 @@
     background-color: #ffd700;
     color: #000;
 }
+
+::highlight(seld-tts-playing) {
+    background-color: #faaf4e;
+    color: #000;
+}

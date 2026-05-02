@@ -8,7 +8,10 @@ import { createShadowRootUi } from 'wxt/client';
 import type { ContentScriptUi } from 'wxt/client';
 import { applySitePatch, removeSitePatch } from '../utils/site-patches';
 import { clearActiveHighlight } from '../utils/dom-highlights';
-import { selectionCopyTooltip } from '../utils/selection-copy';
+import { selectionTooltip } from '../utils/selection-tooltip';
+import { selectionTTSPlayer } from '../utils/selection-tts';
+
+
 //
 // Import CSS normally - WXT will bundle these into a single content.css file
 import '../assets/theme.css';
@@ -61,8 +64,11 @@ export default defineContentScript({
             // Remove host layout styles
             removeHostStyles();
 
-            // Remove copy tooltip
-            selectionCopyTooltip.destroy();
+            // Remove selection tooltip and stop TTS player
+            selectionTooltip.destroy();
+            selectionTTSPlayer.stop();
+
+
 
             if (ui) {
                 ui.remove();
@@ -252,12 +258,18 @@ export default defineContentScript({
                   seldCtrlClickLookup = changes.seldCtrlClickLookup.newValue;
                 }
                 if (changes.seldSelectionCopyThreshold) {
-                  selectionCopyTooltip.updateThreshold(changes.seldSelectionCopyThreshold.newValue);
+                  selectionTooltip.updateThreshold(changes.seldSelectionCopyThreshold.newValue);
                 }
                 if (changes.theme) {
-                  selectionCopyTooltip.updateTheme(changes.theme.newValue);
+                  selectionTooltip.updateTheme(changes.theme.newValue);
+                  selectionTTSPlayer.updateTheme(changes.theme.newValue);
                 }
+                if (changes.seldEnableSelectionTTS) {
+                  selectionTooltip.updateEnableTTS(changes.seldEnableSelectionTTS.newValue);
+                }
+
             }
+
         };
         browser.storage.onChanged.addListener(storageChangeHandler);
 
@@ -279,10 +291,11 @@ export default defineContentScript({
 
         const handleMouseUp = () => {
           if (isSidebarOpen) {
-            selectionCopyTooltip.handleSelection();
+            selectionTooltip.handleSelection();
           } else {
-            selectionCopyTooltip.destroy();
+            selectionTooltip.destroy();
           }
+
         };
 
         if (ctx) {

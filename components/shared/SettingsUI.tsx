@@ -81,6 +81,9 @@ interface SettingsUIProps {
   setAutoExpandRefs: (val: boolean) => void;
   selectionCopyThreshold: number;
   setSelectionCopyThreshold: (val: number) => void;
+  enableSelectionTTS: boolean;
+  setEnableSelectionTTS: (val: boolean) => void;
+
   saveSetting: (key: string, value: any) => void;
 }
 
@@ -111,6 +114,9 @@ export const SettingsUI: React.FC<SettingsUIProps> = ({
   setAutoExpandRefs,
   selectionCopyThreshold,
   setSelectionCopyThreshold,
+  enableSelectionTTS,
+  setEnableSelectionTTS,
+
   saveSetting,
 }) => {
   return (
@@ -312,7 +318,22 @@ export const SettingsUI: React.FC<SettingsUIProps> = ({
             <span className="custom-checkbox"></span>
             <span className="checkbox-label">Auto-expand references</span>
           </label>
+          <label className="checkbox-container"
+            data-tippy-content="Adds a Play button next to Copy in the selection tooltip to read aloud selected text with highlighting.">
+            <input
+              type="checkbox"
+              checked={enableSelectionTTS}
+              onChange={e => {
+                const val = e.target.checked;
+                setEnableSelectionTTS(val);
+                saveSetting("seldEnableSelectionTTS", val);
+              }}
+            />
+            <span className="custom-checkbox"></span>
+            <span className="checkbox-label">Selection TTS (Play button)</span>
+          </label>
         </div>
+
         <div className="settings-control" style={{ marginTop: '10px' }}>
           <label className="settings-label" htmlFor="settings-copy-threshold" >
             Copy selection if longer than

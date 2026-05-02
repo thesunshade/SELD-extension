@@ -49,6 +49,8 @@ function App({ onClose, inline }: AppProps) {
   const [interceptLinkClicks, setInterceptLinkClicks] = useState(false);
   const [autoExpandRefs, setAutoExpandRefs] = useState(false);
   const [selectionCopyThreshold, setSelectionCopyThreshold] = useState(0);
+  const [enableSelectionTTS, setEnableSelectionTTS] = useState(true);
+
 
   const autoPlayTTSRef = useRef(false);
   const [showToast, setShowToast] = useState(false);
@@ -138,6 +140,8 @@ function App({ onClose, inline }: AppProps) {
       seldInterceptLinkClicks: v => setInterceptLinkClicks(v as boolean),
       seldAutoExpandRefs: v => setAutoExpandRefs(v as boolean),
       seldSelectionCopyThreshold: v => setSelectionCopyThreshold(v as number),
+      seldEnableSelectionTTS: v => setEnableSelectionTTS(v as boolean),
+
       seldSearchHistory: v => {
         if (Array.isArray(v)) {
           setHistory(v);
@@ -785,7 +789,10 @@ function App({ onClose, inline }: AppProps) {
           setAutoExpandRefs={setAutoExpandRefs}
           selectionCopyThreshold={selectionCopyThreshold}
           setSelectionCopyThreshold={setSelectionCopyThreshold}
+          enableSelectionTTS={enableSelectionTTS}
+          setEnableSelectionTTS={setEnableSelectionTTS}
           saveSetting={saveSetting}
+
         />
       )}
 
