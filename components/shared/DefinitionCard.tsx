@@ -47,6 +47,14 @@ const NestedDefinition: React.FC<{
 	const [error, setError] = useState(false);
 
 	useEffect(() => {
+		// Reset state when the target word changes to prevent stale data
+		setNestedDef(null);
+		setLoading(false);
+		setError(false);
+		setIsExpanded(autoExpand);
+	}, [word, autoExpand]);
+
+	useEffect(() => {
 		if (isExpanded && !nestedDef && !loading) {
 			setLoading(true);
 			setError(false);
@@ -452,7 +460,7 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 						elements.push(
 							isRef ? (
 								<NestedDefinition
-									key={k}
+									key={`${k}-${compoundSearchTarget}`}
 									word={compoundSearchTarget}
 									autoExpand={autoExpandRefs}
 									onWordClick={onWordClick}
@@ -494,7 +502,7 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 				elements.push(
 					isRef ? (
 						<NestedDefinition
-							key={i}
+							key={`${i}-${token}`}
 							word={token}
 							autoExpand={autoExpandRefs}
 							onWordClick={onWordClick}
@@ -584,7 +592,7 @@ export const DefinitionCard: React.FC<DefinitionCardProps> = ({
 						const wordToLink = element.textContent || "";
 						return isRef ? (
 							<NestedDefinition
-								key={key}
+								key={`${key}-${wordToLink}`}
 								word={wordToLink}
 								autoExpand={autoExpandRefs}
 								onWordClick={onWordClick}
