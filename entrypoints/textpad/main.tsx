@@ -8,9 +8,16 @@ import '../../assets/content.css';
 import '../../assets/sidebar.css';
 import '../../components/sidebar/App.css';
 import { createThemeManager } from '../../utils/themeManager';
+import { selectionTooltip } from '../../utils/selection-tooltip';
+import { selectionTTSPlayer } from '../../utils/selection-tts';
 
 // 0. Initialize Theme
 createThemeManager().setupThemeListeners();
+
+selectionTooltip.setCallbacks(
+    (sel) => selectionTTSPlayer.playSelection(sel),
+    () => selectionTTSPlayer.stop()
+);
 
 // 1. Mount Text Pad App
 const textPadRoot = document.getElementById('textpad-root');
@@ -57,6 +64,16 @@ browser.storage.onChanged.addListener((changes, namespace) => {
 		if (changes.seldCtrlClickLookup) {
 			ctrlClickLookup = changes.seldCtrlClickLookup.newValue;
 		}
+        if (changes.seldSelectionCopyThreshold) {
+            selectionTooltip.updateThreshold(changes.seldSelectionCopyThreshold.newValue);
+        }
+        if (changes.theme) {
+            selectionTooltip.updateTheme(changes.theme.newValue);
+            selectionTTSPlayer.updateTheme(changes.theme.newValue);
+        }
+        if (changes.seldEnableSelectionTTS) {
+            selectionTooltip.updateEnableTTS(changes.seldEnableSelectionTTS.newValue);
+        }
 	}
 });
 

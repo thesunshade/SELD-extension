@@ -23,6 +23,12 @@ export default defineContentScript({
     matches: ['<all_urls>'],
     cssInjectionMode: 'ui',
     main(ctx) {
+        
+        selectionTooltip.setCallbacks(
+            (sel) => selectionTTSPlayer.playSelection(sel),
+            () => selectionTTSPlayer.stop()
+        );
+        
         let isSidebarOpen = false;
         let ui: ContentScriptUi<ReactDOM.Root> | null = null;
         const STYLE_ID = 'seld-dynamic-styles';

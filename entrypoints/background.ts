@@ -45,50 +45,47 @@ export default defineBackground(() => {
         }
     };
 
-    const ttsCache = new Map<string, string>();
-    const ttsCacheKeys: string[] = [];
     const MAX_CACHE_SIZE = 60;
 
     // Listen for messages from the content script (keeping existing for now if needed, but cleaning up sidePanel)
     browser.runtime.onMessage.addListener((message: any, sender, sendResponse) => {
         if (message.action === 'GET_TTS_AUDIO') {
             const { text, tl } = message;
-            const cacheKey = `${tl || 'si'}:${text}`;
-
-            // Check cache first
-            if (ttsCache.has(cacheKey)) {
-                sendResponse({ audioData: ttsCache.get(cacheKey) });
-                return true;
-            }
-
             const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=${tl || 'si'}&client=tw-ob`;
 
-            fetch(url)
-                .then(response => {
+            caches.open('seld-tts-cache').then(async (cache) => {
+                let response = await cache.match(url);
+                
+                if (!response) {
+                    response = await fetch(url);
                     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    return response.arrayBuffer();
-                })
-                .then(buffer => {
-                    // Convert ArrayBuffer to Base64
-                    const base64 = btoa(
-                        new Uint8Array(buffer)
-                            .reduce((data, byte) => data + String.fromCharCode(byte), '')
-                    );
-
-                    // Store in cache
-                    if (ttsCacheKeys.length >= MAX_CACHE_SIZE) {
-                        const oldestKey = ttsCacheKeys.shift();
-                        if (oldestKey) ttsCache.delete(oldestKey);
+                    
+                    await cache.put(url, response.clone());
+                    
+                    // Enforce basic cache size limit
+                    const keys = await cache.keys();
+                    if (keys.length > MAX_CACHE_SIZE) {
+                        await cache.delete(keys[0]);
                     }
-                    ttsCache.set(cacheKey, base64);
-                    ttsCacheKeys.push(cacheKey);
+                }
 
-                    sendResponse({ audioData: base64 });
-                })
-                .catch(error => {
-                    console.error("[SELD] TTS fetch error:", error);
-                    sendResponse({ error: error.message });
-                });
+                const buffer = await response.arrayBuffer();
+                const bytes = new Uint8Array(buffer);
+                let binary = '';
+                const chunkSize = 8192;
+                
+                for (let i = 0; i < bytes.length; i += chunkSize) {
+                    binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+                }
+                
+                const base64 = btoa(binary);
+                sendResponse({ audioData: base64 });
+                
+            }).catch(error => {
+                console.error("[SELD] TTS fetch error:", error);
+                sendResponse({ error: error.message });
+            });
+            
             return true; // Keep message channel open for async response
         } else if (message.action === 'REQUEST_TOGGLE_SIDEBAR') {
             browser.tabs.query({ active: true, currentWindow: true }).then((tabs) => {

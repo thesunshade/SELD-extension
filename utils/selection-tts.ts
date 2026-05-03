@@ -53,14 +53,20 @@ class SelectionTTSPlayer {
         this.playlist = result.sentences;
         this.fullSelectionRange = result.fullRange;
 
-        if (this.playlist.length === 0) return;
+        if (this.playlist.length === 0) {
+            return;
+        }
 
         this.currentIndex = 0;
         this.showPlayer();
-        
+
         // Clear selection to make highlight visible
-        window.getSelection()?.removeAllRanges();
-        
+        if (selection.removeAllRanges) {
+            selection.removeAllRanges();
+        } else {
+            window.getSelection()?.removeAllRanges();
+        }
+
         this.play();
     }
 
@@ -69,7 +75,7 @@ class SelectionTTSPlayer {
 
         const mainRange = selection.getRangeAt(0).cloneRange();
         const sentences: SentenceBlock[] = [];
-        
+
         const nodes: Text[] = [];
         const root = mainRange.commonAncestorContainer;
         const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
@@ -97,7 +103,7 @@ class SelectionTTSPlayer {
                 if (trimmed.length > 180) {
                     const words = trimmed.split(/(\s+)/);
                     let currentChunk = "";
-                    
+
                     // Create a full range for the whole long sentence first
                     const fullSentenceRange = new Range();
                     fullSentenceRange.setStart(currentSentenceStartNode, currentSentenceStartOffset);
@@ -105,18 +111,18 @@ class SelectionTTSPlayer {
 
                     for (const word of words) {
                         if (currentChunk.length + word.length > 180 && currentChunk.length > 0) {
-                            sentences.push({ 
-                                text: currentChunk.trim(), 
-                                range: this.createSubRange(fullSentenceRange, currentChunk.trim()) || fullSentenceRange 
+                            sentences.push({
+                                text: currentChunk.trim(),
+                                range: this.createSubRange(fullSentenceRange, currentChunk.trim()) || fullSentenceRange
                             });
                             currentChunk = "";
                         }
                         currentChunk += word;
                     }
                     if (currentChunk.trim().length > 0) {
-                        sentences.push({ 
-                            text: currentChunk.trim(), 
-                            range: this.createSubRange(fullSentenceRange, currentChunk.trim()) || fullSentenceRange 
+                        sentences.push({
+                            text: currentChunk.trim(),
+                            range: this.createSubRange(fullSentenceRange, currentChunk.trim()) || fullSentenceRange
                         });
                     }
                 } else {
@@ -135,14 +141,14 @@ class SelectionTTSPlayer {
             const text = node.nodeValue || "";
             const start = (node === mainRange.startContainer) ? mainRange.startOffset : 0;
             const end = (node === mainRange.endContainer) ? mainRange.endOffset : text.length;
-            
+
             const visibleText = text.substring(start, end);
             if (!visibleText) continue;
 
             // Split by sentence terminators, keeping the terminators with the sentence.
             // Using a more robust regex that groups multiple terminators and handles Sinhala.
             const parts = visibleText.split(/([.!?।|]+\s*)/g);
-            
+
             let currentOffset = start;
             for (let i = 0; i < parts.length; i++) {
                 const part = parts[i];
@@ -160,7 +166,7 @@ class SelectionTTSPlayer {
                 if (/[.!?।|]/.test(part)) {
                     commitSentence(node, currentOffset + partLength);
                 }
-                
+
                 currentOffset += partLength;
             }
         }
@@ -199,10 +205,10 @@ class SelectionTTSPlayer {
             // Note: This is complex due to multiple possible matches. 
             // For now, we'll return null to fallback to the full sentence range if we're not sure.
             // But let's try a basic search.
-            
+
             // Actually, for chunks of a single sentence, using the full sentence range 
             // is perfectly fine for the highlight behavior the user requested.
-            return null; 
+            return null;
         } catch (e) {
             return null;
         }
@@ -221,16 +227,21 @@ class SelectionTTSPlayer {
 
         this.isPlaying = true;
         this.updateUI();
-        
+
         const item = this.playlist[this.currentIndex];
-        
+
         // Highlight current sentence using TTS category
         setTTSHighlight(item.range);
 
         try {
             // Trigger background fetch for this item
             const res = await browser.runtime.sendMessage({ action: 'GET_TTS_AUDIO', text: item.text, tl: 'si' });
-            
+
+            if (!res) {
+                this.next();
+                return;
+            }
+
             if (res.error) {
                 if (res.error.includes("429")) {
                     this.handleRateLimit();
@@ -446,7 +457,7 @@ class SelectionTTSPlayer {
             }
 
             .btn-active {
-                color: #2563eb;
+                color: #29ce00ff;
             }
 
             .divider {
@@ -475,7 +486,7 @@ class SelectionTTSPlayer {
 
         const player = document.createElement('div');
         player.className = 'player';
-        
+
         player.innerHTML = `
             <div class="main-row">
                 <div class="controls">

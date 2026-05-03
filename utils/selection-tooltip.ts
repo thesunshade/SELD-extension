@@ -1,5 +1,4 @@
 import { browser } from 'wxt/browser';
-import { selectionTTSPlayer } from './selection-tts';
 
 /**
  * Represents an action that can be performed on a text selection.
@@ -19,9 +18,17 @@ class SelectionTooltip {
     private threshold: number = 0;
     private enableTTS: boolean = true;
     private theme: string = 'system';
+    
+    private onPlayRequest: ((sel: Selection) => void) | null = null;
+    private onStopRequest: (() => void) | null = null;
 
     constructor() {
         this.loadSettings();
+    }
+
+    public setCallbacks(onPlay: (sel: Selection) => void, onStop: () => void) {
+        this.onPlayRequest = onPlay;
+        this.onStopRequest = onStop;
     }
 
     private async loadSettings() {
@@ -48,7 +55,6 @@ class SelectionTooltip {
         if (this.container) {
             this.applyThemeClass();
         }
-        selectionTTSPlayer.updateTheme(val);
     }
 
     private applyThemeClass() {
@@ -83,7 +89,7 @@ class SelectionTooltip {
 
         // Heuristic: If selecting more than one word, assume a new passage and kill old player.
         if (text.split(/\s+/).length > 1) {
-            selectionTTSPlayer.stop();
+            this.onStopRequest?.();
         }
 
         // Build list of sibling actions
@@ -97,8 +103,7 @@ class SelectionTooltip {
                 className: 'btn-play',
                 icon: '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>',
                 onClick: () => {
-                    const sel = window.getSelection();
-                    if (sel) selectionTTSPlayer.playSelection(sel);
+                    if (selection) this.onPlayRequest?.(selection);
                 }
             });
         }
@@ -240,6 +245,10 @@ class SelectionTooltip {
             content.appendChild(btn);
         });
 
+        shadow.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+        });
         shadow.addEventListener('mouseup', (e) => e.stopPropagation());
         
         shadow.appendChild(style);
