@@ -3,8 +3,6 @@ import { defineBackground } from 'wxt/sandbox';
 import { browser } from 'wxt/browser';
 
 export default defineBackground(() => {
-    let explorerTabId: number | null = null;
-
     // Open welcome page on install or major update
     browser.runtime.onInstalled.addListener(({ reason }) => {
         if (reason === 'install' || (reason === 'update' && IS_MAJOR_UPDATE)) {
@@ -97,22 +95,25 @@ export default defineBackground(() => {
             const { word, view } = message;
             const url = browser.runtime.getURL(`/dictionary.html?word=${encodeURIComponent(word || '')}${view ? `&view=${view}` : ''}`);
 
-            if (explorerTabId !== null) {
-                browser.tabs.get(explorerTabId)
-                    .then((tab) => {
-                        browser.tabs.update(explorerTabId!, { url, active: true });
-                    })
-                    .catch(() => {
-                        // Tab no longer exists, create a new one
-                        browser.tabs.create({ url }).then(tab => {
-                            explorerTabId = tab.id ?? null;
+            browser.storage.session.get('explorerTabId').then((res) => {
+                const explorerTabId = res.explorerTabId;
+                if (explorerTabId != null) {
+                    browser.tabs.get(explorerTabId)
+                        .then((tab) => {
+                            browser.tabs.update(explorerTabId, { url, active: true });
+                        })
+                        .catch(() => {
+                            // Tab no longer exists, create a new one
+                            browser.tabs.create({ url }).then(tab => {
+                                if (tab.id) browser.storage.session.set({ explorerTabId: tab.id });
+                            });
                         });
+                } else {
+                    browser.tabs.create({ url }).then(tab => {
+                        if (tab.id) browser.storage.session.set({ explorerTabId: tab.id });
                     });
-            } else {
-                browser.tabs.create({ url }).then(tab => {
-                    explorerTabId = tab.id ?? null;
-                });
-            }
+                }
+            });
             sendResponse({ success: true });
         } else if (message.action === 'OPEN_URL') {
             browser.tabs.create({ url: message.url });
@@ -123,8 +124,10 @@ export default defineBackground(() => {
 
     // Track explorer tab closure
     browser.tabs.onRemoved.addListener((tabId) => {
-        if (tabId === explorerTabId) {
-            explorerTabId = null;
-        }
+        browser.storage.session.get('explorerTabId').then((res) => {
+            if (res.explorerTabId === tabId) {
+                browser.storage.session.remove('explorerTabId');
+            }
+        });
     });
 });
