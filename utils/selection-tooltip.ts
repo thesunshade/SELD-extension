@@ -67,8 +67,9 @@ class SelectionTooltip {
      * Entry point for handling page selections.
      * Evaluates which actions should be available and displays the tooltip.
      */
-    handleSelection() {
-        const selection = window.getSelection();
+    handleSelection(explicitSelection?: Selection | null) {
+        const selection = explicitSelection || window.getSelection();
+        
         if (!selection || selection.rangeCount === 0 || selection.isCollapsed) {
             this.destroy();
             return;

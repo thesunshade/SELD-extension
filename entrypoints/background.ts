@@ -45,10 +45,22 @@ export default defineBackground(() => {
         }
     };
 
+    const ttsCache = new Map<string, string>();
+    const ttsCacheKeys: string[] = [];
+    const MAX_CACHE_SIZE = 60;
+
     // Listen for messages from the content script (keeping existing for now if needed, but cleaning up sidePanel)
     browser.runtime.onMessage.addListener((message: any, sender, sendResponse) => {
         if (message.action === 'GET_TTS_AUDIO') {
             const { text, tl } = message;
+            const cacheKey = `${tl || 'si'}:${text}`;
+
+            // Check cache first
+            if (ttsCache.has(cacheKey)) {
+                sendResponse({ audioData: ttsCache.get(cacheKey) });
+                return true;
+            }
+
             const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=${tl || 'si'}&client=tw-ob`;
 
             fetch(url)
@@ -62,6 +74,15 @@ export default defineBackground(() => {
                         new Uint8Array(buffer)
                             .reduce((data, byte) => data + String.fromCharCode(byte), '')
                     );
+
+                    // Store in cache
+                    if (ttsCacheKeys.length >= MAX_CACHE_SIZE) {
+                        const oldestKey = ttsCacheKeys.shift();
+                        if (oldestKey) ttsCache.delete(oldestKey);
+                    }
+                    ttsCache.set(cacheKey, base64);
+                    ttsCacheKeys.push(cacheKey);
+
                     sendResponse({ audioData: base64 });
                 })
                 .catch(error => {

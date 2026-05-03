@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { browser } from 'wxt/browser';
 import { useGlobalTooltips } from '../shared/useGlobalTooltips';
+import { selectionTooltip } from '../../utils/selection-tooltip';
+import { getSelectionInShadow } from '../../utils/shadow-selection';
 import './TextPadApp.css';
+
 
 export default function TextPadApp() {
 	const [mode, setMode] = useState<'EDIT' | 'SAVE'>('EDIT');
@@ -109,6 +112,43 @@ export default function TextPadApp() {
 		setFontScale(100);
 	};
 
+	const handleSelection = (e: React.MouseEvent) => {
+		if (mode !== 'SAVE') return;
+		
+		// Find the shadow host (seld-sidebar)
+		const rootNode = containerRef.current?.getRootNode();
+		const host = (rootNode && 'host' in rootNode) ? (rootNode as any).host : null;
+		
+		// If we are in a shadow root (like the sidebar), use specialized selection logic.
+		// Otherwise (like a standalone page), use standard window.getSelection().
+		const selection = host ? getSelectionInShadow(host) : window.getSelection();
+
+		if (!selection || selection.rangeCount === 0 || selection.isCollapsed) {
+			selectionTooltip.destroy();
+			return;
+		}
+
+		const text = selection.toString().trim();
+		if (text.length === 0) {
+			selectionTooltip.destroy();
+			return;
+		}
+
+		// 1. Trigger the TTS/Copy tooltip
+		selectionTooltip.handleSelection(selection);
+
+		// 2. Trigger the Word Lookup (for short selections)
+		if (text.length < 100) {
+			const range = selection.getRangeAt(0);
+			window.dispatchEvent(new CustomEvent('seld:search', {
+				detail: {
+					text,
+					range
+				}
+			}));
+		}
+	};
+
 	return (
 		<div className={`textpad-container seld-theme-vars ${themeClass}`} ref={containerRef}>
 			<div className="textpad-header">
@@ -154,11 +194,13 @@ export default function TextPadApp() {
 					<div
 						className="textpad-display"
 						style={{ fontSize: `${fontScale}%` }}
+						onMouseUp={handleSelection}
 					>
 						{text.split('\n').map((paragraph, idx) => (
 							<p key={idx}>{paragraph}</p>
 						))}
 					</div>
+
 				)}
 			</div>
 		</div>

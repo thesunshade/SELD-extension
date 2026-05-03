@@ -227,8 +227,8 @@ class SelectionTTSPlayer {
         // Highlight current sentence using TTS category
         setTTSHighlight(item.range);
 
-
         try {
+            // Trigger background fetch for this item
             const res = await browser.runtime.sendMessage({ action: 'GET_TTS_AUDIO', text: item.text, tl: 'si' });
             
             if (res.error) {
@@ -243,6 +243,7 @@ class SelectionTTSPlayer {
 
             if (res.audioData) {
                 if (this.audio) {
+                    this.audio.onended = null; // Remove listener to avoid race conditions
                     this.audio.pause();
                     this.audio = null;
                 }
@@ -256,6 +257,13 @@ class SelectionTTSPlayer {
                     console.error("Playback error:", e);
                     this.next();
                 });
+
+                // --- PRE-FETCH NEXT ITEM ---
+                if (this.currentIndex + 1 < this.playlist.length) {
+                    const nextItem = this.playlist[this.currentIndex + 1];
+                    // We don't await this, just trigger the background fetch so it's cached
+                    browser.runtime.sendMessage({ action: 'GET_TTS_AUDIO', text: nextItem.text, tl: 'si' });
+                }
             } else {
                 this.next();
             }
