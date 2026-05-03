@@ -24,6 +24,13 @@ class SelectionTooltip {
 
     constructor() {
         this.loadSettings();
+        browser.storage.onChanged.addListener((changes, namespace) => {
+            if (namespace === 'local') {
+                if (changes.theme) this.updateTheme(changes.theme.newValue);
+                if (changes.seldSelectionCopyThreshold) this.updateThreshold(changes.seldSelectionCopyThreshold.newValue);
+                if (changes.seldEnableSelectionTTS) this.updateEnableTTS(changes.seldEnableSelectionTTS.newValue);
+            }
+        });
     }
 
     public setCallbacks(onPlay: (sel: Selection) => void, onStop: () => void) {

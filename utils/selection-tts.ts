@@ -20,6 +20,11 @@ class SelectionTTSPlayer {
 
     constructor() {
         this.loadTheme();
+        browser.storage.onChanged.addListener((changes, namespace) => {
+            if (namespace === 'local' && changes.theme) {
+                this.updateTheme(changes.theme.newValue);
+            }
+        });
     }
 
     private async loadTheme() {
