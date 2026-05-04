@@ -96,7 +96,7 @@ export default defineBackground(() => {
             const url = browser.runtime.getURL(`/dictionary.html?word=${encodeURIComponent(word || '')}${view ? `&view=${view}` : ''}`);
 
             browser.storage.session.get('explorerTabId').then((res) => {
-                const explorerTabId = res.explorerTabId;
+                const explorerTabId = res.explorerTabId as number | undefined;
                 if (explorerTabId != null) {
                     browser.tabs.get(explorerTabId)
                         .then((tab) => {

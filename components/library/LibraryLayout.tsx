@@ -82,7 +82,9 @@ export default function LibraryLayout({ books }: LibraryLayoutProps) {
       () => isSidebarVisible,
       () => {
         if (!isSidebarVisible) toggleSidebar();
-      }
+      },
+      () => false,
+      () => false
     );
 
     return () => {
