@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom/client';
 import App from '../components/sidebar/App';
 import { browser } from 'wxt/browser';
 import { setupSidebarEvents } from '../utils/selection-handler';
+import { onMessage } from '../utils/messaging';
 import { createShadowRootUi } from 'wxt/client';
 import type { ContentScriptUi } from 'wxt/client';
 import { applySitePatch, removeSitePatch } from '../utils/site-patches';
@@ -313,15 +314,10 @@ export default defineContentScript({
         // -------------------------------------------------------------
         // Listen for requests from the SidePanel
         // -------------------------------------------------------------
-        const messageHandler = (message: any, sender: any, sendResponse: (response?: any) => void) => {
-            if (ctx.isInvalid) return true;
-            if (message.action === 'TOGGLE_SIDEBAR') {
-                toggleSidebar();
-                sendResponse({ success: true });
-            }
-            return true;
-        };
-        browser.runtime.onMessage.addListener(messageHandler as any);
+        const removeMessageHandler = onMessage('TOGGLE_SIDEBAR', () => {
+            if (ctx.isInvalid) return;
+            toggleSidebar();
+        });
 
         // -------------------------------------------------------------
         // Handle context invalidation (extension update while tab is open)
@@ -337,7 +333,7 @@ export default defineContentScript({
             // Remove listeners that ctx doesn't auto-clean
             try {
                 browser.storage.onChanged.removeListener(storageChangeHandler);
-                browser.runtime.onMessage.removeListener(messageHandler as any);
+                removeMessageHandler();
             } catch (e) {
                 // Already invalidated
             }

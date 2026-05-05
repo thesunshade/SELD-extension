@@ -13,6 +13,7 @@ import { Highlighter } from "../shared/Highlighter";
 import { HistoryNav } from "../shared/HistoryNav";
 import { InfoUI } from "../shared/InfoUI";
 import { useGlobalTooltips } from "../shared/useGlobalTooltips";
+import { sendMessage } from "../../utils/messaging";
 import "./App.css";
 
 type ViewTab = "browse" | "search" | "favorites" | "history" | "settings" | "info";
@@ -545,7 +546,7 @@ export default function DictionaryApp() {
 	}, [visibleEntries]);
 
 	const handleSpeak = (text: string) => {
-		browser.runtime.sendMessage({ action: "GET_TTS_AUDIO", text, tl: "si" }).then((res: any) => {
+		sendMessage("GET_TTS_AUDIO", { text, tl: "si" }).then((res) => {
 			if (res.audioData) new Audio(`data:audio/mpeg;base64,${res.audioData}`).play();
 		});
 	};

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { sendMessage } from "../../utils/messaging";
 import { stardict, IndexEntry, StructuredDefinition } from "../../utils/stardict";
 import { DEFAULT_SEARCH_LIMIT, DEFAULT_SEARCH_DEBOUNCE_MS } from "../../utils/constants";
 import { extractUniqueSinhalaWords, applyHighlights, setActiveHighlight } from "../../utils/dom-highlights";
@@ -470,9 +471,8 @@ function App({ onClose, inline }: AppProps) {
   const handleSpeak = (text: string) => {
     if (!text) return;
 
-    browser.runtime
-      .sendMessage({ action: "GET_TTS_AUDIO", text, tl: "si" })
-      .then((response: any) => {
+    sendMessage("GET_TTS_AUDIO", { text, tl: "si" })
+      .then((response) => {
         if (response.error) {
           console.error("TTS Proxy error:", response.error);
           return;
@@ -500,7 +500,7 @@ function App({ onClose, inline }: AppProps) {
   };
 
   const handleExplorerClick = (word: string, view?: string) => {
-    browser.runtime.sendMessage({ action: 'OPEN_EXPLORER', word, view });
+    sendMessage('OPEN_EXPLORER', { word, view });
   };
 
   const startVerticalResizing = () => {

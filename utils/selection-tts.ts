@@ -1,6 +1,7 @@
 import { browser } from 'wxt/browser';
 import { setTTSHighlight, clearTTSHighlight } from './dom-highlights';
 import { SelectionTTSUI } from './selection-tts-ui';
+import { sendMessage } from './messaging';
 
 
 interface SentenceBlock {
@@ -243,7 +244,7 @@ class SelectionTTSPlayer {
 
         try {
             // Trigger background fetch for this item
-            const res = await browser.runtime.sendMessage({ action: 'GET_TTS_AUDIO', text: item.text, tl: 'si' }) as any;
+            const res = await sendMessage('GET_TTS_AUDIO', { text: item.text, tl: 'si' });
 
             if (!res) {
                 this.next();
@@ -281,7 +282,7 @@ class SelectionTTSPlayer {
                 if (this.currentIndex + 1 < this.playlist.length) {
                     const nextItem = this.playlist[this.currentIndex + 1];
                     // We don't await this, just trigger the background fetch so it's cached
-                    browser.runtime.sendMessage({ action: 'GET_TTS_AUDIO', text: nextItem.text, tl: 'si' });
+                    sendMessage('GET_TTS_AUDIO', { text: nextItem.text, tl: 'si' });
                 }
             } else {
                 this.next();
