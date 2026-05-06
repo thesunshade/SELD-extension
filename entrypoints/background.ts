@@ -1,10 +1,9 @@
 import { IS_MAJOR_UPDATE } from '@/utils/update-status';
 import { defineBackground } from 'wxt/sandbox';
 import { browser } from 'wxt/browser';
+import { onMessage, sendMessage } from '../utils/messaging';
 
 export default defineBackground(() => {
-    let explorerTabId: number | null = null;
-
     // Open welcome page on install or major update
     browser.runtime.onInstalled.addListener(({ reason }) => {
         if (reason === 'install' || (reason === 'update' && IS_MAJOR_UPDATE)) {
@@ -38,75 +37,79 @@ export default defineBackground(() => {
 
         if (tabId) {
             try {
-                await browser.tabs.sendMessage(tabId, { action: 'TOGGLE_SIDEBAR' });
+                await sendMessage('TOGGLE_SIDEBAR', undefined, tabId);
             } catch (e) {
                 console.error("[SELD] Error sending TOGGLE_SIDEBAR from background:", e);
             }
         }
     };
 
-    // Listen for messages from the content script (keeping existing for now if needed, but cleaning up sidePanel)
-    browser.runtime.onMessage.addListener((message: any, sender, sendResponse) => {
-        if (message.action === 'GET_TTS_AUDIO') {
-            const { text, tl } = message;
-            const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=${tl || 'si'}&client=tw-ob`;
+    const MAX_CACHE_SIZE = 60;
 
-            fetch(url)
-                .then(response => {
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    return response.arrayBuffer();
-                })
-                .then(buffer => {
-                    // Convert ArrayBuffer to Base64
-                    const base64 = btoa(
-                        new Uint8Array(buffer)
-                            .reduce((data, byte) => data + String.fromCharCode(byte), '')
-                    );
-                    sendResponse({ audioData: base64 });
-                })
-                .catch(error => {
-                    console.error("[SELD] TTS fetch error:", error);
-                    sendResponse({ error: error.message });
-                });
-            return true; // Keep message channel open for async response
-        } else if (message.action === 'REQUEST_TOGGLE_SIDEBAR') {
-            browser.tabs.query({ active: true, currentWindow: true }).then((tabs) => {
-                const tab = tabs[0];
-                handleSidebarToggle(tab?.id, tab?.url);
-            });
-            sendResponse({ success: true });
-        } else if (message.action === 'OPEN_EXPLORER') {
-            const { word, view } = message;
-            const url = browser.runtime.getURL(`/dictionary.html?word=${encodeURIComponent(word || '')}${view ? `&view=${view}` : ''}`);
+    onMessage('GET_TTS_AUDIO', async ({ data }) => {
+        const { text, tl } = data;
+        const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=${tl || 'si'}&client=tw-ob`;
+        try {
+            const cache = await caches.open('seld-tts-cache');
+            let response = await cache.match(url);
+            if (!response) {
+                response = await fetch(url);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                await cache.put(url, response.clone());
+                const keys = await cache.keys();
+                if (keys.length > MAX_CACHE_SIZE) await cache.delete(keys[0]);
+            }
+            const buffer = await response.arrayBuffer();
+            const bytes = new Uint8Array(buffer);
+            let binary = '';
+            const chunkSize = 8192;
+            for (let i = 0; i < bytes.length; i += chunkSize) {
+                binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+            }
+            return { audioData: btoa(binary) };
+        } catch (error: any) {
+            console.error('[SELD] TTS fetch error:', error);
+            return { error: String(error.message) };
+        }
+    });
 
-            if (explorerTabId !== null) {
+    onMessage('REQUEST_TOGGLE_SIDEBAR', async () => {
+        const tabs = await browser.tabs.query({ active: true, currentWindow: true });
+        const tab = tabs[0];
+        handleSidebarToggle(tab?.id, tab?.url);
+    });
+
+    onMessage('OPEN_EXPLORER', ({ data }) => {
+        const { word, view } = data;
+        const url = browser.runtime.getURL(`/dictionary.html?word=${encodeURIComponent(word || '')}${view ? `&view=${view}` : ''}`);
+        browser.storage.session.get('explorerTabId').then((res) => {
+            const explorerTabId = res.explorerTabId as number | undefined;
+            if (explorerTabId != null) {
                 browser.tabs.get(explorerTabId)
-                    .then((tab) => {
-                        browser.tabs.update(explorerTabId!, { url, active: true });
-                    })
+                    .then(() => browser.tabs.update(explorerTabId, { url, active: true }))
                     .catch(() => {
-                        // Tab no longer exists, create a new one
                         browser.tabs.create({ url }).then(tab => {
-                            explorerTabId = tab.id ?? null;
+                            if (tab.id) browser.storage.session.set({ explorerTabId: tab.id });
                         });
                     });
             } else {
                 browser.tabs.create({ url }).then(tab => {
-                    explorerTabId = tab.id ?? null;
+                    if (tab.id) browser.storage.session.set({ explorerTabId: tab.id });
                 });
             }
-            sendResponse({ success: true });
-        } else if (message.action === 'OPEN_URL') {
-            browser.tabs.create({ url: message.url });
-            sendResponse({ success: true });
-        }
-        return true;
+        });
+    });
+
+    onMessage('OPEN_URL', ({ data }) => {
+        browser.tabs.create({ url: data.url });
     });
 
     // Track explorer tab closure
     browser.tabs.onRemoved.addListener((tabId) => {
-        if (tabId === explorerTabId) {
-            explorerTabId = null;
-        }
+        browser.storage.session.get('explorerTabId').then((res) => {
+            if (res.explorerTabId === tabId) {
+                browser.storage.session.remove('explorerTabId');
+            }
+        });
     });
 });

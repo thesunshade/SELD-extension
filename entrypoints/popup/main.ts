@@ -4,6 +4,7 @@ import 'tippy.js/dist/tippy.css';
 import '../../assets/theme.css';
 import './style.css'
 import { createThemeManager } from '../../utils/themeManager';
+import { sendMessage } from '../../utils/messaging';
 
 document.addEventListener('DOMContentLoaded', () => {
 	const sidebarBtn = document.getElementById('open-sidebar');
@@ -62,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 
 		try {
-			await browser.runtime.sendMessage({ action: 'REQUEST_TOGGLE_SIDEBAR' });
+			await sendMessage('REQUEST_TOGGLE_SIDEBAR', undefined);
 		} catch (e) {
 			console.error("[SELD] Error sending REQUEST_TOGGLE_SIDEBAR from popup:", e);
 		}

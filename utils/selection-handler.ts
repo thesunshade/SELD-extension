@@ -2,6 +2,8 @@ import { browser } from 'wxt/browser';
 import type { ContentScriptContext } from 'wxt/client';
 import { checkBloom } from './bloom-data';
 import { setActiveHighlight, clearActiveHighlight } from './dom-highlights';
+import { getSelectionInShadow } from './shadow-selection';
+
 
 const MAX_SELECTION_LENGTH = 100;
 
@@ -67,10 +69,18 @@ export function setupSidebarEvents(
 
 	const handleSelection = (e: MouseEvent) => {
 		if (!getIsSidebarOpen()) return;
-		if (e.target instanceof HTMLElement && (e.target.closest('#seld-sidebar-root') || e.target.tagName.toLowerCase() === 'seld-sidebar')) return;
+		if (e.target instanceof HTMLElement) {
+			const isSidebarHost = e.target.tagName.toLowerCase() === 'seld-sidebar';
+			const isInSidebar = e.target.closest('#seld-sidebar-root');
+			const isTextPad = e.target.closest('.textpad-display');
+			
+			if ((isSidebarHost || isInSidebar) && !isTextPad) return;
+		}
 
-		const selection = window.getSelection();
+		const host = e.target instanceof HTMLElement ? e.target.closest('seld-sidebar') : null;
+		const selection = host ? getSelectionInShadow(host as HTMLElement) : window.getSelection();
 		if (!selection || selection.rangeCount === 0) return;
+
 
 		const selectionText = selection.toString().trim();
 		if (selectionText.length > MAX_SELECTION_LENGTH) return;
@@ -136,7 +146,13 @@ export function setupSidebarEvents(
 	};
 
 	const handleClick = (e: MouseEvent) => {
-		if (e.target instanceof HTMLElement && (e.target.closest('#seld-sidebar-root') || e.target.tagName.toLowerCase() === 'seld-sidebar')) return;
+		if (e.target instanceof HTMLElement) {
+			const isSidebarHost = e.target.tagName.toLowerCase() === 'seld-sidebar';
+			const isInSidebar = e.target.closest('#seld-sidebar-root');
+			const isTextPad = e.target.closest('.textpad-display');
+			
+			if ((isSidebarHost || isInSidebar) && !isTextPad) return;
+		}
 
 		const isAnchor = e.target instanceof HTMLElement && !!e.target.closest('a');
 		const interceptEnabled = getInterceptLinks();

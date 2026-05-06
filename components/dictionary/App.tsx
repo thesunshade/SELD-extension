@@ -13,6 +13,7 @@ import { Highlighter } from "../shared/Highlighter";
 import { HistoryNav } from "../shared/HistoryNav";
 import { InfoUI } from "../shared/InfoUI";
 import { useGlobalTooltips } from "../shared/useGlobalTooltips";
+import { sendMessage } from "../../utils/messaging";
 import "./App.css";
 
 type ViewTab = "browse" | "search" | "favorites" | "history" | "settings" | "info";
@@ -37,6 +38,8 @@ export default function DictionaryApp() {
 	const [interceptLinkClicks, setInterceptLinkClicks] = useState(false);
 	const [autoExpandRefs, setAutoExpandRefs] = useState(false);
 	const [sinhalaFont, setSinhalaFont] = useState("Noto Sans Sinhala");
+	const [selectionCopyThreshold, setSelectionCopyThreshold] = useState(0);
+	const [enableSelectionTTS, setEnableSelectionTTS] = useState(true);
 
 	// Browse state
 	const [allEntries, setAllEntries] = useState<IndexEntry[]>([]);
@@ -197,6 +200,8 @@ export default function DictionaryApp() {
 			seldSinhalaFont: v => setSinhalaFont(v as string),
 			seldInterceptLinkClicks: v => setInterceptLinkClicks(v as boolean),
 			seldAutoExpandRefs: v => setAutoExpandRefs(v as boolean),
+			seldSelectionCopyThreshold: v => setSelectionCopyThreshold(v as number),
+			seldEnableSelectionTTS: v => setEnableSelectionTTS(v as boolean),
 			seldSearchHistory: v => {
 				if (Array.isArray(v)) {
 					setHistory(v);
@@ -541,7 +546,7 @@ export default function DictionaryApp() {
 	}, [visibleEntries]);
 
 	const handleSpeak = (text: string) => {
-		browser.runtime.sendMessage({ action: "GET_TTS_AUDIO", text, tl: "si" }).then((res: any) => {
+		sendMessage("GET_TTS_AUDIO", { text, tl: "si" }).then((res) => {
 			if (res.audioData) new Audio(`data:audio/mpeg;base64,${res.audioData}`).play();
 		});
 	};
@@ -686,6 +691,10 @@ export default function DictionaryApp() {
 							setInterceptLinkClicks={setInterceptLinkClicks}
 							autoExpandRefs={autoExpandRefs}
 							setAutoExpandRefs={setAutoExpandRefs}
+							selectionCopyThreshold={selectionCopyThreshold}
+							setSelectionCopyThreshold={setSelectionCopyThreshold}
+							enableSelectionTTS={enableSelectionTTS}
+							setEnableSelectionTTS={setEnableSelectionTTS}
 							saveSetting={saveSetting}
 						/>
 					)}

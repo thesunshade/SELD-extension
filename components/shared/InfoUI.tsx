@@ -1,5 +1,6 @@
 import React from "react";
 import { BUILD_INFO } from "../../utils/build-info";
+import { sendMessage } from "../../utils/messaging";
 import "./InfoUI.css";
 
 export const InfoUI: React.FC = () => {
@@ -25,7 +26,7 @@ export const InfoUI: React.FC = () => {
                 href={browser.runtime.getURL("/explore.html")}
                 onClick={(e) => {
                     e.preventDefault();
-                    browser.runtime.sendMessage({ action: 'OPEN_URL', url: browser.runtime.getURL("/explore.html") });
+                    sendMessage('OPEN_URL', { url: browser.runtime.getURL("/explore.html") });
                 }}
             >
                 Here are some pages

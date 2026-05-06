@@ -105,3 +105,29 @@ export const clearActiveHighlight = () => {
   // @ts-ignore
   CSS.highlights.delete("seld-lookup-active");
 };
+
+export const setTTSHighlight = (range: Range | null) => {
+  if (typeof CSS === "undefined" || !("highlights" in CSS)) return;
+
+  if (!range) {
+    // @ts-ignore
+    CSS.highlights.delete("seld-tts-playing");
+    return;
+  }
+
+  try {
+    // @ts-ignore
+    const highlight = new Highlight(range);
+    // @ts-ignore
+    CSS.highlights.set("seld-tts-playing", highlight);
+  } catch (e) {
+    console.error("Failed to set TTS highlight:", e);
+  }
+};
+
+export const clearTTSHighlight = () => {
+  if (typeof CSS === "undefined" || !("highlights" in CSS)) return;
+  // @ts-ignore
+  CSS.highlights.delete("seld-tts-playing");
+};
+

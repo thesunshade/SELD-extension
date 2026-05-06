@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { sendMessage } from "../../utils/messaging";
 import { stardict, IndexEntry, StructuredDefinition } from "../../utils/stardict";
 import { DEFAULT_SEARCH_LIMIT, DEFAULT_SEARCH_DEBOUNCE_MS } from "../../utils/constants";
 import { extractUniqueSinhalaWords, applyHighlights, setActiveHighlight } from "../../utils/dom-highlights";
@@ -49,6 +50,8 @@ function App({ onClose, inline }: AppProps) {
   const [interceptLinkClicks, setInterceptLinkClicks] = useState(false);
   const [autoExpandRefs, setAutoExpandRefs] = useState(false);
   const [selectionCopyThreshold, setSelectionCopyThreshold] = useState(0);
+  const [enableSelectionTTS, setEnableSelectionTTS] = useState(true);
+
 
   const autoPlayTTSRef = useRef(false);
   const [showToast, setShowToast] = useState(false);
@@ -138,6 +141,8 @@ function App({ onClose, inline }: AppProps) {
       seldInterceptLinkClicks: v => setInterceptLinkClicks(v as boolean),
       seldAutoExpandRefs: v => setAutoExpandRefs(v as boolean),
       seldSelectionCopyThreshold: v => setSelectionCopyThreshold(v as number),
+      seldEnableSelectionTTS: v => setEnableSelectionTTS(v as boolean),
+
       seldSearchHistory: v => {
         if (Array.isArray(v)) {
           setHistory(v);
@@ -466,9 +471,8 @@ function App({ onClose, inline }: AppProps) {
   const handleSpeak = (text: string) => {
     if (!text) return;
 
-    browser.runtime
-      .sendMessage({ action: "GET_TTS_AUDIO", text, tl: "si" })
-      .then((response: any) => {
+    sendMessage("GET_TTS_AUDIO", { text, tl: "si" })
+      .then((response) => {
         if (response.error) {
           console.error("TTS Proxy error:", response.error);
           return;
@@ -496,7 +500,7 @@ function App({ onClose, inline }: AppProps) {
   };
 
   const handleExplorerClick = (word: string, view?: string) => {
-    browser.runtime.sendMessage({ action: 'OPEN_EXPLORER', word, view });
+    sendMessage('OPEN_EXPLORER', { word, view });
   };
 
   const startVerticalResizing = () => {
@@ -785,7 +789,10 @@ function App({ onClose, inline }: AppProps) {
           setAutoExpandRefs={setAutoExpandRefs}
           selectionCopyThreshold={selectionCopyThreshold}
           setSelectionCopyThreshold={setSelectionCopyThreshold}
+          enableSelectionTTS={enableSelectionTTS}
+          setEnableSelectionTTS={setEnableSelectionTTS}
           saveSetting={saveSetting}
+
         />
       )}
 

@@ -4,11 +4,15 @@ import ReactDOM from 'react-dom/client';
 import App from '../components/sidebar/App';
 import { browser } from 'wxt/browser';
 import { setupSidebarEvents } from '../utils/selection-handler';
+import { onMessage } from '../utils/messaging';
 import { createShadowRootUi } from 'wxt/client';
 import type { ContentScriptUi } from 'wxt/client';
 import { applySitePatch, removeSitePatch } from '../utils/site-patches';
 import { clearActiveHighlight } from '../utils/dom-highlights';
-import { selectionCopyTooltip } from '../utils/selection-copy';
+import { selectionTooltip } from '../utils/selection-tooltip';
+import { selectionTTSPlayer } from '../utils/selection-tts';
+
+
 //
 // Import CSS normally - WXT will bundle these into a single content.css file
 import '../assets/theme.css';
@@ -20,6 +24,12 @@ export default defineContentScript({
     matches: ['<all_urls>'],
     cssInjectionMode: 'ui',
     main(ctx) {
+        
+        selectionTooltip.setCallbacks(
+            (sel) => selectionTTSPlayer.playSelection(sel),
+            () => selectionTTSPlayer.stop()
+        );
+        
         let isSidebarOpen = false;
         let ui: ContentScriptUi<ReactDOM.Root> | null = null;
         const STYLE_ID = 'seld-dynamic-styles';
@@ -61,8 +71,11 @@ export default defineContentScript({
             // Remove host layout styles
             removeHostStyles();
 
-            // Remove copy tooltip
-            selectionCopyTooltip.destroy();
+            // Remove selection tooltip and stop TTS player
+            selectionTooltip.destroy();
+            selectionTTSPlayer.stop();
+
+
 
             if (ui) {
                 ui.remove();
@@ -252,12 +265,18 @@ export default defineContentScript({
                   seldCtrlClickLookup = changes.seldCtrlClickLookup.newValue;
                 }
                 if (changes.seldSelectionCopyThreshold) {
-                  selectionCopyTooltip.updateThreshold(changes.seldSelectionCopyThreshold.newValue);
+                  selectionTooltip.updateThreshold(changes.seldSelectionCopyThreshold.newValue);
                 }
                 if (changes.theme) {
-                  selectionCopyTooltip.updateTheme(changes.theme.newValue);
+                  selectionTooltip.updateTheme(changes.theme.newValue);
+                  selectionTTSPlayer.updateTheme(changes.theme.newValue);
                 }
+                if (changes.seldEnableSelectionTTS) {
+                  selectionTooltip.updateEnableTTS(changes.seldEnableSelectionTTS.newValue);
+                }
+
             }
+
         };
         browser.storage.onChanged.addListener(storageChangeHandler);
 
@@ -279,10 +298,11 @@ export default defineContentScript({
 
         const handleMouseUp = () => {
           if (isSidebarOpen) {
-            selectionCopyTooltip.handleSelection();
+            selectionTooltip.handleSelection();
           } else {
-            selectionCopyTooltip.destroy();
+            selectionTooltip.destroy();
           }
+
         };
 
         if (ctx) {
@@ -294,15 +314,10 @@ export default defineContentScript({
         // -------------------------------------------------------------
         // Listen for requests from the SidePanel
         // -------------------------------------------------------------
-        const messageHandler = (message: any, sender: any, sendResponse: (response?: any) => void) => {
-            if (ctx.isInvalid) return true;
-            if (message.action === 'TOGGLE_SIDEBAR') {
-                toggleSidebar();
-                sendResponse({ success: true });
-            }
-            return true;
-        };
-        browser.runtime.onMessage.addListener(messageHandler as any);
+        const removeMessageHandler = onMessage('TOGGLE_SIDEBAR', () => {
+            if (ctx.isInvalid) return;
+            toggleSidebar();
+        });
 
         // -------------------------------------------------------------
         // Handle context invalidation (extension update while tab is open)
@@ -318,7 +333,7 @@ export default defineContentScript({
             // Remove listeners that ctx doesn't auto-clean
             try {
                 browser.storage.onChanged.removeListener(storageChangeHandler);
-                browser.runtime.onMessage.removeListener(messageHandler as any);
+                removeMessageHandler();
             } catch (e) {
                 // Already invalidated
             }
