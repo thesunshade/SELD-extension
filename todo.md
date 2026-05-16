@@ -9,6 +9,7 @@
 - [ ] particles should be treated like suffixes, e.g. ත්
 - [ ] නාම පදයක් should be returning නාම පදය -ක්
 - [ ] prefixes should be parsed, e.g. නොසතුටු වෙනවා should be parsed as නො- සතුටු වෙනවා
+- [ ] more typo detection. e.g. ඍ with සෘ
 
 
 ## Improvements
