@@ -1,4 +1,5 @@
 import mahameghaCSS from '../assets/site-patches/mahamegha.lk.css?raw';
+import mahamevnawaCSS from '../assets/site-patches/mahamevnawa.lk.css?raw';
 import redditCSS from '../assets/site-patches/reddit.com.css?raw';
 import wikipediaCSS from '../assets/site-patches/wikipedia.org.css?raw';
 import adaderanaCSS from '../assets/site-patches/adaderana.lk.css?raw';
@@ -17,6 +18,7 @@ const SITE_PATCH_ID = 'seld-site-patch';
  */
 const SITE_PATCHES: Record<string, string> = {
     'mahamegha.lk': mahameghaCSS,
+    'mahamevnawa.lk': mahamevnawaCSS,
     'reddit.com': redditCSS,
     'wikipedia.org': wikipediaCSS,
     'adaderana.lk': adaderanaCSS,
